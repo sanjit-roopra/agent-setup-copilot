@@ -57,7 +57,7 @@ The tool lists in the fleet profiles are intentional:
 - **Subagent Fleet**: Uses `agent`.
 - **Fleet Explore**: Uses `read` and `search`.
 - **Fleet Task**: Uses `execute` and `read`.
-- **Fleet General Purpose**: Deliberately omits the `tools` field to receive tools available on its host.
+- **Fleet General Purpose**: Uses `read`, `search`, `edit`, and `execute`.
 - **Fleet Rubber Duck**: Uses `read` and `search`.
 - **Fleet Code Review**: Uses `read`, `search`, and `execute`.
 - **Fleet Research**: Uses `read`, `search`, and `web`.
@@ -74,6 +74,10 @@ The coordinator must provide complete context in each delegation request:
 In VS Code, subagents normally cannot invoke nested subagents.
 Select **Subagent Fleet** as the parent agent.
 Specialists complete their tasks without secondary delegation.
+
+The coordinator has only the `agent` tool. A worker that must edit files or run
+commands must declare its own required tools. Fleet General Purpose declares
+`read`, `search`, `edit`, and `execute` for this reason.
 
 ## Cloud-agent limitations
 

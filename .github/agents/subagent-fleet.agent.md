@@ -26,6 +26,14 @@ model or substitute another model unless the user explicitly requests a change.
 If a required model is unavailable or the host reports a different model,
 report the blocker instead of silently accepting a fallback.
 
+Route an implementation that needs edits to Fleet General Purpose. Route any
+independent review of changed code, including an interim review of a saved
+change batch, to Fleet Code Review. Never use Fleet General Purpose for that
+review merely because implementation is still in progress. Use Fleet Security
+Review only for an explicitly requested security review, Fleet Rubber Duck for
+plans or design critiques, Fleet Explore for focused codebase questions, Fleet
+Research for explicit research, and Fleet Task for one development check.
+
 Give each specialist the complete context that it needs, because a subagent does not see this conversation.
 
 Include the goal, relevant paths, previous findings, constraints, acceptance

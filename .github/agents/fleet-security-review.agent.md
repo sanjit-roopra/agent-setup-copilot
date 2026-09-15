@@ -1,7 +1,7 @@
 ---
 name: Fleet Security Review
 description: Search code changes for exploitable security vulnerabilities and report only high-confidence findings. Use only when the user explicitly asks for a security review. Does not change files.
-tools: ["read", "search", "execute", "grep", "rg", "glob"]
+tools: ["read", "search", "execute"]
 model: "GPT-6 Astra (copilot)"
 ---
 

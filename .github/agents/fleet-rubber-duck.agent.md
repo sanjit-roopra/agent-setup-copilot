@@ -1,7 +1,7 @@
 ---
 name: Fleet Rubber Duck
 description: Give an independent second opinion on a plan, a design, or proposed code. Use before large changes to find flawed assumptions. Does not change files.
-tools: ["read", "search", "grep", "rg", "glob"]
+tools: ["read", "search"]
 model: "Claude Opus 5 (copilot)"
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: Fleet Research
 description: Produce a thorough, cited answer about a codebase, an API, a library, or an architecture decision. Use only when the user explicitly asks for research.
-tools: ["read", "search", "web", "grep", "rg", "glob", "web_fetch", "github/*"]
+tools: ["read", "search", "web"]
 model: "GPT-5.6 Terra (copilot)"
 ---
 

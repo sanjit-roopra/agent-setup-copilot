@@ -1,13 +1,14 @@
 # Repository instructions
 
-Keep changes small and focused.
+Read this file before you make changes.
 
-Follow the repository's documented language and package-tool requirements.
+## Guidelines for changes
 
-Add or update tests for behavior changes.
-
-Run the smallest relevant checks before you finish.
-
-Do not add dependencies unless the task requires them.
-
-Do not commit secrets, generated build output, or local environment files.
+- Make small and focused changes.
+- Do not edit files outside the scope of your task.
+- Follow the documented language requirements.
+- Follow the documented package-tool requirements.
+- Do not add dependencies unless the task explicitly requires them.
+- Add or update tests when you change behavior.
+- Run the smallest relevant checks before you finish your work.
+- Do not commit secrets, generated build artifacts, or local configuration files.

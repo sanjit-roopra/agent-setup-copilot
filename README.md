@@ -11,6 +11,12 @@ Read [USAGE.md](USAGE.md) for installation procedures and workflow details.
 See [strict routing](docs/STRICT-ROUTING.md) for executable cost guards and
 [model costs](docs/MODEL-COSTS.md) for the dated price comparison.
 
+For a strong main model with Shunt-style cheap bulk reading and boilerplate generation,
+see the separate [Shunt Copilot plugin](shunt-copilot/README.md). It has its own
+CLI, VS Code and Copilot app installation instructions and validation status;
+it does not require selecting the Subagent Fleet coordinator. The host table below
+describes the fleet profiles, not that plugin.
+
 ## Quick start for VS Code
 
 Follow these steps to use the fleet in VS Code:

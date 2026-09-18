@@ -1,0 +1,9 @@
+{
+  "model": "gpt-5.6-luna",
+  "maxReadLines": 350,
+  "maxReadBytes": 24576,
+  "maxInputBytes": 400000,
+  "maxSummaryBytes": 12000,
+  "maxCodeBytes": 200000,
+  "workerTimeoutMs": 120000
+}

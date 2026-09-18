@@ -122,7 +122,6 @@ test('generated CLI install pins models and preserves unrelated files', () => {
     assert.ok(profile.includes(`model: "${agent.cliModel}"`));
     assert.ok(profile.includes('modelPolicy: required'));
     assert.ok(!profile.includes('\nhooks:'));
-    assert.ok(!profile.includes('search/'));
   }
   assert.ok(fs.readFileSync(path.join(dest, '.github/agents/fleet-code-review.agent.md'), 'utf8').includes('tools: ["read", "search"]'));
   assert.equal(JSON.parse(fs.readFileSync(path.join(dest, '.github/fleet/policy.json'))).dispatchUnknown, 'deny');
@@ -142,9 +141,9 @@ test('profile guard wiring excludes cheap workers to avoid read/delegation loops
   for (const id of ['fleet-code-review', 'fleet-security-review', 'fleet-rubber-duck']) {
     const p = fs.readFileSync(path.join(root, `.github/agents/${id}.agent.md`), 'utf8');
     assert.ok(p.includes('guard.mjs bounded-reader'));
+    // Portable aliases only: host-specific qualified ids are ignored by the CLI and cloud agent.
     const tools = JSON.parse(p.match(/^tools: (.*)$/m)[1]);
-    assert.ok(!tools.some(t => ['execute', 'search', 'agent', 'search/changes', 'search/codebase', 'search/searchSubagent'].includes(t)));
-    assert.equal(tools.some(t => t.startsWith('search/')), id !== 'fleet-rubber-duck');
+    assert.deepEqual(tools, id === 'fleet-rubber-duck' ? ['read'] : ['read', 'search']);
   }
 });
 test('review packet stores exact diff and never sends source to stdout', () => {

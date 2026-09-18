@@ -105,7 +105,8 @@ limit. This is not a company spending cap; use GitHub's billing controls as well
 | Model-override and delegation-size guard for fleet agents | Workspace hook | Workspace hook |
 | Non-fleet and built-in delegation blocked | Coordinator scoped hook only; other sessions unaffected | Workspace hook, all sessions (`dispatchUnknown: "deny"`) |
 | Coordinator has only delegation tools | Profile plus scoped hook | Profile tool list |
-| Expensive reviewers cannot use shell, changed-file or nested-agent tools | Profile plus scoped hook | Profile tool list (plain `search` alias, not narrowed) |
+| Expensive reviewers cannot use shell | Profile tool list plus scoped hook | Profile tool list |
+| Reviewers cannot use changed-file, semantic-search or nested-agent tools from the `search` set | Scoped hook | Not enforced by this implementation |
 | Reviewer search capped at 100 results, no ignored files | Scoped hook | Not enforced by this implementation |
 | Whole-file read <=350 lines and 24,000 bytes, including a range that spans the file | Scoped hook | Not enforced by this implementation |
 | Line range <=500 lines and 40,000 bytes | Scoped hook | Not enforced by this implementation |

@@ -32,8 +32,6 @@ for (const file of fs.readdirSync(path.join(source, '.github/agents'))) {
     text = text.replace(/^model: .*$/m, `model: "${model}"\nmodelPolicy: required`);
     // CLI agent-frontmatter hooks are not part of the verified CLI contract.
     text = text.replace(/^hooks:\n(?:[ \t].*\n)*/m, '');
-    // Reviewer profiles list qualified VS Code tool ids; the CLI documents plain aliases only.
-    text = text.replace(/^tools: \[.*"search\/.*\]$/m, 'tools: ["read", "search"]');
   }
   files.set(`.github/agents/${file}`, text);
 }

@@ -60,7 +60,7 @@ The tool lists in the fleet profiles are intentional:
 - **Fleet Task**: Uses `execute` and `read`.
 - **Fleet General Purpose**: Uses `read`, `search`, `edit`, and `execute`.
 - **Fleet Rubber Duck**: Uses `read` with a scoped size guard in VS Code.
-- **Fleet Code Review**: Uses file read, text search, file search, directory listing and usages with a scoped size guard in VS Code. Fleet Task prepares its exact diff packet.
+- **Fleet Code Review**: Uses `read` and `search`. In VS Code a scoped guard bounds reads and allows only text search, file search, directory listing and usages. Fleet Task prepares its exact diff packet.
 - **Fleet Research**: Uses `read`, `search`, and `web`.
 - **Fleet Security Review**: Uses the same read and search tools and scoped guard as Fleet Code Review. Fleet Task prepares its exact diff packet.
 

@@ -32,12 +32,18 @@ for (const file of fs.readdirSync(path.join(source, '.github/agents'))) {
     text = text.replace(/^model: .*$/m, `model: "${model}"\nmodelPolicy: required`);
     // CLI agent-frontmatter hooks are not part of the verified CLI contract.
     text = text.replace(/^hooks:\n(?:[ \t].*\n)*/m, '');
+    // Reviewer profiles list qualified VS Code tool ids; the CLI documents plain aliases only.
+    text = text.replace(/^tools: \[.*"search\/.*\]$/m, 'tools: ["read", "search"]');
   }
   files.set(`.github/agents/${file}`, text);
 }
-for (const file of ['guard.mjs', 'policy.json', 'review-packet.mjs']) {
+for (const file of ['guard.mjs', 'review-packet.mjs']) {
   files.set(`.github/fleet/${file}`, fs.readFileSync(path.join(source, '.github/fleet', file), 'utf8'));
 }
+// The CLI has no scoped coordinator hook, so its workspace hook keeps blocking non-fleet delegation.
+files.set('.github/fleet/policy.json', host === 'cli'
+  ? JSON.stringify({...policy, dispatchUnknown: 'deny'}, null, 2) + '\n'
+  : fs.readFileSync(path.join(source, '.github/fleet/policy.json'), 'utf8'));
 const hooks = host === 'cli' ? {
   version: 1, hooks: {preToolUse: [{type: 'command', command: 'node .github/fleet/guard.mjs dispatch', cwd: '.', timeoutSec: 10}]}
 } : JSON.parse(fs.readFileSync(path.join(source, '.github/hooks/fleet-routing.json'), 'utf8'));

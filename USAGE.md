@@ -60,9 +60,9 @@ The tool lists in the fleet profiles are intentional:
 - **Fleet Task**: Uses `execute` and `read`.
 - **Fleet General Purpose**: Uses `read`, `search`, `edit`, and `execute`.
 - **Fleet Rubber Duck**: Uses `read` with a scoped size guard in VS Code.
-- **Fleet Code Review**: Uses `read` with a scoped size guard in VS Code. Fleet Task prepares its exact diff packet.
+- **Fleet Code Review**: Uses file read, text search, file search, directory listing and usages with a scoped size guard in VS Code. Fleet Task prepares its exact diff packet.
 - **Fleet Research**: Uses `read`, `search`, and `web`.
-- **Fleet Security Review**: Uses `read` with a scoped size guard in VS Code. Fleet Task prepares its exact diff packet.
+- **Fleet Security Review**: Uses the same read and search tools and scoped guard as Fleet Code Review. Fleet Task prepares its exact diff packet.
 
 ### Delegation rules
 VS Code subagents are stateless.
@@ -144,7 +144,8 @@ Verify your fleet setup with these checks on a test branch:
 ## Strict workflow
 
 Before review, Fleet Task runs the exact diff helper with an explicit comparison.
-The reviewer reads the packet and original source in bounded excerpts. Missing
-context returns to the coordinator for Fleet Explore; expensive specialists do not
+Prefer `merge-base <ref>` for branch reviews. The reviewer reads the packet whole,
+searches for callers and definitions, and reads original source in bounded ranges.
+Questions about large files return to the coordinator for Fleet Explore; expensive specialists do not
 spawn nested workers. Run checks again only after code changes. See the complete
 [verification and host support matrix](docs/STRICT-ROUTING.md).

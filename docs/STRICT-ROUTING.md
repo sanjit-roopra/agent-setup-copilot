@@ -15,16 +15,28 @@ been measured for this fleet.
 ## What changes
 
 - The coordinator remains delegation-only and now has an explicit GPT-5.6 Sol pin.
-- A workspace PreToolUse hook checks named fleet dispatch, rejects model overrides
-  outside each worker's pin and caps delegation input at 16,000 UTF-8 bytes.
-- VS Code scoped hooks give the coordinator an additional tool gate. Code Review,
-  Rubber Duck and Security Review have bounded source reads and no shell/search
-  tools. The guard also rejects alternate tool calls if a client exposes them.
+- A workspace PreToolUse hook checks fleet dispatch: it rejects model overrides
+  outside each worker's pin and caps delegation input at 16,000 UTF-8 bytes. In
+  the VS Code variant it ignores delegation that does not name a fleet agent, so
+  ordinary sessions and other custom agents in the same workspace keep working.
+- VS Code scoped hooks restrict the coordinator to named fleet specialists. Code
+  Review, Rubber Duck and Security Review have bounded source reads and no shell.
+  Code Review and Security Review also keep text search, file search, directory
+  listing and usages, because a search hit is already a small targeted read. The
+  guard rejects every other tool if a client exposes it, including changed-file,
+  semantic-search and nested-agent tools.
 - Cheap Explore, Task and General Purpose workers are not subject to the scoped
   read gate. They retain the tools needed to do their job. This prevents a blocked
   expensive read from triggering a cheap worker that is blocked identically.
-- Reviewers receive an exact diff packet prepared by Task. They must read the whole
-  assigned diff and relevant original source, not trust a cheap model's review.
+- Reviewers receive an exact diff packet prepared by Task. They read the whole
+  assigned diff in as few reads as the host allows, and relevant original source
+  in bounded ranges. They do not trust a cheap model's review.
+- As in Shunt, only whole-file reads of large files are blocked. The cheap model
+  that answers questions about such a file is Fleet Explore. Unlike Shunt this is
+  not a single hop: the reviewer returns `CONTEXT_NEEDED` and the coordinator
+  restarts it, so the coordinator asks Explore up front when it can foresee the
+  need. Explore findings are unverified hints; the article notes that worker
+  summaries lack reliable line numbers, so reviewers confirm every location.
 - Implementation writes code directly into files and returns paths, not full code.
 - Duplicate checks on unchanged code are skipped. Context gathering may cause one
   explicit retry; repeated failures are returned as blockers instead of looping.
@@ -90,11 +102,14 @@ limit. This is not a company spending cap; use GitHub's billing controls as well
 
 | Control | VS Code setup | CLI setup |
 | --- | --- | --- |
-| Named dispatch and explicit model-override guard | Workspace hook | Workspace hook |
+| Model-override and delegation-size guard for fleet agents | Workspace hook | Workspace hook |
+| Non-fleet and built-in delegation blocked | Coordinator scoped hook only; other sessions unaffected | Workspace hook, all sessions (`dispatchUnknown: "deny"`) |
 | Coordinator has only delegation tools | Profile plus scoped hook | Profile tool list |
-| Expensive reviewers cannot use shell/search | Profile plus scoped hook | Profile tool list |
-| Full read <=350 lines and 24,000 bytes | Scoped hook | Not enforced by this implementation |
-| Excerpt <=120 lines and 12,000 bytes | Scoped hook | Not enforced by this implementation |
+| Expensive reviewers cannot use shell, changed-file or nested-agent tools | Profile plus scoped hook | Profile tool list (plain `search` alias, not narrowed) |
+| Reviewer search capped at 100 results, no ignored files | Scoped hook | Not enforced by this implementation |
+| Whole-file read <=350 lines and 24,000 bytes, including a range that spans the file | Scoped hook | Not enforced by this implementation |
+| Line range <=500 lines and 40,000 bytes | Scoped hook | Not enforced by this implementation |
+| Review packet read whole up to 120,000 bytes | Scoped hook | Not enforced by this implementation |
 | Unavailable worker model refuses dispatch | Inspect actual host behavior | Native `modelPolicy: required` |
 | Model cost-tier ceiling | Parent must permit worker tier | Check installed client behavior |
 
@@ -119,42 +134,64 @@ node .github/fleet/review-packet.mjs staged
 node .github/fleet/review-packet.mjs base main
 ```
 
-`working` means unstaged tracked changes. `staged` means staged changes. `base main`
-compares the supplied commit with the current working tree, including staged and
-unstaged tracked changes. It is not a merge-base/three-dot comparison. Use an
-explicit merge-base SHA if that is the desired scope. No base is assumed.
+`working` means unstaged tracked changes. `staged` means staged changes.
+`merge-base main` compares the merge base of `main` and `HEAD` with the current
+working tree, including staged and unstaged tracked changes. Prefer it for branch
+reviews. `base main` compares the `main` commit itself with the working tree, so
+on a branch that is behind `main` it also contains the reverse of newer `main`
+commits. No ref is assumed. `merge-base` refuses shallow clones and unrelated
+histories instead of guessing a base.
+
+Append `-- <path>...` to any mode to scope a packet. Paths are literal, not globs.
+Use this to split a review whose packet exceeds 120,000 bytes.
 
 The helper invokes git with argv (no shell), disables external diff/textconv,
-writes a private ignored packet, and prints only path/count/comparison metadata.
+writes a private ignored packet, and prints only path, counts and resolved SHA
+metadata. The supplied ref and paths are not echoed.
 It refuses diffs above 8 MiB instead of truncating them. Untracked files are NOT
 included: supply their paths separately. Do not commit packets. Delete them when
 the review is complete.
 
-Pass the packet path and scope to Code Review. Read every assigned hunk in <=120
-line excerpts, then inspect exact source for suspected issues. A guard denial
-requires a narrower read or `CONTEXT_NEEDED` back to the coordinator, who calls
-Explore and supplies verified locations. Never turn incomplete coverage into a
-"no defects" result. Splitting a review into intentional chunks is allowed;
-chunking every source file for discovery defeats the cost objective.
+Pass the packet path and scope to Code Review. The packet is exempt from the line
+limits: chunking mandatory reading only adds turns, each of which re-bills the
+accumulated context. VS Code's reader returns at most 2,000 lines per call, so a
+larger packet still takes more than one read. The reviewer then searches for
+callers and definitions and reads the cited ranges. A guard denial requires a
+narrower read, a search, or `CONTEXT_NEEDED` back to the coordinator, who asks
+Explore a specific question. Never turn incomplete coverage into a "no defects"
+result. Paging through every source file in ranges defeats the cost objective.
 
 ## Boundaries and failure behavior
 
 These are local cost controls for cooperative developers, not a security sandbox
 or enforceable company budget. They do not stop users selecting another agent,
 disabling hooks, editing profiles or pasting large content directly into chat.
-They do not cap total session tokens, repeated small reads, reasoning tokens,
+They do not cap total session tokens, repeated reads, reasoning tokens,
 worker final responses, or research web output. Output brevity remains an agent
 instruction. No saving percentage is promised.
 
 The scoped gate allows only explicitly supported file-read tool names and schemas:
 `read_file`/`readFile`/`read/readFile` with `filePath`, `Read` with `file_path`, and
 CLI-compatible `view` with `path`. Excerpts use `startLine/endLine`, `offset/limit`,
-or `view_range`. The offset/limit form conservatively counts one extra line
-because the current VS Code V2 reader includes that endpoint; use limit <=119.
-Out-of-file starting ranges are denied. Dispatch supports `runSubagent`, `agent/runSubagent`,
+or `view_range`. VS Code's default reader always sends `startLine/endLine`, so a
+range that starts at line 1 and reaches the last line is treated as a whole-file
+read. The offset/limit form counts the bytes of one extra line because the VS
+Code V2 reader includes that endpoint; the line ceiling uses `limit` itself.
+Requested spans are clamped to the file's real length. Out-of-file starting
+ranges are denied. Reviewer search passes for the model-facing ids `grep_search`,
+`file_search`, `list_dir` and `vscode_listCodeUsages`; `maxResults` above 100,
+`includeIgnoredFiles` and `list_dir` paths outside the repository are denied.
+Known gap: a match-all `grep_search` scoped to one file returns up to 100 of its
+lines. That is accepted for cooperative agents and discouraged in the profiles. Dispatch supports `runSubagent`, `agent/runSubagent`,
 `run_subagent`, `task`, `Task`, `Agent`, and a single `agentName`, `agent_type`,
-`subagent_type` or `agent` field. Unknown/ambiguous scoped calls are denied. The VS Code read schemas were also checked against its
-[read tool source](https://github.com/microsoft/vscode-copilot-chat/blob/main/src/extension/tools/node/readFileTool.tsx).
+`subagent_type` or `agent` field. Unknown/ambiguous scoped calls are denied. In
+the workspace hook, a name that is not a fleet agent passes unless it contains a
+fleet id or name (for example `plugin:fleet-code-review`), which must not skip the
+model check, or names the coordinator. Set `"dispatchUnknown": "deny"` in
+`policy.json` to block all non-fleet delegation; the CLI installer does this
+because the CLI has no scoped coordinator hook. Guard-authored denial reasons are
+static text and field names; supplied paths, keys and values are never echoed. The VS Code read schemas were also checked against its
+[read tool source](https://github.com/microsoft/vscode/blob/main/extensions/copilot/src/extension/tools/node/readFileTool.tsx).
 Adapters are unit-tested, not evidence of every host's actual emitted schema.
 Inspect agent logs during the smoke check and add a tested adapter if necessary.
 
@@ -173,12 +210,15 @@ node --test tests/*.test.mjs
 Live smoke checks on a disposable branch, with current Copilot/VS Code:
 
 1. Verify all eight profiles appear and inspect actual resolved worker models.
-2. Have Code Review try a full read of a 500-line file. Expect a denial before
-   file contents enter its context. Then read 20 lines successfully.
-3. Attempt an offset-only read, a huge limit, a shell `cat` and a content search
-   from the same reviewer. Each must be blocked or unavailable.
+2. Have Code Review try to read all of a 500-line file. Expect a denial that
+   names Fleet Explore before file contents enter its context. Then read 20
+   lines, and a full review packet, successfully.
+3. Attempt an offset-only read, a 600-line range, a shell `cat` and a changed-files
+   call from the same reviewer. Each must be blocked or unavailable. A text
+   search must work. Record the `tool_name` values the host actually emits.
 4. Have Fleet Explore read that same file. It must work without a delegation loop.
-5. Ask the coordinator to use the built-in general-purpose worker or override
+5. In an ordinary (non-fleet) session, confirm a built-in subagent still runs.
+   Then ask the coordinator to use the built-in general-purpose worker or override
    Explore to an expensive model. Expect dispatch refusal.
 6. Change a CLI worker's configured model to an unavailable test value in a
    disposable installation. Confirm refusal, not parent-model fallback.

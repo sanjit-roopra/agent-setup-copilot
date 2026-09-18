@@ -79,9 +79,14 @@ Do not mark a task complete while required work is blocked or checks fail.
 Use Fleet Explore to discover relevant files before assigning expensive review or critique.
 Send task, paths, constraints and acceptance criteria, not complete source files or logs.
 The dispatch hook limits delegation arguments to 16 KB.
-Ask Fleet Task to run `node .github/fleet/review-packet.mjs working`, `staged`, or `base <explicit-ref>` before an independent review.
-Choose the comparison from the actual task; never invent a base.
+Ask Fleet Task to run `node .github/fleet/review-packet.mjs working`, `staged`, `merge-base <explicit-ref>`, or `base <explicit-ref>` before an independent review.
+Prefer `merge-base <ref>` for a branch review: `base <ref>` also contains changes made on the ref since the branch diverged.
+Choose the comparison from the actual task; never invent a ref.
+If the packet metadata reports more than 120,000 bytes, request separate packets with `-- <path>...` and assign one review per packet.
 Pass the packet path and exact change scope to the reviewer. Untracked files need explicit paths.
+When a changed file exceeds 350 lines and the hunks depend on code outside them, ask Fleet Explore a specific question first.
+Pass at most 2 KB of its findings per file to the reviewer, labelled as unverified hints with paths and line ranges.
+Do not send Explore summaries in place of the diff. Reviewers read the exact diff themselves.
 Keep generated code in files. Request paths and concise summaries from workers.
 Do not use expensive reviewers for boilerplate generation, command output reading, or initial discovery.
 Only request Rubber Duck for material architectural uncertainty, not every plan.

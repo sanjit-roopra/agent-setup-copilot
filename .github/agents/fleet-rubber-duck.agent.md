@@ -31,10 +31,12 @@ State clearly when you agree with the proposal.
 
 ## Bounded context
 
-The scoped hook limits full-file reads to 350 lines / 24 KB and excerpts to 120 lines / 12 KB.
-Do not bypass it by using a shell, another tool, or repeated chunks for exploratory reading.
+The scoped hook allows a whole-file read up to 350 lines / 24 KB and a line range up to 500 lines / 40 KB.
+A range that spans a larger file counts as a whole-file read and is denied.
+Read the assigned review packet (`.fleet-review-*/changes.diff`) whole, in as few reads as the host allows.
 Use supplied paths and verified locations. Read exact source where reasoning requires it.
-If discovery is missing, return `CONTEXT_NEEDED` with specific questions for Fleet Explore.
-Do not invoke another agent. The coordinator obtains context and resumes the review.
-Read every hunk of an assigned diff, using bounded excerpts if necessary.
+Treat Fleet Explore findings in your prompt as hints: confirm each cited location with a range read before you rely on it.
+For a question about a large file that search cannot answer, return `CONTEXT_NEEDED` with specific questions for Fleet Explore.
+Do not invoke another agent or a shell. The coordinator obtains context and resumes the review.
+Read every hunk of an assigned diff.
 If the review cannot be completed, report the uncovered files; do not claim a clean review.

@@ -1,10 +1,13 @@
 {
   "version": 1,
+  "dispatchUnknown": "pass",
   "limits": {
     "fullReadLines": 350,
     "fullReadBytes": 24000,
-    "excerptLines": 120,
-    "excerptBytes": 12000,
+    "excerptLines": 500,
+    "excerptBytes": 40000,
+    "packetBytes": 120000,
+    "searchMaxResults": 100,
     "scanBytes": 8388608,
     "delegationBytes": 16000
   },

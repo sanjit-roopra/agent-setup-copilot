@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "node .github/fleet/guard.mjs dispatch",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ]
+  }
+}

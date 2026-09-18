@@ -1,0 +1,7 @@
+{
+  "name": "shunt-copilot",
+  "version": "0.1.0",
+  "description": "Keep bulk reads and predictable code generation out of the main Copilot context.",
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

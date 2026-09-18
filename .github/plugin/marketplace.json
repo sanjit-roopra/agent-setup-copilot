@@ -1,0 +1,12 @@
+{
+  "name": "copilot-context-tools",
+  "owner": { "name": "sanjit-roopra" },
+  "plugins": [
+    {
+      "name": "shunt-copilot",
+      "description": "Shunt-style bulk read and boilerplate delegation for Copilot CLI, VS Code and the Copilot app.",
+      "version": "0.1.0",
+      "source": "./shunt-copilot"
+    }
+  ]
+}

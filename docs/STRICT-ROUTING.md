@@ -107,7 +107,8 @@ limit. This is not a company spending cap; use GitHub's billing controls as well
 | Coordinator has only delegation tools | Profile plus scoped hook | Profile tool list |
 | Expensive reviewers cannot use shell | Profile tool list plus scoped hook | Profile tool list |
 | Reviewers cannot use changed-file, semantic-search or nested-agent tools from the `search` set | Scoped hook | Not enforced by this implementation |
-| Reviewer search capped at 100 results, no ignored files | Scoped hook | Not enforced by this implementation |
+| Text/file searches require an explicit `maxResults` of 1–100, no ignored files | Scoped hook validates requests; host renders results | Not enforced by this implementation |
+| Directory listing and usages output size | Host limits; no fleet result-count cap | Host limits |
 | Whole-file read <=350 lines and 24,000 bytes, including a range that spans the file | Scoped hook | Not enforced by this implementation |
 | Line range <=500 lines and 40,000 bytes | Scoped hook | Not enforced by this implementation |
 | Review packet read whole up to 120,000 bytes | Scoped hook | Not enforced by this implementation |
@@ -180,8 +181,11 @@ read. The offset/limit form counts the bytes of one extra line because the VS
 Code V2 reader includes that endpoint; the line ceiling uses `limit` itself.
 Requested spans are clamped to the file's real length. Out-of-file starting
 ranges are denied. Reviewer search passes for the model-facing ids `grep_search`,
-`file_search`, `list_dir` and `vscode_listCodeUsages`; `maxResults` above 100,
-`includeIgnoredFiles` and `list_dir` paths outside the repository are denied.
+`file_search`, `list_dir` and `vscode_listCodeUsages`. Text and file searches must
+provide an explicit positive integer `maxResults` of at most 100; omitted or
+invalid limits are denied rather than relying on host defaults. Directory listing
+and usages do not support this limit and rely on host output limits.
+`includeIgnoredFiles: true` and `list_dir` paths outside the repository are denied.
 Known gap: a match-all `grep_search` scoped to one file returns up to 100 of its
 lines. That is accepted for cooperative agents and discouraged in the profiles. Dispatch supports `runSubagent`, `agent/runSubagent`,
 `run_subagent`, `task`, `Task`, `Agent`, and a single `agentName`, `agent_type`,
@@ -216,7 +220,9 @@ Live smoke checks on a disposable branch, with current Copilot/VS Code:
    lines, and a full review packet, successfully.
 3. Attempt an offset-only read, a 600-line range, a shell `cat` and a changed-files
    call from the same reviewer. Each must be blocked or unavailable. A text
-   search must work. Record the `tool_name` values the host actually emits.
+   search with `maxResults: 100` must work; the same search without `maxResults`
+   must be denied. Record the `tool_name` values the host actually emits and verify
+   that the host honours the requested result limit.
 4. Have Fleet Explore read that same file. It must work without a delegation loop.
 5. In an ordinary (non-fleet) session, confirm a built-in subagent still runs.
    Then ask the coordinator to use the built-in general-purpose worker or override

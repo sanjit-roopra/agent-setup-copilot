@@ -8,7 +8,8 @@ export const policy = JSON.parse(fs.readFileSync(new URL('./policy.json', import
 const coordinatorName = 'Subagent Fleet';
 const delegates = new Set(['task', 'Agent', 'Task', 'runSubagent', 'run_subagent', 'agent/runSubagent']);
 const reads = new Set(['read_file', 'readFile', 'read/readFile', 'Read', 'view']);
-// Model-facing VS Code tool ids. Result size is bounded by the host and by maxResults below.
+// Model-facing VS Code tool ids. Text/file searches require an explicit result limit.
+// Directory and usage output sizes remain controlled by the host.
 // Deliberately absent: get_changed_files (whole diff), semantic_search (uncapped chunks), search_subagent.
 const searches = new Set(['grep_search', 'file_search', 'list_dir', 'vscode_listCodeUsages']);
 const packetPath = /^\.fleet-review-[^/]+\/changes\.diff$/;
@@ -99,9 +100,9 @@ function contained(supplied, event, workspace) {
 }
 
 function boundedSearch(tool, args, event, config, workspace) {
-  if (Object.hasOwn(args, 'maxResults') &&
+  if (['grep_search', 'file_search'].includes(tool) &&
       !(positive(args.maxResults) && args.maxResults <= config.limits.searchMaxResults)) {
-    return `Use maxResults of at most ${config.limits.searchMaxResults}, or omit it.`;
+    return `Set maxResults to a positive integer of at most ${config.limits.searchMaxResults}. Host defaults are not accepted.`;
   }
   if (Object.hasOwn(args, 'includeIgnoredFiles') && args.includeIgnoredFiles !== false) {
     return 'Searching ignored files is blocked. Search tracked source only.';

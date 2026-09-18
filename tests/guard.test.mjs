@@ -271,18 +271,31 @@ test('review packets are read whole up to the packet limit; lookalike paths are 
 });
 
 test('bounded search tools pass for reviewers with capped results and contained paths', () => {
-  assert.equal(check('grep_search', {query: 'foo', isRegexp: false}), null);
+  assert.equal(check('grep_search', {query: 'foo', isRegexp: false, maxResults: 1}), null);
   assert.equal(check('grep_search', {query: 'foo', maxResults: policy.limits.searchMaxResults, includeIgnoredFiles: false}), null);
-  assert.equal(check('file_search', {query: '**/*.ts'}), null);
+  assert.equal(check('file_search', {query: '**/*.ts', maxResults: 1}), null);
+  assert.equal(check('file_search', {query: '**/*.ts', maxResults: policy.limits.searchMaxResults}), null);
   assert.equal(check('vscode_listCodeUsages', {symbol: 'foo'}), null);
   assert.equal(check('list_dir', {path: '.'}), null);
-  for (const maxResults of [0, 1.5, '50', -1, policy.limits.searchMaxResults + 1, null]) {
-    assert.ok(check('grep_search', {query: 'foo', maxResults}));
-  }
-  assert.ok(check('grep_search', {query: 'foo', includeIgnoredFiles: true}));
+  assert.match(check('grep_search', {query: 'foo', maxResults: 1, includeIgnoredFiles: true}), /ignored files/);
   assert.ok(check('list_dir', {path: path.dirname(root)}));
   assert.ok(check('list_dir', {}));
   assert.ok(check('grep_search', {query: 'foo'}, 'coordinator'));
+});
+
+test('text and file searches cannot fall back to host result limits', () => {
+  for (const tool of ['grep_search', 'file_search']) {
+    assert.match(check(tool, {query: 'foo'}), /Set maxResults/);
+    assert.match(check(tool, {query: 'foo', defaultMaxResults: 200}), /Set maxResults/);
+    for (const maxResults of [0, 1.5, '50', -1, policy.limits.searchMaxResults + 1, null, true]) {
+      assert.match(check(tool, {query: 'foo', maxResults}), /Set maxResults/);
+    }
+    const smaller = {...policy, limits: {...policy.limits, searchMaxResults: 5}};
+    assert.equal(evaluate(event(tool, {query: 'foo', maxResults: 5}), 'bounded-reader', smaller, dir), null);
+    assert.match(evaluate(event(tool, {query: 'foo', maxResults: 6}), 'bounded-reader', smaller, dir), /at most 5/);
+    // The workspace dispatch hook must leave cheap-worker search unchanged.
+    assert.equal(check(tool, {query: 'foo'}, 'dispatch'), null);
+  }
 });
 
 test('workspace dispatch hook ignores non-fleet delegation but not near misses', () => {

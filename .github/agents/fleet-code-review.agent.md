@@ -53,6 +53,7 @@ The scoped hook allows a whole-file read up to 350 lines / 24 KB and a line rang
 A range that spans a larger file counts as a whole-file read and is denied.
 Read the assigned review packet (`.fleet-review-*/changes.diff`) whole, in as few reads as the host allows.
 Use text search, file search and usages to find callers and definitions, then read the cited range.
+For text and file searches, always set `maxResults` to at most 100; omitted limits are denied.
 Do not use match-all searches to page through a file.
 Treat Fleet Explore findings in your prompt as hints: confirm each cited location with a range read before you rely on it.
 For a question about a large file that search cannot answer, return `CONTEXT_NEEDED` with specific questions for Fleet Explore.

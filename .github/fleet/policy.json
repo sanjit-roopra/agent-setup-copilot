@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "limits": {
+    "fullReadLines": 350,
+    "fullReadBytes": 24000,
+    "excerptLines": 120,
+    "excerptBytes": 12000,
+    "scanBytes": 8388608,
+    "delegationBytes": 16000
+  },
+  "agents": {
+    "fleet-explore": {"name": "Fleet Explore", "model": "GPT-5.6 Luna (copilot)", "cliModel": "gpt-5.6-luna"},
+    "fleet-task": {"name": "Fleet Task", "model": "GPT-5.6 Luna (copilot)", "cliModel": "gpt-5.6-luna"},
+    "fleet-general-purpose": {"name": "Fleet General Purpose", "model": "Gemini 3.8 Flash (copilot)", "cliModel": "gemini-3.8-flash"},
+    "fleet-rubber-duck": {"name": "Fleet Rubber Duck", "model": "Claude Opus 5 (copilot)", "cliModel": "claude-opus-5"},
+    "fleet-code-review": {"name": "Fleet Code Review", "model": "GPT-5.6 Sol (copilot)", "cliModel": "gpt-5.6-sol"},
+    "fleet-research": {"name": "Fleet Research", "model": "GPT-5.6 Terra (copilot)", "cliModel": "gpt-5.6-terra"},
+    "fleet-security-review": {"name": "Fleet Security Review", "model": "GPT-6 Astra (copilot)", "cliModel": "gpt-6-astra"}
+  }
+}

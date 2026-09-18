@@ -2,7 +2,7 @@
 name: Fleet Task
 description: Run one development check, such as a test, build, or check-only linter, without changing source files. Report the result without diagnosing failures.
 tools: ["execute", "read"]
-model: "Gemini 3.8 Flash (copilot)"
+model: "GPT-5.6 Luna (copilot)"
 ---
 
 Run the requested command one time in the specified working directory.
@@ -29,3 +29,8 @@ When the command fails:
 - Do not omit error details from the report.
 
 If command output exceeds output limits, include the primary errors and provide the path to the complete log file.
+
+
+Review-packet preparation is also allowed: run the provided `.github/fleet/review-packet.mjs` helper once with the explicit comparison. It writes an ignored diff artifact, never source files.
+Return the artifact path and metadata, not the complete diff.
+Keep ordinary success output short; preserve relevant failures with a path to complete logs.

@@ -117,6 +117,7 @@ No `--target` means an error, not source printed to stdout. Existing targets are
 | --- | --- |
 | Whole-file native read above 350 lines or 24 KiB | Denied and redirected |
 | Explicit range of at most 350 lines / 24 KiB | Allowed through normal host permissions |
+| Simple `head`/`tail`/`Get-Content` with an explicit count of at most 350 lines / 24 KiB | Allowed through normal host permissions |
 | Invalid, open-ended or oversized range | Denied |
 | File larger than 400,000 bytes | Native reads denied without scanning it; split the task or use a targeted shell query |
 | Simple `cat`, `head`, `tail`, `less`, `more`, `Get-Content`, `gc`, `type` of a large file | Denied; even head/tail must use the native range tool for an exception |
@@ -133,11 +134,15 @@ Saying “use a fleet of agents” does not turn this into a subagent-model poli
 
 ## Configuration and data flow
 
-`config.json` defines the model, read thresholds, encoded input ceiling, summary ceiling (12,000 bytes), code ceiling (200,000 bytes), and worker deadline (120 seconds). Change a local source copy and reload the plugin; do not edit an installed cache you expect upgrades to preserve. Set `SHUNT_COPILOT_MODEL` in the host environment to override just the worker's raw model ID. `auto` is refused. No fallback model is requested.
+`config.json` defines the model, read thresholds, encoded input ceiling, summary ceiling (12,000 bytes), code ceiling (200,000 bytes), and worker deadline (120 seconds). Change a local source copy and reload the plugin; do not edit an installed cache you expect upgrades to preserve. Set `SHUNT_COPILOT_MODEL` in the host environment to override just the worker's raw model ID. Set `SHUNT_COPILOT_MIN_LINES` to a positive integer to override the line threshold, as upstream's `SHUNT_MIN_LINES` does; any other value is ignored. `auto` is refused. No fallback model is requested.
 
 Workers start in a fresh temporary directory with a `tools: []` profile, `modelPolicy: required`, an empty available-tool list, explicit exclusions for `skill` and `sql`, and a deny-all pre-tool hook. The main process verifies model identity in JSONL events and rejects tool attempts, missing final answers, errors, and oversized results. It only emits the final summary or file metadata, never the CLI's raw event stream (which echoes source). Source content travels via stdin, not shell interpolation or command-line arguments.
 
 No session is resumed or replayed between invocations. Temporary helper files and logs are removed. **This is not Portal's ephemeral storage contract:** Copilot CLI may retain worker sessions in its normal local history, and user-configured MCP servers may initialize during CLI startup even though worker tool calls are disabled. `--no-remote-export` disables remote session export; model requests still go through your authenticated Copilot service normally. Summaries and generated code remain untrusted output to verify with focused reads and tests.
+
+## Measure the effect
+
+`node scripts/benchmark.mjs` runs the same prompts through Copilot CLI with and without this plugin and compares the CLI's own usage figures, including the worker's cost. See [BENCHMARK.md](BENCHMARK.md) for how to run it and read the results.
 
 ## Validation status
 
@@ -145,7 +150,7 @@ As of 2026-09-18:
 
 | Layer / host | Evidence |
 | --- | --- |
-| Unit and subprocess contracts | 24 new tests plus the 32 existing fleet tests passed on macOS, Node 25.2.1 |
+| Unit and subprocess contracts | 29 new tests plus the 32 existing fleet tests passed on macOS, Node 25.2.1 |
 | Copilot CLI 1.0.86 plugin hook | Live authenticated session discovered the plugin and denied a 400-line whole-file `view` read |
 | Cheap reader | Live Luna worker found the synthetic value at line 200; only its summary returned |
 | Complete read routing | Live Sol main session received the hook denial, ran the Luna helper, received an 11-byte answer for a 9,504-byte request, and finished on Sol; helper shell permission and plugin-directory access were granted |

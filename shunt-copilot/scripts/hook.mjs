@@ -27,6 +27,7 @@ function range(args) {
 }
 
 function boundedRange(bounds, limits) {
+  if (Number.isSafeInteger(bounds?.tail)) return bounds.tail >= 1 && bounds.tail <= limits.maxReadLines;
   return Array.isArray(bounds) && bounds.length === 2 && bounds.every(Number.isSafeInteger)
     && bounds[0] >= 1 && bounds[1] >= bounds[0] && bounds[1] - bounds[0] + 1 <= limits.maxReadLines;
 }
@@ -44,26 +45,51 @@ function exceedsRead(file, bounds, limits) {
   if (stat.size > limits.maxInputBytes) return true;
   const lines = fs.readFileSync(file, 'utf8').split('\n');
   if (lines.at(-1) === '') lines.pop();
-  const selected = bounds ? lines.slice(bounds[0] - 1, bounds[1]) : lines;
+  const selected = !bounds ? lines : bounds.tail ? lines.slice(-bounds.tail) : lines.slice(bounds[0] - 1, bounds[1]);
   return selected.length > limits.maxReadLines || Buffer.byteLength(selected.join('\n')) > limits.maxReadBytes;
 }
 
 // Intentionally limited to simple read commands. This is a context-cost guard, not a shell sandbox.
-export function shellPaths(command) {
-  if (typeof command !== 'string' || /[|;&<>`$\n\r]/.test(command)) return [];
+// Returns the files a command reads and, for an explicit head/tail style count, the lines it asks for.
+export function shellRead(command) {
+  const none = { files: [], count: null, fromEnd: false };
+  if (typeof command !== 'string' || /[|;&<>`$\n\r]/.test(command)) return none;
   const tokens = command.match(/"[^"\n]*"|'[^'\n]*'|[^\s]+/g)?.map(t => t.replace(/^(['"])(.*)\1$/, '$2')) ?? [];
   const name = path.basename(tokens.shift() ?? '').toLowerCase();
-  if (!['cat', 'head', 'tail', 'less', 'more', 'get-content', 'gc', 'type'].includes(name)) return [];
+  if (!['cat', 'head', 'tail', 'less', 'more', 'get-content', 'gc', 'type'].includes(name)) return none;
+  // Which flags consume the next token depends on the command: `head -n 5 f` but `cat -n f`.
+  const headTail = name === 'head' || name === 'tail';
+  const powershell = name === 'get-content' || name === 'gc';
+  const lineFlag = headTail ? /^(-n|--lines)$/ : powershell ? /^-(totalcount|head|first|tail|last)$/i : null;
+  const valueFlag = headTail ? /^(-c|--bytes)$/ : powershell ? /^-(encoding|readcount|delimiter)$/i : null;
   const files = [];
-  let literal = false;
+  let literal = false, count = null, fromEnd = name === 'tail';
+  // Only a plain positive count is a bounded read; `tail -n +5` and `head -n -5` run to a file edge.
+  const setCount = value => { count = /^\d+$/.test(value ?? '') ? Number(value) : NaN; };
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     if (token === '--') { literal = true; continue; }
-    if (!literal && /^(-n|-c|--lines|--bytes|-totalcount|-tail|-encoding)$/i.test(token)) { i++; continue; }
+    if (!literal && lineFlag?.test(token)) {
+      if (powershell) fromEnd = /^-(tail|last)$/i.test(token);
+      setCount(tokens[++i]);
+      continue;
+    }
+    if (!literal && valueFlag?.test(token)) { i++; continue; }
+    const attached = !literal && headTail && token.match(/^(?:-n|--lines=|-(?=\d))(.+)$/);
+    if (attached) { setCount(attached[1]); continue; }
     if (!literal && token.startsWith('-')) continue;
     files.push(token);
   }
-  return files;
+  return { files, count, fromEnd };
+}
+
+export const shellPaths = command => shellRead(command).files;
+
+function shellBounds({ files, count, fromEnd }) {
+  if (count === null) return null;
+  // Every file contributes `count` lines to the same tool result.
+  const total = count * files.length;
+  return fromEnd ? { tail: total } : [1, total];
 }
 
 export function evaluate(input, limits = config()) {
@@ -77,7 +103,8 @@ export function evaluate(input, limits = config()) {
     const file = args.file_path ?? args.filePath ?? args.path;
     if (typeof file === 'string' && file) blocked = exceedsRead(path.resolve(cwd, file), range(args), limits);
   } else if (shellTools.has(tool)) {
-    blocked = shellPaths(args.command).some(file => exceedsRead(path.resolve(cwd, file), null, limits));
+    const read = shellRead(args.command);
+    blocked = read.files.some(file => exceedsRead(path.resolve(cwd, file), shellBounds(read), limits));
   }
   if (!blocked) return {};
   return deny(`SHUNT_COPILOT_READ_REDIRECT: This read exceeds the ${limits.maxReadLines}-line / ${limits.maxReadBytes}-byte budget. Use the shunt-bulk-reader skill: run node with script ${JSON.stringify(path.join(pluginRoot, 'scripts/bulk-read.mjs'))}, --root set to the project root, --question with the specific question, and --paths with the source paths. The helper reads the files and returns only a cheap-model summary. Do not chunk through the whole file to bypass this guard. For exact edits, request a small explicit line range. Files above ${limits.maxInputBytes} bytes must be split or inspected with a targeted shell query.`);

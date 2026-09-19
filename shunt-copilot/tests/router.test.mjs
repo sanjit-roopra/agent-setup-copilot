@@ -70,9 +70,78 @@ test('line threshold counts a final line without a newline', t => {
 
 test('simple shell reads handle quoting, flags, multiple files and PowerShell aliases', t => {
   const root = fixture(t);
-  for (const command of ['cat "large file.txt"', "head -n 10 'large file.txt'", 'cat small.txt "large file.txt"',
-    'Get-Content -LiteralPath "large file.txt"', 'tail --lines 5 "large file.txt"']) {
+  for (const command of ['cat "large file.txt"', 'cat -n "large file.txt"', 'cat small.txt "large file.txt"',
+    'Get-Content -LiteralPath "large file.txt"', "head 'large file.txt'", 'tail -n 351 "large file.txt"',
+    'tail -n +5 "large file.txt"', 'head -n -5 "large file.txt"', 'head -c 100 "large file.txt"',
+    'head -n 200 "large file.txt" "large file.txt"', 'Get-Content -Tail 400 "large file.txt"']) {
     assert.ok(denied(evaluate(native(root, { command }, 'bash'))), command);
+  }
+});
+
+test('shell reads with a small explicit line count pass, within the byte budget', t => {
+  const root = fixture(t);
+  for (const command of ["head -n 10 'large file.txt'", 'tail --lines 5 "large file.txt"', 'head -100 "large file.txt"',
+    'tail -n20 "large file.txt"', 'head --lines=350 "large file.txt"', 'Get-Content -TotalCount 5 "large file.txt"',
+    'gc -Tail 5 "large file.txt"']) {
+    assert.deepEqual(evaluate(native(root, { command }, 'bash')), {}, command);
+  }
+  fs.writeFileSync(path.join(root, 'minified.js'), 'x'.repeat(25000));
+  assert.ok(denied(evaluate(native(root, { command: 'head -n 1 minified.js' }, 'bash'))));
+});
+
+// Decisions from upstream Shunt's hook-evals.json and bash-hook-evals.json, replayed against this hook.
+// `upstream` is recorded only where this port deliberately differs; see UPSTREAM.md.
+test('upstream Shunt hook evals', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shunt-evals-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const [name, count] of [['small', 10], ['medium', 200], ['boundary', 350], ['over', 351], ['large', 1000], ['huge', 5000], ['empty', 0]]) {
+    fs.writeFileSync(path.join(root, `${name}.txt`), 'line\n'.repeat(count));
+  }
+  const read = [
+    ['small-file', { file_path: 'small.txt' }, 'allow'],
+    ['boundary-exact-350', { file_path: 'boundary.txt' }, 'allow'],
+    ['just-over-threshold', { file_path: 'over.txt' }, 'block'],
+    ['large-file', { file_path: 'large.txt' }, 'block'],
+    ['very-large-file', { file_path: 'huge.txt' }, 'block'],
+    ['empty-file', { file_path: 'empty.txt' }, 'allow'],
+    ['targeted-read-offset', { file_path: 'large.txt', offset: 100 }, 'block', 'allow'],
+    ['targeted-read-limit', { file_path: 'large.txt', limit: 50 }, 'allow'],
+    ['targeted-read-both', { file_path: 'large.txt', offset: 100, limit: 50 }, 'allow'],
+    ['nonexistent-file', { file_path: 'shunt-does-not-exist.txt' }, 'allow'],
+    ['empty-filepath', { file_path: '' }, 'allow'],
+    ['missing-filepath-field', {}, 'allow'],
+    ['offset-zero', { file_path: 'large.txt', offset: 0 }, 'block', 'allow'],
+    ['limit-zero', { file_path: 'large.txt', limit: 0 }, 'block', 'allow'],
+  ];
+  const bash = [
+    ['cat-large-file', 'cat large.txt', 'block'],
+    ['cat-small-file', 'cat small.txt', 'allow'],
+    ['cat-with-flag', 'cat -n large.txt', 'block'],
+    ['head-large-file', 'head large.txt', 'block'],
+    ['head-with-count', 'head -100 large.txt', 'allow', 'block'],
+    ['tail-large-file', 'tail large.txt', 'block'],
+    ['less-large-file', 'less large.txt', 'block'],
+    ['cat-pipe', 'cat large.txt | grep export', 'allow'],
+    ['cat-redirect', 'cat large.txt > out.txt', 'allow'],
+    ['non-read-command', 'git status', 'allow'],
+    ['grep-command', "grep -n 'export' large.txt", 'allow'],
+    ['cat-quoted-path', 'cat "large.txt"', 'block'],
+    ['cat-nonexistent', 'cat shunt-does-not-exist.txt', 'allow'],
+    ['empty-command', '', 'allow'],
+    ['missing-command-field', undefined, 'allow'],
+    ['more-large-file', 'more large.txt', 'block'],
+    ['head-n-space-count', 'head -n 5 large.txt', 'allow'],
+  ];
+  const decision = result => (result.permissionDecision === 'deny' ? 'block' : 'allow');
+  for (const [name, args, expected] of read) assert.equal(decision(evaluate(vscode(root, args, 'Read'))), expected, name);
+  for (const [name, command, expected] of bash) assert.equal(decision(evaluate(vscode(root, { command }, 'Bash'))), expected, name);
+});
+
+test('SHUNT_COPILOT_MIN_LINES overrides the line threshold and ignores invalid values', t => {
+  t.after(() => { delete process.env.SHUNT_COPILOT_MIN_LINES; });
+  for (const [value, expected] of [['100', 100], ['500', 500], ['abc', 350], ['0', 350], ['', 350]]) {
+    process.env.SHUNT_COPILOT_MIN_LINES = value;
+    assert.equal(config().maxReadLines, expected, value);
   }
 });
 
@@ -235,4 +304,40 @@ test('plugin, marketplace and skills resolve to one self-contained package', () 
     assert.ok(fs.existsSync(path.join(pluginRoot, 'skills', skill, 'SKILL.md')));
   }
   assert.equal(fs.existsSync(path.join(pluginRoot, 'agents')), false);
+});
+
+test('benchmark fixture is deterministic, passes its own tests and sits in the intended size bands', async t => {
+  const { buildFixture, SCENARIOS } = await import('../scripts/benchmark.mjs');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shunt-bench-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  buildFixture(path.join(root, 'a'));
+  buildFixture(path.join(root, 'b'));
+  for (const file of ['src/delivery-service.mjs', 'src/pricing-rules.mjs', 'tests/order-service.test.mjs']) {
+    assert.equal(fs.readFileSync(path.join(root, 'a', file), 'utf8'), fs.readFileSync(path.join(root, 'b', file), 'utf8'), file);
+  }
+  for (const file of ['src/delivery-service.mjs', 'src/pricing-rules.mjs']) assert.ok(denied(evaluate(native(path.join(root, 'a'), { path: file }))), file);
+  // Below 16 KiB the CLI's own view tool still returns the file, so only the plugin stands in the way.
+  assert.ok(fs.statSync(path.join(root, 'a/src/pricing-rules.mjs')).size < 16384);
+  const run = spawnSync(process.execPath, ['--test', 'tests/order-service.test.mjs'], { cwd: path.join(root, 'a') });
+  assert.equal(run.status, 0);
+  assert.equal(new Set(SCENARIOS.map(s => s.name)).size, SCENARIOS.length);
+});
+
+test('benchmark usage maths: per-model sums, worker totals, median and percentage change', async () => {
+  const { addUsage, change, median, report, summarizeUsage } = await import('../scripts/benchmark.mjs');
+  const usage = { totalPremiumRequestCost: 1, totalNanoAiu: 500, totalApiDurationMs: 40, modelMetrics: {
+    a: { requests: { count: 2 }, usage: { inputTokens: 100, outputTokens: 10, cacheReadTokens: 60, cacheWriteTokens: 30 } },
+    b: { requests: { count: 1 }, usage: { inputTokens: 5, outputTokens: 1 } } } };
+  const main = summarizeUsage(usage);
+  assert.deepEqual(main, { input: 105, output: 11, cacheRead: 60, cacheWrite: 30, modelCalls: 3, premiumRequests: 1, nanoAiu: 500, apiMs: 40 });
+  assert.equal(summarizeUsage(null).input, 0);
+  assert.equal(addUsage(main, main).nanoAiu, 1000);
+  assert.equal(median([3, 1, 2]), 2);
+  assert.equal(median([4, 1, 2, 3]), 2.5);
+  assert.equal(change(200, 50), -75);
+  assert.equal(change(0, 50), null);
+  const row = (arm, input, nanoAiu) => ({ scenario: 's', arm, run: 1, exitCode: 0, wallMs: 1000, correct: true, delegations: arm === 'shunt' ? 1 : 0,
+    main: { ...main, input }, worker: summarizeUsage(null), total: { ...main, input, nanoAiu } });
+  const table = report([row('baseline', 1000, 400), row('shunt', 250, 600)]);
+  assert.match(table, /\| s \| -75% \| 0% \| \+50% \|/);
 });

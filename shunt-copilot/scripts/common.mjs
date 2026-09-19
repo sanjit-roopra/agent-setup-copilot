@@ -10,6 +10,8 @@ export function config() {
   if (!/^[a-z0-9][a-z0-9.-]+$/.test(value.model) || value.model === 'auto') {
     throw new Error('Set SHUNT_COPILOT_MODEL to an explicit Copilot model ID, not auto.');
   }
+  // Same role as upstream SHUNT_MIN_LINES, including its fallback when the value is not a positive integer.
+  if (/^[1-9]\d*$/.test(process.env.SHUNT_COPILOT_MIN_LINES ?? '')) value.maxReadLines = Number(process.env.SHUNT_COPILOT_MIN_LINES);
   for (const key of ['maxReadLines', 'maxReadBytes', 'maxInputBytes', 'maxSummaryBytes', 'maxCodeBytes', 'workerTimeoutMs']) {
     if (!Number.isSafeInteger(value[key]) || value[key] <= 0) throw new Error(`Invalid config: ${key}`);
   }

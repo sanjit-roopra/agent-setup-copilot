@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 
 export function parseTranscript(text, model, maxBytes) {
   let events;
@@ -40,6 +41,9 @@ export async function invokeWorker(prompt, limits, maxBytes, { executable = proc
       '--no-custom-instructions', '--no-ask-user', '--no-remote-export', '--no-bash-env',
       '--log-level', 'none', '--log-dir', path.join(temp, 'logs'),
       '--output-format', 'json', '--stream', 'off', '--silent'];
+    // Benchmarks need the worker's own cost; the usage file holds counters only, never prompts or source.
+    const usageDir = process.env.SHUNT_COPILOT_USAGE_DIR;
+    if (usageDir) args.push('--usage-output-file', path.join(usageDir, `worker-${randomUUID()}.json`));
     const transcript = await new Promise((resolve, reject) => {
       const child = spawn(executable, args, { cwd: temp, shell: false, detached: process.platform !== 'win32', stdio: ['pipe', 'pipe', 'pipe'] });
       let stdout = '', bytes = 0, failure;

@@ -24,6 +24,9 @@ The main conversation keeps design, reasoning and verification. A cheap model is
 | Any offset/limit exempts read | Validate positive bounded ranges and byte size; no offset-only exemption |
 | Line threshold only | 350-line and 24 KiB read budgets; bounded file scanning |
 | First shell filename checked | All filenames in supported simple commands checked; complex shell syntax still outside scope |
+| `head -100 file` blocked; `head -n 5 file` allowed only because `5` is parsed as the filename | An explicit positive head/tail count within the line and byte budgets is a targeted read and passes; bare `head`/`tail`, `tail -n +N`, `head -n -N` and byte counts are still checked against the whole file |
+| `SHUNT_MIN_LINES` overrides the threshold; non-numeric values fall back to 350 | `SHUNT_COPILOT_MIN_LINES` overrides `maxReadLines` with the same fallback; the byte budget stays in `config.json` |
+| Hook eval fixtures in `evals/` | The 31 non-environment hook eval cases are replayed in `tests/router.test.mjs`, with the four deliberate differences marked |
 | Code may print to stdout | Target mandatory; only metadata returns to the main conversation |
 | Target can be overwritten | New targets only; atomic no-clobber publication; candidates for revisions |
 | Removes every line beginning with a code fence | Removes only one enclosing fence, preserving embedded Markdown examples |

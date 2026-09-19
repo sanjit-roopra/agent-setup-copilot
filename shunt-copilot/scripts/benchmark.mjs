@@ -295,7 +295,7 @@ const pct = value => (value === null ? 'n/a' : `${value > 0 ? '+' : ''}${value}%
 
 export function report(results) {
   const lines = [];
-  const header = ['Scenario', 'Arm', 'Main in', 'Main out', 'Worker in', 'Worker out', 'Premium req', 'Cost nanoAIU', 'Seconds', 'Delegated', 'Correct'];
+  const header = ['Scenario', 'Arm', 'Main calls', 'Main in', 'Main out', 'Worker in', 'Worker out', 'AI credits', 'Seconds', 'Delegated', 'Correct'];
   lines.push(`| ${header.join(' | ')} |`, `|${header.map(() => '---').join('|')}|`);
   const summary = [];
   for (const name of [...new Set(results.map(r => r.scenario))]) {
@@ -306,21 +306,23 @@ export function report(results) {
       arms[arm] = {
         mainIn: pick(rows, r => r.main.input), mainOut: pick(rows, r => r.main.output),
         workerIn: pick(rows, r => r.worker.input), workerOut: pick(rows, r => r.worker.output),
-        premium: pick(rows, r => r.total.premiumRequests), cost: pick(rows, r => r.total.nanoAiu),
+        calls: pick(rows, r => r.main.modelCalls),
+        // Copilot bills tokens as AI credits (1 credit = $0.01); the CLI reports them in billionths.
+        credits: pick(rows, r => r.total.nanoAiu) / 1e9,
         seconds: pick(rows, r => r.wallMs) / 1000,
         delegated: `${rows.filter(r => r.delegations > 0).length}/${rows.length}`,
         correct: `${rows.filter(r => r.correct).length}/${rows.length}`,
       };
       const a = arms[arm];
-      lines.push(`| ${name} | ${arm} | ${fmt(a.mainIn)} | ${fmt(a.mainOut)} | ${fmt(a.workerIn)} | ${fmt(a.workerOut)} | ${a.premium} | ${fmt(a.cost)} | ${fmt(a.seconds)} | ${a.delegated} | ${a.correct} |`);
+      lines.push(`| ${name} | ${arm} | ${a.calls} | ${fmt(a.mainIn)} | ${fmt(a.mainOut)} | ${fmt(a.workerIn)} | ${fmt(a.workerOut)} | ${a.credits.toFixed(3)} | ${fmt(a.seconds)} | ${a.delegated} | ${a.correct} |`);
     }
     if (arms.baseline && arms.shunt) {
-      summary.push(`| ${name} | ${pct(change(arms.baseline.mainIn, arms.shunt.mainIn))} | ${pct(change(arms.baseline.mainOut, arms.shunt.mainOut))} | ${pct(change(arms.baseline.cost, arms.shunt.cost))} | ${pct(change(arms.baseline.premium, arms.shunt.premium))} | ${pct(change(arms.baseline.seconds, arms.shunt.seconds))} |`);
+      summary.push(`| ${name} | ${pct(change(arms.baseline.credits, arms.shunt.credits))} | ${pct(change(arms.baseline.mainIn, arms.shunt.mainIn))} | ${pct(change(arms.baseline.mainOut, arms.shunt.mainOut))} | ${pct(change(arms.baseline.calls, arms.shunt.calls))} | ${pct(change(arms.baseline.seconds, arms.shunt.seconds))} |`);
     }
   }
   if (summary.length) {
-    lines.push('', 'Change with the plugin (negative = plugin used less; cost and requests include the worker):', '',
-      '| Scenario | Main input tokens | Main output tokens | Total cost | Premium requests | Time |', '|---|---|---|---|---|---|', ...summary);
+    lines.push('', 'Change with the plugin (negative = plugin used less; AI credits include the worker):', '',
+      '| Scenario | AI credits | Main input tokens | Main output tokens | Main model calls | Time |', '|---|---|---|---|---|---|', ...summary);
   }
   return lines.join('\n');
 }

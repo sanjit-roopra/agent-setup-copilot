@@ -339,5 +339,5 @@ test('benchmark usage maths: per-model sums, worker totals, median and percentag
   const row = (arm, input, nanoAiu) => ({ scenario: 's', arm, run: 1, exitCode: 0, wallMs: 1000, correct: true, delegations: arm === 'shunt' ? 1 : 0,
     main: { ...main, input }, worker: summarizeUsage(null), total: { ...main, input, nanoAiu } });
   const table = report([row('baseline', 1000, 400), row('shunt', 250, 600)]);
-  assert.match(table, /\| s \| -75% \| 0% \| \+50% \|/);
+  assert.match(table, /\| s \| \+50% \| -75% \| 0% \| 0% \|/);
 });

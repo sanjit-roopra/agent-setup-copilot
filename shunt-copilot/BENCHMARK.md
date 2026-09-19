@@ -65,8 +65,8 @@ The first table has one row per scenario and side:
 | --- | --- |
 | Main in / Main out | Tokens the main (expensive) model read and wrote |
 | Worker in / Worker out | Tokens the cheap worker model read and wrote |
-| Premium req | Premium requests billed, main and worker together |
-| Cost nanoAIU | The CLI's own cost figure (`totalNanoAiu`), main and worker together |
+| Main calls | How many times the main model was called. Each call resends the whole conversation |
+| AI credits | What Copilot bills, main and worker together. One credit is $0.01. The CLI reports it as `totalNanoAiu`, in billionths of a credit |
 | Seconds | Wall-clock time |
 | Delegated | In how many runs the worker was actually called |
 | Correct | In how many runs the answer passed its check |
@@ -75,7 +75,8 @@ The second table shows the change with the plugin. Negative means the plugin use
 
 How to judge it:
 
-- **Total cost** and **Premium requests** are what you pay. They include the worker, so they are the honest bottom line.
+- **AI credits** is what you pay. Copilot bills tokens at each model's price, and this figure includes the worker, so it is the honest bottom line. GitHub's [pricing reference](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing) (checked 2026-09-19) prices every model per million tokens and sets one AI credit at $0.01. Request-based billing with model multipliers now applies only to Pro and Pro+ subscribers who stayed on a legacy annual plan after 2026-06-01. The CLI still prints a "premium requests" counter, which the benchmark ignores.
+- **Main model calls** explains most of the cost. Every call carries about 12,000 tokens of fixed context before any file is read.
 - **Main input tokens** shows how much was kept out of the main model's context. This is the number Spotify's 90% claim is about.
 - **Delegated 0/1** means the plugin never sent anything to the worker in that run, usually because the model searched with `rg` instead of reading. Then both sides cost about the same, and the plugin neither helped nor hurt.
 - **Correct** dropping on the plugin side means the saving cost you answer quality.
@@ -84,22 +85,22 @@ How to judge it:
 
 One run per side on 2026-09-19, Copilot CLI on macOS, with `gpt-5.6-luna` as both main and worker model. This is a single sample with a cheap main model, so treat it as a first look, not a verdict. All ten answers passed their checks.
 
-| Scenario | Main input tokens | Main output tokens | Total cost | Premium requests | Time |
+| Scenario | AI credits | Main input tokens | Main output tokens | Main model calls | Time |
 | --- | --- | --- | --- | --- | --- |
-| find-a-value | -16% | -9% | -25% | 0% | -1% |
-| mid-size-file | +31% | +59% | +59% | +100% | +82% |
-| summarise-big-file | +15% | +54% | +87% | +100% | +479% |
-| cross-file-question | +17% | +82% | +161% | +100% | +186% |
-| generate-tests | +195% | +68% | +96% | +100% | +443% |
+| find-a-value | -25% | -16% | -9% | 0% | -1% |
+| mid-size-file | +59% | +31% | +59% | +33% | +82% |
+| summarise-big-file | +87% | +15% | +54% | +88% | +479% |
+| cross-file-question | +161% | +17% | +82% | +20% | +186% |
+| generate-tests | +96% | +195% | +68% | +200% | +443% |
 
 In this run the plugin cost more in every scenario where it delegated. The transcripts show why:
 
 - Copilot CLI sends roughly 12,000 tokens of fixed context with every model call. A blocked read, a skill load and a helper call add three or more calls, which outweighs the 1,500 tokens the 6 KB file would have cost.
-- Each delegation is a second Copilot session, so it bills a second premium request.
+- Each delegation is a second Copilot session. It starts cold, so it pays for its own fixed context and the files at the uncached rate.
 - Without the plugin, Copilot already avoided whole-file reads of the big file by using `rg` and small ranges.
 - In `generate-tests` the model could not find `code-write.mjs` from the skill text and spent several calls searching the disk for it. `find-a-value` never delegated; its difference is run-to-run noise.
 
-A pricier main model changes the cost column, because the worker's share gets relatively cheaper. It does not change the extra premium request or the extra model calls. Run it with your own main model before drawing a conclusion.
+The reported credits matched a hand calculation from GitHub's published per-token prices in all five scenarios, so the figure is the real bill. Re-pricing the same token counts with `gpt-5.6-sol` as the main model gives -25%, +11%, -1%, +24% and +59%: closer, because the worker's share shrinks, but still no saving. That is arithmetic on a Luna run, not a Sol run, so run it with your own main model before drawing a conclusion.
 
 ## Where the files go
 

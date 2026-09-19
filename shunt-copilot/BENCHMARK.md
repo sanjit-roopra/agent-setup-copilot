@@ -1,6 +1,11 @@
 # Measuring whether Shunt helps in Copilot
 
-This benchmark asks Copilot CLI the same question twice: once normally, once with this plugin loaded. It then compares what each run really cost. Every number comes from Copilot CLI's own usage report (`--usage-output-file`). Nothing is estimated from file sizes.
+This benchmark asks Copilot CLI the same question in up to three ways and compares what each run really cost:
+
+- `baseline` — plain Copilot CLI
+- `shunt` — this plugin loaded
+- `fleet` — the repository's Subagent Fleet coordinator, which hands work to cheap subagents inside the same session
+ Every number comes from Copilot CLI's own usage report (`--usage-output-file`). Nothing is estimated from file sizes.
 
 ## Before you start
 
@@ -25,6 +30,10 @@ node scripts/benchmark.mjs --scenario mid-size-file
 
 # 3. Run everything with the model you normally use.
 node scripts/benchmark.mjs --model <your-main-model-id>
+
+# 4. Compare all three approaches. The fleet coordinator is pinned to gpt-5.6-sol,
+#    so give the other two the same model.
+node scripts/benchmark.mjs --model gpt-5.6-sol --arm baseline,shunt,fleet
 ```
 
 Leave out `--model` to use your Copilot CLI default. A full run takes about five minutes.
@@ -36,7 +45,7 @@ Leave out `--model` to use your Copilot CLI default. A full run takes about five
 | `--model <id>` | Main model for both runs | Your CLI default |
 | `--scenario <name>` | Run only one scenario | All five |
 | `--runs <n>` | Repeat each run `n` times and report the median | `1` |
-| `--arm baseline` or `--arm shunt` | Run only one side | Both |
+| `--arm <list>` | Comma-separated sides to run: `baseline`, `shunt`, `fleet` | `baseline,shunt` |
 | `--out <folder>` | Where to keep results | A new temp folder |
 | `--timeout-sec <n>` | Give up on one session after `n` seconds | `600` |
 | `--dry-run` | Print the plan and stop | Off |
@@ -64,7 +73,7 @@ The first table has one row per scenario and side:
 | Column | Meaning |
 | --- | --- |
 | Main in / Main out | Tokens the main (expensive) model read and wrote |
-| Worker in / Worker out | Tokens the cheap worker model read and wrote |
+| Worker in / Worker out | Tokens the cheap helpers read and wrote: Shunt's worker sessions and the fleet's subagents |
 | Main calls | How many times the main model was called. Each call resends the whole conversation |
 | AI credits | What Copilot bills, main and worker together. One credit is $0.01. The CLI reports it as `totalNanoAiu`, in billionths of a credit |
 | Seconds | Wall-clock time |
@@ -81,26 +90,37 @@ How to judge it:
 - **Delegated 0/1** means the plugin never sent anything to the worker in that run, usually because the model searched with `rg` instead of reading. Then both sides cost about the same, and the plugin neither helped nor hurt.
 - **Correct** dropping on the plugin side means the saving cost you answer quality.
 
-## First measured run
+## Measured runs
 
-One run per side on 2026-09-19, Copilot CLI on macOS, with `gpt-5.6-luna` as both main and worker model. This is a single sample with a cheap main model, so treat it as a first look, not a verdict. All ten answers passed their checks.
+Both runs were one sample per side on 2026-09-19, Copilot CLI on macOS, worker `gpt-5.6-luna`. One sample is noisy: `find-a-value` under Shunt never delegated, so it did the same work as the baseline, yet it came out 31% cheaper. Treat any difference under about a third as noise until you repeat it with `--runs 3`.
 
-| Scenario | AI credits | Main input tokens | Main output tokens | Main model calls | Time |
-| --- | --- | --- | --- | --- | --- |
-| find-a-value | -25% | -16% | -9% | 0% | -1% |
-| mid-size-file | +59% | +31% | +59% | +33% | +82% |
-| summarise-big-file | +87% | +15% | +54% | +88% | +479% |
-| cross-file-question | +161% | +17% | +82% | +20% | +186% |
-| generate-tests | +96% | +195% | +68% | +200% | +443% |
+### Main model `gpt-5.6-sol`, all three approaches
 
-In this run the plugin cost more in every scenario where it delegated. The transcripts show why:
+AI credits per scenario, workers and subagents included:
 
-- Copilot CLI sends roughly 12,000 tokens of fixed context with every model call. A blocked read, a skill load and a helper call add three or more calls, which outweighs the 1,500 tokens the 6 KB file would have cost.
-- Each delegation is a second Copilot session. It starts cold, so it pays for its own fixed context and the files at the uncached rate.
-- Without the plugin, Copilot already avoided whole-file reads of the big file by using `rg` and small ranges.
-- In `generate-tests` the model could not find `code-write.mjs` from the skill text and spent several calls searching the disk for it. `find-a-value` never delegated; its difference is run-to-run noise.
+| Scenario | baseline | shunt | fleet |
+| --- | ---: | ---: | ---: |
+| find-a-value | 5.96 | 4.12 | 6.33 |
+| mid-size-file | 4.63 | 12.86 | 3.60 (answer failed its check) |
+| summarise-big-file | 17.68 | 8.10 | 7.49 |
+| cross-file-question | 5.86 | 5.92 | 6.34 |
+| generate-tests | 11.61 | 20.07 | 24.13 |
+| **Total** | **45.73** | **51.06 (+12%)** | **47.89 (+5%)** |
+| Total time | 107 s | 249 s | 762 s |
 
-The reported credits matched a hand calculation from GitHub's published per-token prices in all five scenarios, so the figure is the real bill. Re-pricing the same token counts with `gpt-5.6-sol` as the main model gives -25%, +11%, -1%, +24% and +59%: closer, because the worker's share shrinks, but still no saving. That is arithmetic on a Luna run, not a Sol run, so run it with your own main model before drawing a conclusion.
+What the transcripts show:
+
+- Neither approach saved money overall. Both won clearly in one place: summarising a big file, where the baseline needed 82,000 main-model input tokens and the others needed 40,000 (Shunt) and 17,000 (fleet).
+- The fleet keeps the expensive model's share small and steady, about 16,000 input tokens and two calls, because the coordinator only dispatches and reads a summary. Its subagents are cheap per token but read a lot: 165,000 to 478,000 tokens in the larger scenarios.
+- The fleet lost on `generate-tests` because of who it dispatched. A Gemini 3.8 Flash implementation agent made 18 calls for 10.4 credits and a second Sol agent added 3.5, on top of 9.0 for the coordinator.
+- Shunt lost where delegation added main-model calls: 2 to 7 calls on `mid-size-file` and 4 to 9 on `generate-tests`. Every call carries about 12,000 tokens of fixed context, and the 6 KB file it avoided is only about 1,500 tokens.
+- Copilot CLI already refuses whole-file reads above roughly 16 to 20 KB, so the baseline handled the 69 KB file with `rg` and small ranges.
+- The fleet's failed check on `mid-size-file` comes from the prompt: it answered "which tiers exist" for SKU-077 only. The discount answer was right.
+- The fleet is much slower, 7 times the baseline in total.
+
+### Main model `gpt-5.6-luna`, baseline against Shunt
+
+With a cheap main model there is nothing expensive to protect, and Shunt cost more wherever it delegated: +59%, +87%, +161% and +96% AI credits across the four delegating scenarios, with all ten answers correct. The reported credits matched a hand calculation from GitHub's published per-token prices in all five scenarios, so the figure is the real bill.
 
 ## Where the files go
 

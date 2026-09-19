@@ -181,6 +181,16 @@ test('submitOrder refuses an inactive user', async () => {
   spawnSync('git', ['init', '-q', dest]);
 }
 
+const ARMS = ['baseline', 'shunt', 'fleet'];
+
+// The fleet is the sibling approach in this repository: a coordinator that dispatches cheap in-session subagents.
+function installFleet(project) {
+  const installer = path.join(pluginRoot, '../scripts/install.mjs');
+  if (!fs.existsSync(installer)) throw new Error('The fleet arm needs the agent-setup-copilot repository checkout around this plugin.');
+  const run = spawnSync(process.execPath, [installer, '--host', 'cli', '--dest', project], { encoding: 'utf8' });
+  if (run.status !== 0) throw new Error(`Fleet install failed: ${run.stderr.trim()}`);
+}
+
 const answered = (...patterns) => ({ answer }) => patterns.every(pattern => pattern.test(answer));
 
 export const SCENARIOS = [
@@ -219,6 +229,15 @@ export function summarizeUsage(usage) {
     apiMs: usage?.totalApiDurationMs ?? 0 };
 }
 
+// Splits one usage file into the conversation's own agent and any in-session subagents it dispatched.
+export function splitAgents(usage) {
+  const agents = Object.entries(usage?.agentMetrics ?? {});
+  if (!agents.length) return { main: summarizeUsage(usage), subagents: summarizeUsage(null), subagentCount: 0 };
+  const sum = list => list.map(([, metrics]) => summarizeUsage(metrics)).reduce(addUsage, summarizeUsage(null));
+  const subagents = agents.filter(([name]) => name !== 'main');
+  return { main: sum(agents.filter(([name]) => name === 'main')), subagents: sum(subagents), subagentCount: subagents.length };
+}
+
 export function addUsage(a, b) {
   return Object.fromEntries(Object.keys(a).map(key => [key, a[key] + b[key]]));
 }
@@ -238,12 +257,14 @@ function readJson(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
-function runCopilot({ executable, dir, prompt, model, withPlugin, usageFile, workerUsageDir, transcript, timeoutMs }) {
+function runCopilot({ executable, dir, prompt, model, arm, usageFile, workerUsageDir, transcript, timeoutMs }) {
   const args = ['-C', dir, '-p', prompt, '--allow-all-tools', '--allow-all-paths', '--no-custom-instructions',
     '--no-ask-user', '--disable-builtin-mcps', '--output-format', 'json', '--stream', 'off', '--log-level', 'none',
     '--usage-output-file', usageFile];
-  if (model) args.push('--model', model);
-  if (withPlugin) args.push('--plugin-dir', pluginRoot);
+  // The fleet coordinator pins its own model with a required policy, so --model would conflict with it.
+  if (arm === 'fleet') args.push('--agent', 'subagent-fleet');
+  else if (model) args.push('--model', model);
+  if (arm === 'shunt') args.push('--plugin-dir', pluginRoot);
   return new Promise(resolve => {
     const started = Date.now();
     const child = spawn(executable, args, { cwd: dir, shell: false, stdio: ['ignore', 'pipe', 'ignore'],
@@ -275,17 +296,19 @@ async function runArm(scenario, arm, run, options) {
   const workerUsageDir = path.join(dir, 'worker-usage');
   fs.mkdirSync(workerUsageDir);
   const project = path.join(dir, 'project');
+  if (arm === 'fleet') installFleet(project);
   const transcript = path.join(dir, 'transcript.jsonl');
   const { exitCode, wallMs } = await runCopilot({ ...options, dir: project, prompt: scenario.prompt,
-    withPlugin: arm === 'shunt', usageFile: path.join(dir, 'usage.json'), workerUsageDir, transcript });
-  const main = summarizeUsage(readJson(path.join(dir, 'usage.json')));
+    arm, usageFile: path.join(dir, 'usage.json'), workerUsageDir, transcript });
+  const { main, subagents, subagentCount } = splitAgents(readJson(path.join(dir, 'usage.json')));
   const workerFiles = fs.readdirSync(workerUsageDir);
+  // "Worker" is every cheap helper: Shunt's separate CLI sessions and the fleet's in-session subagents.
   const worker = workerFiles.map(file => summarizeUsage(readJson(path.join(workerUsageDir, file))))
-    .reduce(addUsage, summarizeUsage(null));
+    .reduce(addUsage, subagents);
   const seen = readTranscript(transcript);
   let correct = false;
   try { correct = exitCode === 0 && Boolean(scenario.check({ answer: seen.answer, dir: project })); } catch { /* counts as wrong */ }
-  return { scenario: scenario.name, arm, run, exitCode, wallMs, correct, delegations: workerFiles.length,
+  return { scenario: scenario.name, arm, run, exitCode, wallMs, correct, delegations: workerFiles.length + subagentCount,
     redirects: seen.redirects, toolCalls: seen.toolCalls, main, worker, total: addUsage(main, worker) };
 }
 
@@ -300,7 +323,7 @@ export function report(results) {
   const summary = [];
   for (const name of [...new Set(results.map(r => r.scenario))]) {
     const arms = {};
-    for (const arm of ['baseline', 'shunt']) {
+    for (const arm of ARMS) {
       const rows = results.filter(r => r.scenario === name && r.arm === arm);
       if (!rows.length) continue;
       arms[arm] = {
@@ -316,13 +339,14 @@ export function report(results) {
       const a = arms[arm];
       lines.push(`| ${name} | ${arm} | ${a.calls} | ${fmt(a.mainIn)} | ${fmt(a.mainOut)} | ${fmt(a.workerIn)} | ${fmt(a.workerOut)} | ${a.credits.toFixed(3)} | ${fmt(a.seconds)} | ${a.delegated} | ${a.correct} |`);
     }
-    if (arms.baseline && arms.shunt) {
-      summary.push(`| ${name} | ${pct(change(arms.baseline.credits, arms.shunt.credits))} | ${pct(change(arms.baseline.mainIn, arms.shunt.mainIn))} | ${pct(change(arms.baseline.mainOut, arms.shunt.mainOut))} | ${pct(change(arms.baseline.calls, arms.shunt.calls))} | ${pct(change(arms.baseline.seconds, arms.shunt.seconds))} |`);
+    for (const arm of ARMS.slice(1)) {
+      if (!arms.baseline || !arms[arm]) continue;
+      summary.push(`| ${name} | ${arm} | ${pct(change(arms.baseline.credits, arms[arm].credits))} | ${pct(change(arms.baseline.mainIn, arms[arm].mainIn))} | ${pct(change(arms.baseline.mainOut, arms[arm].mainOut))} | ${pct(change(arms.baseline.calls, arms[arm].calls))} | ${pct(change(arms.baseline.seconds, arms[arm].seconds))} |`);
     }
   }
   if (summary.length) {
-    lines.push('', 'Change with the plugin (negative = plugin used less; AI credits include the worker):', '',
-      '| Scenario | AI credits | Main input tokens | Main output tokens | Main model calls | Time |', '|---|---|---|---|---|---|', ...summary);
+    lines.push('', 'Change against the baseline (negative = used less; AI credits include workers and subagents):', '',
+      '| Scenario | Arm | AI credits | Main input tokens | Main output tokens | Main model calls | Time |', '|---|---|---|---|---|---|---|', ...summary);
   }
   return lines.join('\n');
 }
@@ -337,8 +361,9 @@ async function main() {
   if (!(timeoutMs > 0)) throw new Error('--timeout-sec must be a positive number.');
   const scenarios = args['--scenario'] ? SCENARIOS.filter(s => s.name === args['--scenario']) : SCENARIOS;
   if (!scenarios.length) throw new Error(`Unknown scenario. Choose one of: ${SCENARIOS.map(s => s.name).join(', ')}`);
-  const arms = args['--arm'] ? [args['--arm']] : ['baseline', 'shunt'];
-  if (arms.some(arm => arm !== 'baseline' && arm !== 'shunt')) throw new Error('--arm must be baseline or shunt.');
+  const arms = args['--arm'] ? args['--arm'].split(',') : ['baseline', 'shunt'];
+  if (arms.some(arm => !ARMS.includes(arm))) throw new Error(`--arm takes a comma-separated list of: ${ARMS.join(', ')}`);
+  if (arms.includes('fleet')) console.log('The fleet arm uses the coordinator\'s pinned model (gpt-5.6-sol); pass --model gpt-5.6-sol so the other arms match it.');
   const worker = config().model;
   const sessions = scenarios.length * arms.length * runs;
   console.log(`Main model: ${args['--model'] ?? '(your Copilot CLI default)'} | worker model: ${worker}`);

@@ -185,11 +185,22 @@ test('submitOrder refuses an inactive user', async () => {
 const ARMS = ['baseline', 'shunt', 'fleet'];
 
 // The fleet is the sibling approach in this repository: a coordinator that dispatches cheap in-session subagents.
-function installFleet(project) {
+function installFleet(project, force = false) {
   const installer = path.join(pluginRoot, '../scripts/install.mjs');
   if (!fs.existsSync(installer)) throw new Error('The fleet arm needs the agent-setup-copilot repository checkout around this plugin.');
-  const run = spawnSync(process.execPath, [installer, '--host', 'cli', '--dest', project], { encoding: 'utf8' });
+  const run = spawnSync(process.execPath, [installer, '--host', 'cli', '--dest', project, ...(force ? ['--force'] : [])], { encoding: 'utf8' });
   if (run.status !== 0) throw new Error(`Fleet install failed: ${run.stderr.trim()}`);
+}
+
+// Your own repository and your own questions, asked in order in one conversation.
+function ownScenario(args) {
+  if (!args['--project'] || !args['--prompts']) throw new Error('--project and --prompts go together.');
+  const project = path.resolve(args['--project']);
+  if (!fs.existsSync(path.join(project, '.git'))) throw new Error('--project must be the root of a git repository.');
+  const prompts = fs.readFileSync(args['--prompts'], 'utf8').split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+  if (!prompts.length) throw new Error('--prompts has no prompts. Put one per line.');
+  // Nothing can check these answers automatically; read the transcripts before trusting a saving.
+  return { name: path.basename(project), project, prompts, check: () => true, unchecked: true };
 }
 
 const answered = (...patterns) => ({ answer }) => patterns.every(pattern => pattern.test(answer));
@@ -307,11 +318,15 @@ function readTranscript(file) {
 
 async function runArm(scenario, arm, run, options) {
   const dir = path.join(options.out, `${scenario.name}-${arm}-${run}`);
-  buildFixture(path.join(dir, 'project'));
+  if (scenario.project) {
+    // A local clone is a cheap throwaway copy of the committed state; the real checkout is never touched.
+    const clone = spawnSync('git', ['clone', '--quiet', '--local', scenario.project, path.join(dir, 'project')], { encoding: 'utf8' });
+    if (clone.status !== 0) throw new Error(`Could not clone --project: ${clone.stderr.trim()}`);
+  } else buildFixture(path.join(dir, 'project'));
   const workerUsageDir = path.join(dir, 'worker-usage');
   fs.mkdirSync(workerUsageDir);
   const project = path.join(dir, 'project');
-  if (arm === 'fleet') installFleet(project);
+  if (arm === 'fleet') installFleet(project, Boolean(scenario.project));
   const prompts = scenario.prompts ?? [scenario.prompt];
   const sessionId = randomUUID();
   let exitCode = 0, wallMs = 0, subagentCount = 0, main = summarizeUsage(null), subagents = summarizeUsage(null);
@@ -332,6 +347,7 @@ async function runArm(scenario, arm, run, options) {
     seen.answer += `${read.answer}\n`;
     seen.toolCalls += read.toolCalls;
     seen.redirects += read.redirects;
+    fs.appendFileSync(path.join(dir, 'answers.md'), `## ${index + 1}. ${prompt}\n\n${read.answer}\n\n`);
     turns.push({ turn: index + 1, mainInput: main.input - beforeInput, nanoAiu: main.nanoAiu + subagents.nanoAiu - before });
     if (turn.exitCode !== 0) break;
   }
@@ -341,7 +357,7 @@ async function runArm(scenario, arm, run, options) {
     .reduce(addUsage, subagents);
   let correct = false;
   try { correct = exitCode === 0 && Boolean(scenario.check({ answer: seen.answer, dir: project })); } catch { /* counts as wrong */ }
-  return { scenario: scenario.name, arm, run, exitCode, wallMs, correct, delegations: workerFiles.length + subagentCount,
+  return { scenario: scenario.name, arm, run, exitCode, wallMs, correct, unchecked: Boolean(scenario.unchecked), delegations: workerFiles.length + subagentCount,
     redirects: seen.redirects, toolCalls: seen.toolCalls, turns, main, worker, total: addUsage(main, worker) };
 }
 
@@ -367,7 +383,7 @@ export function report(results) {
         credits: pick(rows, r => r.total.nanoAiu) / 1e9,
         seconds: pick(rows, r => r.wallMs) / 1000,
         delegated: `${rows.filter(r => r.delegations > 0).length}/${rows.length}`,
-        correct: `${rows.filter(r => r.correct).length}/${rows.length}`,
+        correct: rows[0].unchecked ? 'not checked' : `${rows.filter(r => r.correct).length}/${rows.length}`,
       };
       const a = arms[arm];
       lines.push(`| ${name} | ${arm} | ${a.calls} | ${fmt(a.mainIn)} | ${fmt(a.mainOut)} | ${fmt(a.workerIn)} | ${fmt(a.workerOut)} | ${a.credits.toFixed(3)} | ${fmt(a.seconds)} | ${a.delegated} | ${a.correct} |`);
@@ -387,13 +403,13 @@ export function report(results) {
 async function main() {
   const argv = process.argv.slice(2);
   const dryRun = argv.includes('--dry-run');
-  const args = parseArgs(argv.filter(a => a !== '--dry-run'), ['--model', '--runs', '--scenario', '--arm', '--out', '--timeout-sec']);
+  const args = parseArgs(argv.filter(a => a !== '--dry-run'), ['--model', '--runs', '--scenario', '--arm', '--out', '--timeout-sec', '--project', '--prompts']);
   const runs = Number(args['--runs'] ?? 1);
   if (!Number.isSafeInteger(runs) || runs < 1) throw new Error('--runs must be a positive integer.');
   const timeoutMs = Number(args['--timeout-sec'] ?? 600) * 1000;
   if (!(timeoutMs > 0)) throw new Error('--timeout-sec must be a positive number.');
   // The long session costs several times a single question, so it only runs when asked for by name.
-  const scenarios = args['--scenario'] ? SCENARIOS.filter(s => s.name === args['--scenario']) : SCENARIOS.filter(s => !s.prompts);
+  const scenarios = args['--project'] || args['--prompts'] ? [ownScenario(args)] : args['--scenario'] ? SCENARIOS.filter(s => s.name === args['--scenario']) : SCENARIOS.filter(s => !s.prompts);
   if (!scenarios.length) throw new Error(`Unknown scenario. Choose one of: ${SCENARIOS.map(s => s.name).join(', ')}`);
   const arms = args['--arm'] ? args['--arm'].split(',') : ['baseline', 'shunt'];
   if (arms.some(arm => !ARMS.includes(arm))) throw new Error(`--arm takes a comma-separated list of: ${ARMS.join(', ')}`);

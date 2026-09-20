@@ -38,6 +38,17 @@ node scripts/benchmark.mjs --model gpt-5.6-sol --arm baseline,shunt,fleet
 
 Leave out `--model` to use your Copilot CLI default. A full run takes about five minutes.
 
+## Test your own repository
+
+The built-in project is tiny. To see what happens on your real work, give it a repository and a text file of questions, one per line, in the order you would ask them:
+
+```sh
+node scripts/benchmark.mjs --model gpt-5.6-sol --arm baseline,fleet \
+  --project /path/to/your/repo --prompts my-questions.txt
+```
+
+Each side works in its own throwaway `git clone` of the committed state, so your checkout is never touched. The questions run as one conversation. Answers are not checked automatically: read `answers.md` in each run folder and compare them yourself.
+
 ## Options
 
 | Option | What it does | Default |
@@ -48,6 +59,7 @@ Leave out `--model` to use your Copilot CLI default. A full run takes about five
 | `--arm <list>` | Comma-separated sides to run: `baseline`, `shunt`, `fleet` | `baseline,shunt` |
 | `--out <folder>` | Where to keep results | A new temp folder |
 | `--timeout-sec <n>` | Give up on one session after `n` seconds | `600` |
+| `--project <path>` with `--prompts <file>` | Use your own git repository and questions instead of the built-in ones | Off |
 | `--dry-run` | Print the plan and stop | Off |
 
 Model answers vary from run to run. Use `--runs 3` before you trust a small difference.
@@ -132,7 +144,7 @@ Eight questions in a single conversation (`--scenario long-session`), so everyth
 | Context size at the last call | 33,058 | 30,961 | 18,158 |
 | Time | 105 s | 258 s | 682 s |
 
-The fleet does what it promises for the expensive model: Sol read 46% fewer tokens, cost 24% less, and its context stayed almost half the size. The total still came out 11% higher because the ten subagents each start cold and explore the project again, reading 1.7 million tokens between them. Even at Luna's price that is 15.68 credits. At eight questions the baseline's context was only 33,000 tokens, so the carried-context cost the fleet avoids was still small. A longer session on a larger repository shifts this in the fleet's favour, and narrower subagent briefs would shrink its helper bill; neither has been measured here.
+The fleet does what it promises for the expensive model: Sol read 46% fewer tokens, cost 24% less, and its context stayed almost half the size. The coordinator's briefs were small and specific, around 500 characters such as "Read only src/pricing-rules.mjs. Determine which SKU has the largest discount". The total still came out 11% higher because of how the subagents read. Copilot CLI will not return the 69 KB file in one go, so a subagent pages through it in ranges, and every call resends what it has gathered so far: four subagents made 18 to 22 calls and resent about 350,000 tokens each. Nearly all of that is cached, so one subagent costs only 0.1 to 3.6 credits, but ten of them add up to 15.68. At eight questions the baseline's context was only 33,000 tokens, so the carried-context cost the fleet avoids was still small. A longer session on a larger repository shifts this in the fleet's favour, and narrower subagent briefs would shrink its helper bill; neither has been measured here.
 
 ### Main model `gpt-5.6-luna`, baseline against Shunt
 

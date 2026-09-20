@@ -1,0 +1,19 @@
+{
+  "experiment": "H4",
+  "variant": "review-loop-xl-3",
+  "started": "2026-09-20T11:39:48.690Z",
+  "finished": "2026-09-20T11:39:48.715Z",
+  "exitCode": 1,
+  "benchmarkArgs": [
+    "--arm",
+    "review-loop",
+    "--label",
+    "review-loop",
+    "--tools view,rg,glob,bash,apply_patch --timeout-sec 2400 --scenario spec-audit-xl --runs 3"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-H4-review-loop-xl-3",
+  "results": null
+}

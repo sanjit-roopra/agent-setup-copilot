@@ -1,0 +1,134 @@
+{
+  "experiment": "H4",
+  "variant": "luna-spec-audit-xl-1b",
+  "started": "2026-09-20T11:22:26.031Z",
+  "finished": "2026-09-20T11:24:10.469Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "1",
+    "--label",
+    "luna",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--timeout-sec",
+    "1800"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-H4-luna-spec-audit-xl-1b",
+  "results": {
+    "model": "gpt-5.6-luna",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 100425,
+        "correct": false,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 67,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 427655,
+            "nanoAiu": 3679280000,
+            "buckets": {
+              "uncached": 0.0006,
+              "cached": 0.72267,
+              "cacheWrite": 1.65725,
+              "output": 1.2987600000000001,
+              "priced": 3.67928,
+              "billed": 3.67928,
+              "residual": 0,
+              "reasoning": 5179,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 427655,
+          "output": 10823,
+          "cacheRead": 361335,
+          "cacheWrite": 66290,
+          "reasoning": 5179,
+          "modelCalls": 10,
+          "premiumRequests": 0,
+          "nanoAiu": 3679280000,
+          "apiMs": 84801
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0006,
+          "cached": 0.72267,
+          "cacheWrite": 1.65725,
+          "output": 1.2987600000000001,
+          "priced": 3.67928,
+          "billed": 3.67928,
+          "residual": 0,
+          "reasoning": 5179,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "grade": "fixed 6/14, 2 regressions",
+        "gradeDetail": {
+          "score": 6,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "larch:cutoff",
+            "yarrow:step"
+          ],
+          "missed": [
+            "hazel:step",
+            "kelp:prefix",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:prefix"
+          ],
+          "regression": false
+        },
+        "label": "luna",
+        "total": {
+          "input": 427655,
+          "output": 10823,
+          "cacheRead": 361335,
+          "cacheWrite": 66290,
+          "reasoning": 5179,
+          "modelCalls": 10,
+          "premiumRequests": 0,
+          "nanoAiu": 3679280000,
+          "apiMs": 84801
+        }
+      }
+    ]
+  }
+}

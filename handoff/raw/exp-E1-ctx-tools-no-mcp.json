@@ -1,0 +1,106 @@
+{
+  "experiment": "E1",
+  "variant": "ctx-tools-no-mcp",
+  "started": "2026-09-20T09:21:31.378Z",
+  "finished": "2026-09-20T09:21:36.871Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "context-probe",
+    "--label",
+    "tools-no-mcp",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--disable-user-mcps"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E1-ctx-tools-no-mcp",
+  "results": {
+    "model": "gpt-5.6-luna",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "context-probe",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 5402,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 0,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 5197,
+            "nanoAiu": 130510000,
+            "buckets": {
+              "uncached": 0.00006000000000000001,
+              "cached": 0,
+              "cacheWrite": 0.12985,
+              "output": 0.0006,
+              "priced": 0.13051,
+              "billed": 0.13051,
+              "residual": 0,
+              "reasoning": 0,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 5197,
+          "output": 5,
+          "cacheRead": 0,
+          "cacheWrite": 5194,
+          "reasoning": 0,
+          "modelCalls": 1,
+          "premiumRequests": 0,
+          "nanoAiu": 130510000,
+          "apiMs": 953
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00006000000000000001,
+          "cached": 0,
+          "cacheWrite": 0.12985,
+          "output": 0.0006,
+          "priced": 0.13051,
+          "billed": 0.13051,
+          "residual": 0,
+          "reasoning": 0,
+          "unpriced": []
+        },
+        "firstCallInput": 5197,
+        "label": "tools-no-mcp",
+        "total": {
+          "input": 5197,
+          "output": 5,
+          "cacheRead": 0,
+          "cacheWrite": 5194,
+          "reasoning": 0,
+          "modelCalls": 1,
+          "premiumRequests": 0,
+          "nanoAiu": 130510000,
+          "apiMs": 953
+        }
+      }
+    ]
+  }
+}

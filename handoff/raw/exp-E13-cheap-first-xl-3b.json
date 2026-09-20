@@ -1,0 +1,337 @@
+{
+  "experiment": "E13",
+  "variant": "cheap-first-xl-3b",
+  "started": "2026-09-20T12:15:45.699Z",
+  "finished": "2026-09-20T12:24:55.891Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--arm",
+    "cheap-first",
+    "--label",
+    "cheap-first",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--timeout-sec",
+    "2400",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "3"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E13-cheap-first-xl-3b",
+  "results": {
+    "model": null,
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "cheap-first",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 182998,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 60,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 480988,
+            "nanoAiu": 3581476000,
+            "buckets": {
+              "uncached": 0.00072,
+              "cached": 0.8169360000000001,
+              "cacheWrite": 1.8121,
+              "output": 0.9517199999999999,
+              "priced": 3.5814760000000003,
+              "billed": 3.581476,
+              "residual": -4.440892098500626e-16,
+              "reasoning": 4210,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 480988,
+          "output": 7931,
+          "cacheRead": 408468,
+          "cacheWrite": 72484,
+          "reasoning": 4210,
+          "modelCalls": 12,
+          "premiumRequests": 0,
+          "nanoAiu": 3581476000,
+          "apiMs": 66292
+        },
+        "worker": {
+          "input": 346008,
+          "output": 10767,
+          "cacheRead": 284672,
+          "cacheWrite": 0,
+          "reasoning": 4322,
+          "modelCalls": 9,
+          "premiumRequests": 1,
+          "nanoAiu": 57455280000,
+          "apiMs": 99598
+        },
+        "buckets": {
+          "uncached": 24.535120000000003,
+          "cached": 12.203816,
+          "cacheWrite": 1.8121,
+          "output": 22.48572,
+          "priced": 61.036756000000004,
+          "billed": 61.036756000000004,
+          "residual": -4.440892098500626e-16,
+          "reasoning": 8532,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": true,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 57.45528,
+        "label": "cheap-first",
+        "total": {
+          "input": 826996,
+          "output": 18698,
+          "cacheRead": 693140,
+          "cacheWrite": 72484,
+          "reasoning": 8532,
+          "modelCalls": 21,
+          "premiumRequests": 1,
+          "nanoAiu": 61036756000,
+          "apiMs": 165890
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "cheap-first",
+        "run": 2,
+        "exitCode": 0,
+        "wallMs": 183334,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 106,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 798720,
+            "nanoAiu": 4624988000,
+            "buckets": {
+              "uncached": 0.00126,
+              "cached": 1.446958,
+              "cacheWrite": 1.87945,
+              "output": 1.2973199999999998,
+              "priced": 4.624988,
+              "billed": 4.624988,
+              "residual": 0,
+              "reasoning": 2742,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 798720,
+          "output": 10811,
+          "cacheRead": 723479,
+          "cacheWrite": 75178,
+          "reasoning": 2742,
+          "modelCalls": 21,
+          "premiumRequests": 0,
+          "nanoAiu": 4624988000,
+          "apiMs": 99083
+        },
+        "worker": {
+          "input": 221213,
+          "output": 7405,
+          "cacheRead": 163840,
+          "cacheWrite": 0,
+          "reasoning": 3302,
+          "modelCalls": 7,
+          "premiumRequests": 1,
+          "nanoAiu": 44312800000,
+          "apiMs": 66930
+        },
+        "buckets": {
+          "uncached": 22.95046,
+          "cached": 8.000558,
+          "cacheWrite": 1.87945,
+          "output": 16.10732,
+          "priced": 48.937788000000005,
+          "billed": 48.937788000000005,
+          "residual": 0,
+          "reasoning": 6044,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": true,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 44.3128,
+        "label": "cheap-first",
+        "total": {
+          "input": 1019933,
+          "output": 18216,
+          "cacheRead": 887319,
+          "cacheWrite": 75178,
+          "reasoning": 6044,
+          "modelCalls": 28,
+          "premiumRequests": 1,
+          "nanoAiu": 48937788000,
+          "apiMs": 166013
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "cheap-first",
+        "run": 3,
+        "exitCode": 0,
+        "wallMs": 161290,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 82,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 1771201,
+            "nanoAiu": 8224051000,
+            "buckets": {
+              "uncached": 0.00162,
+              "cached": 3.347646,
+              "cacheWrite": 2.432425,
+              "output": 2.44236,
+              "priced": 8.224051,
+              "billed": 8.224051,
+              "residual": 0,
+              "reasoning": 7021,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 1771201,
+          "output": 20353,
+          "cacheRead": 1673823,
+          "cacheWrite": 97297,
+          "reasoning": 7021,
+          "modelCalls": 27,
+          "premiumRequests": 0,
+          "nanoAiu": 8224051000,
+          "apiMs": 148447
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00162,
+          "cached": 3.347646,
+          "cacheWrite": 2.432425,
+          "output": 2.44236,
+          "priced": 8.224051,
+          "billed": 8.224051,
+          "residual": 0,
+          "reasoning": 7021,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "cheap-first",
+        "total": {
+          "input": 1771201,
+          "output": 20353,
+          "cacheRead": 1673823,
+          "cacheWrite": 97297,
+          "reasoning": 7021,
+          "modelCalls": 27,
+          "premiumRequests": 0,
+          "nanoAiu": 8224051000,
+          "apiMs": 148447
+        }
+      }
+    ]
+  }
+}

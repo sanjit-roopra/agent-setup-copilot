@@ -1,0 +1,28 @@
+{
+  "experiment": "H4",
+  "variant": "luna-spec-audit-xl-1",
+  "started": "2026-09-20T11:21:59.114Z",
+  "finished": "2026-09-20T11:21:59.142Z",
+  "exitCode": 1,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "1",
+    "--label",
+    "luna",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--timeout-sec",
+    "1800"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-H4-luna-spec-audit-xl-1",
+  "results": null
+}

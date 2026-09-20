@@ -1,0 +1,264 @@
+{
+  "experiment": "E1b",
+  "variant": "luna-gentests-tools-3",
+  "started": "2026-09-20T09:32:51.964Z",
+  "finished": "2026-09-20T09:34:39.704Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "generate-tests",
+    "--runs",
+    "3",
+    "--label",
+    "tools",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--timeout-sec",
+    "900"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E1b-luna-gentests-tools-3",
+  "results": {
+    "model": "gpt-5.6-luna",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "generate-tests",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 38891,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 10,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 57885,
+            "nanoAiu": 625894000,
+            "buckets": {
+              "uncached": 0.00036,
+              "cached": 0.092294,
+              "cacheWrite": 0.293,
+              "output": 0.24024,
+              "priced": 0.625894,
+              "billed": 0.625894,
+              "residual": 0,
+              "reasoning": 619,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 57885,
+          "output": 2002,
+          "cacheRead": 46147,
+          "cacheWrite": 11720,
+          "reasoning": 619,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 625894000,
+          "apiMs": 27827
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00036,
+          "cached": 0.092294,
+          "cacheWrite": 0.293,
+          "output": 0.24024,
+          "priced": 0.625894,
+          "billed": 0.625894,
+          "residual": 0,
+          "reasoning": 619,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "label": "tools",
+        "total": {
+          "input": 57885,
+          "output": 2002,
+          "cacheRead": 46147,
+          "cacheWrite": 11720,
+          "reasoning": 619,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 625894000,
+          "apiMs": 27827
+        }
+      },
+      {
+        "scenario": "generate-tests",
+        "arm": "baseline",
+        "run": 2,
+        "exitCode": 0,
+        "wallMs": 33708,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 13,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 69200,
+            "nanoAiu": 693776000,
+            "buckets": {
+              "uncached": 0.00042,
+              "cached": 0.113826,
+              "cacheWrite": 0.30665,
+              "output": 0.27287999999999996,
+              "priced": 0.693776,
+              "billed": 0.693776,
+              "residual": 0,
+              "reasoning": 655,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 69200,
+          "output": 2274,
+          "cacheRead": 56913,
+          "cacheWrite": 12266,
+          "reasoning": 655,
+          "modelCalls": 7,
+          "premiumRequests": 0,
+          "nanoAiu": 693776000,
+          "apiMs": 22616
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00042,
+          "cached": 0.113826,
+          "cacheWrite": 0.30665,
+          "output": 0.27287999999999996,
+          "priced": 0.693776,
+          "billed": 0.693776,
+          "residual": 0,
+          "reasoning": 655,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "label": "tools",
+        "total": {
+          "input": 69200,
+          "output": 2274,
+          "cacheRead": 56913,
+          "cacheWrite": 12266,
+          "reasoning": 655,
+          "modelCalls": 7,
+          "premiumRequests": 0,
+          "nanoAiu": 693776000,
+          "apiMs": 22616
+        }
+      },
+      {
+        "scenario": "generate-tests",
+        "arm": "baseline",
+        "run": 3,
+        "exitCode": 0,
+        "wallMs": 34736,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 14,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 81782,
+            "nanoAiu": 769464000,
+            "buckets": {
+              "uncached": 0.00042,
+              "cached": 0.132854,
+              "cacheWrite": 0.38335,
+              "output": 0.25284,
+              "priced": 0.7694639999999999,
+              "billed": 0.769464,
+              "residual": 1.1102230246251565e-16,
+              "reasoning": 494,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 81782,
+          "output": 2107,
+          "cacheRead": 66427,
+          "cacheWrite": 15334,
+          "reasoning": 494,
+          "modelCalls": 7,
+          "premiumRequests": 0,
+          "nanoAiu": 769464000,
+          "apiMs": 23397
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00042,
+          "cached": 0.132854,
+          "cacheWrite": 0.38335,
+          "output": 0.25284,
+          "priced": 0.7694639999999999,
+          "billed": 0.769464,
+          "residual": 1.1102230246251565e-16,
+          "reasoning": 494,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "label": "tools",
+        "total": {
+          "input": 81782,
+          "output": 2107,
+          "cacheRead": 66427,
+          "cacheWrite": 15334,
+          "reasoning": 494,
+          "modelCalls": 7,
+          "premiumRequests": 0,
+          "nanoAiu": 769464000,
+          "apiMs": 23397
+        }
+      }
+    ]
+  }
+}

@@ -329,7 +329,7 @@ test('benchmark usage maths: per-model sums, worker totals, median and percentag
     a: { requests: { count: 2 }, usage: { inputTokens: 100, outputTokens: 10, cacheReadTokens: 60, cacheWriteTokens: 30 } },
     b: { requests: { count: 1 }, usage: { inputTokens: 5, outputTokens: 1 } } } };
   const main = summarizeUsage(usage);
-  assert.deepEqual(main, { input: 105, output: 11, cacheRead: 60, cacheWrite: 30, modelCalls: 3, premiumRequests: 1, nanoAiu: 500, apiMs: 40 });
+  assert.deepEqual(main, { input: 105, output: 11, cacheRead: 60, cacheWrite: 30, reasoning: 0, modelCalls: 3, premiumRequests: 1, nanoAiu: 500, apiMs: 40 });
   assert.equal(summarizeUsage(null).input, 0);
   assert.equal(addUsage(main, main).nanoAiu, 1000);
   assert.equal(median([3, 1, 2]), 2);
@@ -340,10 +340,136 @@ test('benchmark usage maths: per-model sums, worker totals, median and percentag
     main: { ...main, input }, worker: summarizeUsage(null), total: { ...main, input, nanoAiu } });
   const table = report([row('baseline', 1000, 400), row('shunt', 250, 600)]);
   assert.match(table, /\| s \| shunt \| \+50% \| -75% \| 0% \| 0% \|/);
+  assert.match(report([row('baseline', 1000, 400), row('economy', 1000, 40)]), /\| s \| economy \| -90% \|/);
   const { splitAgents } = await import('../scripts/benchmark.mjs');
   const split = splitAgents({ agentMetrics: { main: usage, 'fleet-explore': usage, 'fleet-task': usage } });
   assert.equal(split.main.input, 105);
   assert.equal(split.subagents.input, 210);
   assert.equal(split.subagentCount, 2);
   assert.equal(splitAgents(usage).main.input, 105);
+});
+
+test('long-session quality cannot borrow facts from later answers to hide a skipped turn', async () => {
+  const { SCENARIOS, checkAnswers } = await import('../scripts/benchmark.mjs');
+  const scenario = SCENARIOS.find(s => s.name === 'long-session');
+  const complete = 'invoice shipment refund subscription coupon address warehouse carrier parcel label customs pickup return notification webhook audit ledger payout retryDelivery 7 250 submitOrder active SKU-077 40 throws error false UserService OrderService createUser getUser deactivateUser isActive duplicate not found missing inactive success';
+  const answers = scenario.prompts.map(() => complete);
+  assert.equal(checkAnswers(scenario, answers), true);
+  answers[0] = 'I will inspect the file.';
+  assert.equal(scenario.check({ answer: answers.join('\n') }), true);
+  assert.equal(checkAnswers(scenario, answers), false);
+  assert.equal(checkAnswers(scenario, answers.slice(1)), false);
+});
+
+test('economy benchmark selects its pinned agent without overriding it with the baseline model', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'economy-bench-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const fake = path.join(root, 'copilot');
+  fs.writeFileSync(fake, `#!/usr/bin/env node
+const fs = require('node:fs');
+const args = process.argv.slice(2);
+if (args.includes('--model') || args[args.indexOf('--agent') + 1] !== 'economy') process.exit(2);
+fs.writeFileSync(args[args.indexOf('--usage-output-file') + 1], JSON.stringify({totalNanoAiu: 1000000000}));
+console.log(JSON.stringify({type: 'assistant.message', data: {phase: 'final_answer', content: 'retryDelivery 7 250'}}));
+`, { mode: 0o755 });
+  const out = path.join(root, 'results');
+  const run = spawnSync(process.execPath, [path.join(pluginRoot, 'scripts/benchmark.mjs'),
+    '--arm', 'economy', '--model', 'gpt-5.6-sol', '--scenario', 'find-a-value', '--out', out],
+  { encoding: 'utf8', env: { ...process.env, SHUNT_COPILOT_BIN: fake } });
+  assert.equal(run.status, 0, run.stderr);
+  const [result] = JSON.parse(fs.readFileSync(path.join(out, 'results.json'))).results;
+  assert.equal(result.correct, true);
+  assert.equal(result.total.nanoAiu, 1000000000);
+  assert.equal(result.delegations, 0);
+});
+
+test('bucketCredits reconciles with the CLI total on a real pinned-model usage file', async () => {
+  const { bucketCredits } = await import('../scripts/benchmark.mjs');
+  const fixture = path.join(pluginRoot, '../handoff/raw/luna-long-session-baseline-usage.json');
+  if (!fs.existsSync(fixture)) return; // evidence files are untracked; skip when absent
+  const buckets = bucketCredits(JSON.parse(fs.readFileSync(fixture, 'utf8')));
+  assert.ok(Math.abs(buckets.residual) / buckets.billed < 0.01, `residual ${buckets.residual} of ${buckets.billed}`);
+  assert.ok(buckets.cacheWrite / buckets.priced > 0.7, 'Luna cache writes dominated that session');
+});
+
+test('bucketCredits prices each model separately and flags unknown ones', async () => {
+  const { bucketCredits } = await import('../scripts/benchmark.mjs');
+  const usage = {
+    totalNanoAiu: 0,
+    modelMetrics: {
+      'gpt-5.6-sol': { usage: { reasoningTokens: 100 }, tokenDetails: { input: { tokenCount: 1e6 }, cache_read: { tokenCount: 1e6 }, cache_write: { tokenCount: 1e6 }, output: { tokenCount: 1e6 } } },
+      'made-up-model': { usage: {}, tokenDetails: { input: { tokenCount: 1e6 } } },
+    },
+  };
+  const buckets = bucketCredits(usage);
+  assert.equal(buckets.uncached, 400);
+  assert.equal(buckets.cached, 40);
+  assert.equal(buckets.cacheWrite, 500);
+  assert.equal(buckets.output, 2000);
+  assert.equal(buckets.priced, 2940);
+  assert.equal(buckets.reasoning, 100);
+  assert.deepEqual(buckets.unpriced, ['made-up-model']);
+});
+
+test('addBuckets sums and keeps unpriced models unique', async () => {
+  const { addBuckets, emptyBuckets } = await import('../scripts/benchmark.mjs');
+  const a = { ...emptyBuckets(), output: 2, priced: 2, unpriced: ['x'] };
+  const b = { ...emptyBuckets(), output: 3, priced: 3, unpriced: ['x', 'y'] };
+  const sum = addBuckets(a, b);
+  assert.equal(sum.output, 5);
+  assert.equal(sum.priced, 5);
+  assert.deepEqual(sum.unpriced, ['x', 'y']);
+});
+
+test('buildExtraArgs builds typed CLI arguments and rejects unknown values', async () => {
+  const { buildExtraArgs } = await import('../scripts/benchmark.mjs');
+  const mcp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-')), 'mcp-config.json');
+  fs.writeFileSync(mcp, JSON.stringify({ mcpServers: { alpha: {}, beta: {} } }));
+  assert.deepEqual(buildExtraArgs({}, false, mcp), []);
+  assert.deepEqual(buildExtraArgs({ '--reasoning-effort': 'low' }, false, mcp), ['--reasoning-effort', 'low']);
+  assert.deepEqual(buildExtraArgs({ '--tools': 'view,str_replace' }, false, mcp), ['--available-tools', 'view', 'str_replace']);
+  assert.deepEqual(buildExtraArgs({}, true, mcp), ['--disable-mcp-server', 'alpha', '--disable-mcp-server', 'beta']);
+  assert.throws(() => buildExtraArgs({ '--reasoning-effort': 'turbo' }, false, mcp), /reasoning-effort/);
+  assert.throws(() => buildExtraArgs({ '--auto-tier': 'cheap' }, false, mcp), /auto-tier/);
+  assert.throws(() => buildExtraArgs({ '--tools': 'rm -rf /' }, false, mcp), /tool identifiers/);
+});
+
+test('escalation prompt carries the original request and never invites a criteria change', async () => {
+  const { escalationPrompt, ESCALATION_MODELS } = await import('../scripts/benchmark.mjs');
+  const prompt = escalationPrompt(['Write tests for UserService.'], 'node --test exited 1');
+  assert.match(prompt, /Write tests for UserService\./);
+  assert.match(prompt, /node --test exited 1/);
+  assert.match(prompt, /Do not change the acceptance criteria\./);
+  assert.notEqual(ESCALATION_MODELS.cheap, ESCALATION_MODELS.strong);
+});
+
+test('review and repair prompts keep the reviewer read-only and carry the findings', async () => {
+  const { reviewPrompt, repairPrompt } = await import('../scripts/benchmark.mjs');
+  const review = reviewPrompt(['Audit every carrier.']);
+  assert.match(review, /Audit every carrier\./);
+  assert.match(review, /Do not edit any file\./);
+  assert.match(review, /NO FINDINGS/);
+  assert.match(repairPrompt('1. elm: wrong order'), /1\. elm: wrong order/);
+});
+
+test('ladder: disputed files are the ones two attempts left different, in either direction', async () => {
+  const { disputedFiles, changedFiles, arbitrationPrompt } = await import('../scripts/benchmark.mjs');
+  const make = edits => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ladder-'));
+    for (const name of ['a.mjs', 'b.mjs', 'c.mjs']) fs.writeFileSync(path.join(dir, name), `export const v = '${name}';\n`);
+    spawnSync('git', ['init', '-q', dir]);
+    spawnSync('git', ['-C', dir, 'add', '-A']);
+    spawnSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-qm', 'init']);
+    for (const [name, content] of Object.entries(edits)) fs.writeFileSync(path.join(dir, name), content);
+    return dir;
+  };
+  const one = make({ 'a.mjs': 'same fix\n', 'b.mjs': 'fix one\n' });
+  const two = make({ 'a.mjs': 'same fix   \n', 'c.mjs': 'only two touched this\n', 'new.mjs': 'created by two\n' });
+  assert.deepEqual(changedFiles(one), ['a.mjs', 'b.mjs']);
+  // a.mjs differs only in trailing whitespace, so it is agreed; b, c and the new file are disputed.
+  assert.deepEqual(disputedFiles(one, two), ['b.mjs', 'c.mjs', 'new.mjs']);
+  assert.deepEqual(disputedFiles(one, one), []);
+  const prompt = arbitrationPrompt(['Fix it.'], ['b.mjs'], '.ladder-other');
+  assert.match(prompt, /- b\.mjs/);
+  assert.match(prompt, /Do not edit any file that is not in the list\./);
 });

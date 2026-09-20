@@ -1,0 +1,267 @@
+{
+  "experiment": "E13",
+  "variant": "luna-hard-refactor-3",
+  "started": "2026-09-20T10:28:53.622Z",
+  "finished": "2026-09-20T10:30:22.703Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "hard-refactor",
+    "--runs",
+    "3",
+    "--label",
+    "luna",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--timeout-sec",
+    "900"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E13-luna-hard-refactor-3",
+  "results": {
+    "model": "gpt-5.6-luna",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "hard-refactor",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 28826,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 11,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 33146,
+            "nanoAiu": 422498000,
+            "buckets": {
+              "uncached": 0.0003,
+              "cached": 0.050838,
+              "cacheWrite": 0.1928,
+              "output": 0.17856,
+              "priced": 0.422498,
+              "billed": 0.422498,
+              "residual": 0,
+              "reasoning": 453,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 33146,
+          "output": 1488,
+          "cacheRead": 25419,
+          "cacheWrite": 7712,
+          "reasoning": 453,
+          "modelCalls": 5,
+          "premiumRequests": 0,
+          "nanoAiu": 422498000,
+          "apiMs": 18508
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0003,
+          "cached": 0.050838,
+          "cacheWrite": 0.1928,
+          "output": 0.17856,
+          "priced": 0.422498,
+          "billed": 0.422498,
+          "residual": 0,
+          "reasoning": 453,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "grade": "passed",
+        "label": "luna",
+        "total": {
+          "input": 33146,
+          "output": 1488,
+          "cacheRead": 25419,
+          "cacheWrite": 7712,
+          "reasoning": 453,
+          "modelCalls": 5,
+          "premiumRequests": 0,
+          "nanoAiu": 422498000,
+          "apiMs": 18508
+        }
+      },
+      {
+        "scenario": "hard-refactor",
+        "arm": "baseline",
+        "run": 2,
+        "exitCode": 0,
+        "wallMs": 28754,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 13,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 40738,
+            "nanoAiu": 468713000,
+            "buckets": {
+              "uncached": 0.00036,
+              "cached": 0.06537799999999999,
+              "cacheWrite": 0.200775,
+              "output": 0.2022,
+              "priced": 0.468713,
+              "billed": 0.468713,
+              "residual": 0,
+              "reasoning": 507,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 40738,
+          "output": 1685,
+          "cacheRead": 32689,
+          "cacheWrite": 8031,
+          "reasoning": 507,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 468713000,
+          "apiMs": 18724
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00036,
+          "cached": 0.06537799999999999,
+          "cacheWrite": 0.200775,
+          "output": 0.2022,
+          "priced": 0.468713,
+          "billed": 0.468713,
+          "residual": 0,
+          "reasoning": 507,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "grade": "passed",
+        "label": "luna",
+        "total": {
+          "input": 40738,
+          "output": 1685,
+          "cacheRead": 32689,
+          "cacheWrite": 8031,
+          "reasoning": 507,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 468713000,
+          "apiMs": 18724
+        }
+      },
+      {
+        "scenario": "hard-refactor",
+        "arm": "baseline",
+        "run": 3,
+        "exitCode": 0,
+        "wallMs": 30887,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 14,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 44056,
+            "nanoAiu": 542636000,
+            "buckets": {
+              "uncached": 0.00036,
+              "cached": 0.069596,
+              "cacheWrite": 0.231,
+              "output": 0.24167999999999998,
+              "priced": 0.542636,
+              "billed": 0.542636,
+              "residual": 0,
+              "reasoning": 588,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 44056,
+          "output": 2014,
+          "cacheRead": 34798,
+          "cacheWrite": 9240,
+          "reasoning": 588,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 542636000,
+          "apiMs": 20557
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00036,
+          "cached": 0.069596,
+          "cacheWrite": 0.231,
+          "output": 0.24167999999999998,
+          "priced": 0.542636,
+          "billed": 0.542636,
+          "residual": 0,
+          "reasoning": 588,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "grade": "passed",
+        "label": "luna",
+        "total": {
+          "input": 44056,
+          "output": 2014,
+          "cacheRead": 34798,
+          "cacheWrite": 9240,
+          "reasoning": 588,
+          "modelCalls": 6,
+          "premiumRequests": 0,
+          "nanoAiu": 542636000,
+          "apiMs": 20557
+        }
+      }
+    ]
+  }
+}

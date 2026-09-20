@@ -1,0 +1,27 @@
+{
+  "experiment": "DOC",
+  "variant": "check-1",
+  "started": "2026-09-20T17:13:45.808Z",
+  "finished": "2026-09-20T17:13:45.837Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--dry-run",
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "ladder",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "3",
+    "--prompt-prefix-file",
+    "experiments/prompts/checklist.md",
+    "--tools",
+    "view,rg,glob,bash,apply_patch"
+  ],
+  "revision": "78bf9f7dac637bc6763bc27ee0c8798c239e4bf9",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-DOC-check-1",
+  "results": null
+}

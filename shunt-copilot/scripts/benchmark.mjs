@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import { config, mainError, parseArgs, pluginRoot } from './common.mjs';
 
 const TOPICS = ['invoice', 'shipment', 'refund', 'subscription', 'coupon', 'address', 'warehouse', 'carrier',
@@ -210,6 +211,19 @@ export const SCENARIOS = [
     prompt: 'Write node:test unit tests for UserService in src/user-service.mjs, following the conventions of tests/order-service.test.mjs. Save them as tests/user-service.test.mjs.',
     check: ({ dir }) => fs.existsSync(path.join(dir, 'tests/user-service.test.mjs'))
       && spawnSync(process.execPath, ['--test', 'tests/user-service.test.mjs'], { cwd: dir, timeout: 60000 }).status === 0 },
+  // A working session: eight questions in one conversation, so whatever was read early is carried by every later call.
+  { name: 'long-session',
+    prompts: [
+      'Summarise what src/delivery-service.mjs does. Name the event topics it handles and any function that is not an event handler.',
+      'How does delivery retrying work there? Give the retry count and the wait between attempts.',
+      'Which OrderService method ships an order, and what has to be true before it does?',
+      'In src/pricing-rules.mjs, which SKU has the largest discount and how large is it?',
+      'What would happen to submitOrder if RETRY_LIMIT were set to 0?',
+      'List the UserService methods and the errors each one can throw.',
+      'tests/order-service.test.mjs: what is covered and what is missing for submitOrder?',
+      'Write a short architecture overview of this project that names the key functions and how they depend on each other.',
+    ],
+    check: answered(/\b7\b/, /250/, /retryDelivery/, /submitOrder/, /isActive/, /SKU-077/) },
 ];
 
 const tokens = usage => ({
@@ -257,8 +271,9 @@ function readJson(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
-function runCopilot({ executable, dir, prompt, model, arm, usageFile, workerUsageDir, transcript, timeoutMs }) {
-  const args = ['-C', dir, '-p', prompt, '--allow-all-tools', '--allow-all-paths', '--no-custom-instructions',
+function runCopilot({ executable, dir, prompt, model, arm, sessionId, usageFile, workerUsageDir, transcript, timeoutMs }) {
+  // One session id across the turns of a scenario makes each later prompt continue the same conversation.
+  const args = ['-C', dir, '-p', prompt, `--session-id=${sessionId}`, '--allow-all-tools', '--allow-all-paths', '--no-custom-instructions',
     '--no-ask-user', '--disable-builtin-mcps', '--output-format', 'json', '--stream', 'off', '--log-level', 'none',
     '--usage-output-file', usageFile];
   // The fleet coordinator pins its own model with a required policy, so --model would conflict with it.
@@ -297,19 +312,37 @@ async function runArm(scenario, arm, run, options) {
   fs.mkdirSync(workerUsageDir);
   const project = path.join(dir, 'project');
   if (arm === 'fleet') installFleet(project);
-  const transcript = path.join(dir, 'transcript.jsonl');
-  const { exitCode, wallMs } = await runCopilot({ ...options, dir: project, prompt: scenario.prompt,
-    arm, usageFile: path.join(dir, 'usage.json'), workerUsageDir, transcript });
-  const { main, subagents, subagentCount } = splitAgents(readJson(path.join(dir, 'usage.json')));
+  const prompts = scenario.prompts ?? [scenario.prompt];
+  const sessionId = randomUUID();
+  let exitCode = 0, wallMs = 0, subagentCount = 0, main = summarizeUsage(null), subagents = summarizeUsage(null);
+  const seen = { answer: '', toolCalls: 0, redirects: 0 };
+  const turns = [];
+  for (const [index, prompt] of prompts.entries()) {
+    const suffix = prompts.length > 1 ? `-${index + 1}` : '';
+    const usageFile = path.join(dir, `usage${suffix}.json`);
+    const transcript = path.join(dir, `transcript${suffix}.jsonl`);
+    const turn = await runCopilot({ ...options, dir: project, prompt, arm, sessionId, usageFile, workerUsageDir, transcript });
+    // A resumed session's usage file is cumulative, so the latest file is the running total, not one turn.
+    const split = splitAgents(readJson(usageFile));
+    const before = main.nanoAiu + subagents.nanoAiu, beforeInput = main.input;
+    ({ main, subagents, subagentCount } = split);
+    wallMs += turn.wallMs;
+    exitCode ||= turn.exitCode;
+    const read = readTranscript(transcript);
+    seen.answer += `${read.answer}\n`;
+    seen.toolCalls += read.toolCalls;
+    seen.redirects += read.redirects;
+    turns.push({ turn: index + 1, mainInput: main.input - beforeInput, nanoAiu: main.nanoAiu + subagents.nanoAiu - before });
+    if (turn.exitCode !== 0) break;
+  }
   const workerFiles = fs.readdirSync(workerUsageDir);
   // "Worker" is every cheap helper: Shunt's separate CLI sessions and the fleet's in-session subagents.
   const worker = workerFiles.map(file => summarizeUsage(readJson(path.join(workerUsageDir, file))))
     .reduce(addUsage, subagents);
-  const seen = readTranscript(transcript);
   let correct = false;
   try { correct = exitCode === 0 && Boolean(scenario.check({ answer: seen.answer, dir: project })); } catch { /* counts as wrong */ }
   return { scenario: scenario.name, arm, run, exitCode, wallMs, correct, delegations: workerFiles.length + subagentCount,
-    redirects: seen.redirects, toolCalls: seen.toolCalls, main, worker, total: addUsage(main, worker) };
+    redirects: seen.redirects, toolCalls: seen.toolCalls, turns, main, worker, total: addUsage(main, worker) };
 }
 
 const pick = (rows, read) => median(rows.map(read));
@@ -359,7 +392,8 @@ async function main() {
   if (!Number.isSafeInteger(runs) || runs < 1) throw new Error('--runs must be a positive integer.');
   const timeoutMs = Number(args['--timeout-sec'] ?? 600) * 1000;
   if (!(timeoutMs > 0)) throw new Error('--timeout-sec must be a positive number.');
-  const scenarios = args['--scenario'] ? SCENARIOS.filter(s => s.name === args['--scenario']) : SCENARIOS;
+  // The long session costs several times a single question, so it only runs when asked for by name.
+  const scenarios = args['--scenario'] ? SCENARIOS.filter(s => s.name === args['--scenario']) : SCENARIOS.filter(s => !s.prompts);
   if (!scenarios.length) throw new Error(`Unknown scenario. Choose one of: ${SCENARIOS.map(s => s.name).join(', ')}`);
   const arms = args['--arm'] ? args['--arm'].split(',') : ['baseline', 'shunt'];
   if (arms.some(arm => !ARMS.includes(arm))) throw new Error(`--arm takes a comma-separated list of: ${ARMS.join(', ')}`);

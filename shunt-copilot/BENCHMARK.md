@@ -43,7 +43,7 @@ Leave out `--model` to use your Copilot CLI default. A full run takes about five
 | Option | What it does | Default |
 | --- | --- | --- |
 | `--model <id>` | Main model for both runs | Your CLI default |
-| `--scenario <name>` | Run only one scenario | All five |
+| `--scenario <name>` | Run only one scenario. `long-session` asks eight questions in one conversation and only runs when named | The five single questions |
 | `--runs <n>` | Repeat each run `n` times and report the median | `1` |
 | `--arm <list>` | Comma-separated sides to run: `baseline`, `shunt`, `fleet` | `baseline,shunt` |
 | `--out <folder>` | Where to keep results | A new temp folder |
@@ -117,6 +117,22 @@ What the transcripts show:
 - Copilot CLI already refuses whole-file reads above roughly 16 to 20 KB, so the baseline handled the 69 KB file with `rg` and small ranges.
 - The fleet's failed check on `mid-size-file` comes from the prompt: it answered "which tiers exist" for SKU-077 only. The discount answer was right.
 - The fleet is much slower, 7 times the baseline in total.
+
+### One long session on `gpt-5.6-sol`
+
+Eight questions in a single conversation (`--scenario long-session`), so everything read early is carried by every later call. All three sessions answered correctly.
+
+| | baseline | shunt | fleet |
+| --- | ---: | ---: | ---: |
+| AI credits, total | 44.84 | 54.30 (+21%) | 49.72 (+11%) |
+| of which Sol | 44.84 | not split | 34.04 (-24%) |
+| of which cheap helpers | 0 | not split | 15.68 (10 Luna subagents) |
+| Sol input tokens | 422,363 | 573,701 (+36%) | 229,506 (-46%) |
+| Helper input tokens | 0 | 58,452 | 1,729,184 |
+| Context size at the last call | 33,058 | 30,961 | 18,158 |
+| Time | 105 s | 258 s | 682 s |
+
+The fleet does what it promises for the expensive model: Sol read 46% fewer tokens, cost 24% less, and its context stayed almost half the size. The total still came out 11% higher because the ten subagents each start cold and explore the project again, reading 1.7 million tokens between them. Even at Luna's price that is 15.68 credits. At eight questions the baseline's context was only 33,000 tokens, so the carried-context cost the fleet avoids was still small. A longer session on a larger repository shifts this in the fleet's favour, and narrower subagent briefs would shrink its helper bill; neither has been measured here.
 
 ### Main model `gpt-5.6-luna`, baseline against Shunt
 

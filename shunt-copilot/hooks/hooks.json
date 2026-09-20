@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "node \"${PLUGIN_ROOT}/scripts/hook.mjs\"",
+        "timeoutSec": 10,
+        "timeout": 10
+      }
+    ]
+  }
+}

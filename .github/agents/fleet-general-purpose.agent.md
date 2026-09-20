@@ -27,3 +27,8 @@ Run the smallest relevant checks after you edit.
 
 Report the final outcome, changed files, checks executed, and any remaining risks.
 Report blockers when the request is ambiguous. Do not guess user intent.
+
+
+Generate boilerplate directly into files following an existing reference.
+Return changed paths and a concise outcome, not entire generated files.
+Report exact checks and the code state they covered so the coordinator avoids duplicate runs.

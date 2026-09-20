@@ -1,0 +1,220 @@
+{
+  "experiment": "E0",
+  "variant": "sol-long-baseline-run3",
+  "started": "2026-09-20T10:03:22.553Z",
+  "finished": "2026-09-20T10:05:01.864Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-sol",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "long-session",
+    "--runs",
+    "1",
+    "--label",
+    "baseline",
+    "--timeout-sec",
+    "900"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E0-sol-long-baseline-run3",
+  "results": {
+    "model": "gpt-5.6-sol",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "long-session",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 99152,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 17,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 101666,
+            "nanoAiu": 16323360000,
+            "buckets": {
+              "uncached": 10.5608,
+              "cached": 3.0105600000000003,
+              "cacheWrite": 0,
+              "output": 2.752,
+              "priced": 16.32336,
+              "billed": 16.32336,
+              "residual": 0,
+              "reasoning": 363,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 2,
+            "mainInput": 30866,
+            "nanoAiu": 8429360000,
+            "buckets": {
+              "uncached": 18.4016,
+              "cached": 3.4611200000000006,
+              "cacheWrite": 0,
+              "output": 2.89,
+              "priced": 24.75272,
+              "billed": 24.75272,
+              "residual": 0,
+              "reasoning": 363,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 3,
+            "mainInput": 97309,
+            "nanoAiu": 6518000000,
+            "buckets": {
+              "uncached": 20.4612,
+              "cached": 7.14752,
+              "cacheWrite": 0,
+              "output": 3.662,
+              "priced": 31.27072,
+              "billed": 31.27072,
+              "residual": 0,
+              "reasoning": 379,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 4,
+            "mainInput": 72409,
+            "nanoAiu": 5784960000,
+            "buckets": {
+              "uncached": 23.4152,
+              "cached": 9.74848,
+              "cacheWrite": 0,
+              "output": 3.892,
+              "priced": 37.05568,
+              "billed": 37.05568,
+              "residual": 0,
+              "reasoning": 389,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 5,
+            "mainInput": 37563,
+            "nanoAiu": 2967760000,
+            "buckets": {
+              "uncached": 24.7188,
+              "cached": 11.120640000000002,
+              "cacheWrite": 0,
+              "output": 4.184,
+              "priced": 40.02344,
+              "billed": 40.02344,
+              "residual": 0,
+              "reasoning": 450,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 6,
+            "mainInput": 75630,
+            "nanoAiu": 3955600000,
+            "buckets": {
+              "uncached": 25.2748,
+              "cached": 14.09024,
+              "cacheWrite": 0,
+              "output": 4.614,
+              "priced": 43.97904,
+              "billed": 43.97904,
+              "residual": 0,
+              "reasoning": 450,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 7,
+            "mainInput": 38118,
+            "nanoAiu": 2712160000,
+            "buckets": {
+              "uncached": 25.7764,
+              "cached": 15.5648,
+              "cacheWrite": 0,
+              "output": 5.35,
+              "priced": 46.6912,
+              "billed": 46.6912,
+              "residual": 0,
+              "reasoning": 669,
+              "unpriced": []
+            }
+          },
+          {
+            "turn": 8,
+            "mainInput": 79031,
+            "nanoAiu": 17539520000,
+            "buckets": {
+              "uncached": 40.1856,
+              "cached": 17.285120000000003,
+              "cacheWrite": 0,
+              "output": 6.76,
+              "priced": 64.23072,
+              "billed": 64.23072,
+              "residual": 0,
+              "reasoning": 800,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 532592,
+          "output": 3380,
+          "cacheRead": 432128,
+          "cacheWrite": 0,
+          "reasoning": 800,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 64230720000,
+          "apiMs": 61478
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 40.1856,
+          "cached": 17.285120000000003,
+          "cacheWrite": 0,
+          "output": 6.76,
+          "priced": 64.23072,
+          "billed": 64.23072,
+          "residual": 0,
+          "reasoning": 800,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "label": "baseline",
+        "total": {
+          "input": 532592,
+          "output": 3380,
+          "cacheRead": 432128,
+          "cacheWrite": 0,
+          "reasoning": 800,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 64230720000,
+          "apiMs": 61478
+        }
+      }
+    ]
+  }
+}

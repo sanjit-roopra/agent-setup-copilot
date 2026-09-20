@@ -1,0 +1,106 @@
+{
+  "experiment": "E2",
+  "variant": "probe-maicode",
+  "started": "2026-09-20T09:42:36.433Z",
+  "finished": "2026-09-20T09:42:48.057Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "mai-code-1.1-flash",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "context-probe",
+    "--label",
+    "mai-code",
+    "--tools",
+    "view,rg,glob,bash,apply_patch"
+  ],
+  "revision": "259a35bc94b79e9d20b0765567e039259c415115",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.86.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-E2-probe-maicode",
+  "results": {
+    "model": "mai-code-1.1-flash",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "context-probe",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 11533,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 0,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 3755,
+            "nanoAiu": 75700000,
+            "buckets": {
+              "uncached": 0.0751,
+              "cached": 0,
+              "cacheWrite": 0,
+              "output": 0.0006,
+              "priced": 0.0757,
+              "billed": 0.0757,
+              "residual": 0,
+              "reasoning": 0,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 3755,
+          "output": 5,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 1,
+          "premiumRequests": 0,
+          "nanoAiu": 75700000,
+          "apiMs": 885
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0751,
+          "cached": 0,
+          "cacheWrite": 0,
+          "output": 0.0006,
+          "priced": 0.0757,
+          "billed": 0.0757,
+          "residual": 0,
+          "reasoning": 0,
+          "unpriced": []
+        },
+        "firstCallInput": 3755,
+        "escalated": false,
+        "label": "mai-code",
+        "total": {
+          "input": 3755,
+          "output": 5,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 1,
+          "premiumRequests": 0,
+          "nanoAiu": 75700000,
+          "apiMs": 885
+        }
+      }
+    ]
+  }
+}

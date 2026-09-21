@@ -2,6 +2,8 @@
 
 This repository provides a reusable fleet of custom agent profiles for GitHub Copilot.
 The fleet brings the role separation of GitHub Copilot CLI `/subagents` workflows to other Copilot clients, especially VS Code.
+The specialist behaviors are aligned with the user-supplied `copilot-cli.md` snapshot labeled CLI 1.0.44.
+See [Reference alignment](USAGE.md#reference-alignment) for the verified matches and deliberate portability differences.
 
 This project does not add the `/subagents` CLI command to other clients.
 It does not transfer CLI settings between clients.
@@ -21,19 +23,30 @@ Follow these steps to use the fleet in VS Code:
 
 For a simple task, select a specialist profile directly in Chat.
 
+### Does saying "use a fleet of agents" activate this setup?
+
+Select **Subagent Fleet** as the active agent to use this repository's coordinator and routing rules.
+In VS Code, use the agent picker. In the GitHub Copilot app, use the agent picker or type `/agent` and choose **Subagent Fleet**.
+While it remains selected, send normal task prompts; you do not need to select it again for each message or manually select its specialists.
+
+Typing "use a fleet of agents" in the default Agent mode does not reliably activate this setup.
+The coordinator sets `disable-model-invocation: true`, so other agents cannot automatically invoke it as a subagent in VS Code.
+An ordinary agent might use available specialists, but that does not load this coordinator's workflow.
+See [Activate the fleet](USAGE.md#activate-the-fleet) for details and a sample prompt.
+
 ## Fleet roles
 
 The fleet provides one coordinator and seven specialists in `.github/agents/*.agent.md`.
 
 | Profile | Type | Responsibilities |
 | --- | --- | --- |
-| Subagent Fleet | Coordinator | Coordinates specialists. Sends full task context. Combines returned findings. |
+| Subagent Fleet | Coordinator | Handles simple lookups, coordinates independent specialist work, and combines results. |
 | Fleet Explore | Specialist | Performs focused, read-only codebase investigations with file and line citations. |
-| Fleet Task | Specialist | Runs one build, test, or check-only lint command without editing source files. |
+| Fleet Task | Specialist | Executes one development command, including formatters and installs. Returns one line on success and full errors on failure. |
 | Fleet General Purpose | Specialist | Owns edit-based implementation work and validates code changes. |
-| Fleet Rubber Duck | Specialist | Critiques a proposed plan or design before implementation starts. |
+| Fleet Rubber Duck | Specialist | Critiques plans, designs, implementations, and tests; preferably early in non-trivial work. |
 | Fleet Code Review | Specialist | Reviews assigned code changes for high-confidence defects. Owns final reviews and persisted interim reviews. |
-| Fleet Research | Specialist | Researches questions with citations from repository, GitHub, and web sources. Runs only on explicit request. |
+| Fleet Research | Specialist | Autonomously follows delegated research instructions, fetches implementations, and reports cited findings and gaps. |
 | Fleet Security Review | Specialist | Audits assigned code changes for exploitable vulnerabilities. Runs only on explicit request. |
 
 Each specialist profile specifies a pinned model.

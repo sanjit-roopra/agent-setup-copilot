@@ -55,6 +55,9 @@ Each specialist names a preferred model and reasoning effort. Effort and context
 | GitHub.com cloud agent | Custom agents work, but available tools differ. The VS Code `agents` list is not a security boundary. |
 | JetBrains, Eclipse, Xcode (preview) | Select a specialist directly unless your client supports delegation. |
 
+For the CLI's **built-in** subagents (not these fleet profiles), see the
+[fixed-URL model recommendations and Linux updater](copilot-cli/README.md).
+
 **Limits:** Your client controls models, permissions, tools, and concurrency. Agent instructions and tool lists are not a security sandbox.
 
 See [cloud-agent limits](USAGE.md#cloud-agent-limitations) and [differences from the CLI reference](USAGE.md#reference-alignment) in the usage guide.

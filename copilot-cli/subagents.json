@@ -1,33 +1,41 @@
 {
+  "model": "gpt-6-sol",
   "subagents": {
     "agents": {
-      "explore": {
-        "model": "gpt-6-luna",
-        "effortLevel": "high"
-      },
-      "task": {
-        "model": "gpt-6-luna",
-        "effortLevel": "low"
-      },
-      "general-purpose": {
+      "research": {
         "model": "gpt-6-sol",
-        "effortLevel": "high"
+        "effortLevel": "high",
+        "contextTier": "default"
       },
       "rubber-duck": {
         "model": "claude-opus-5.5",
-        "effortLevel": "medium"
+        "effortLevel": "medium",
+        "contextTier": "long_context"
       },
-      "code-review": {
-        "model": "claude-opus-5.5",
-        "effortLevel": "medium"
+      "explore": {
+        "model": "gpt-6-luna",
+        "effortLevel": "high",
+        "contextTier": "default"
       },
-      "research": {
-        "model": "gpt-6-sol",
-        "effortLevel": "high"
+      "task": {
+        "model": "gpt-6-luna",
+        "effortLevel": "low",
+        "contextTier": "default"
       },
       "security-review": {
         "model": "claude-opus-5.5",
-        "effortLevel": "high"
+        "effortLevel": "high",
+        "contextTier": "default"
+      },
+      "code-review": {
+        "model": "claude-opus-5.5",
+        "effortLevel": "medium",
+        "contextTier": "long_context"
+      },
+      "general-purpose": {
+        "model": "gpt-6-sol",
+        "effortLevel": "high",
+        "contextTier": "default"
       }
     }
   }

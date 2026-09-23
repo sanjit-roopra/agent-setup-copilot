@@ -1,78 +1,69 @@
-# Reusable Subagent Fleet for GitHub Copilot
+# Subagent Fleet for GitHub Copilot
 
-This repository provides a reusable fleet of custom agent profiles for GitHub Copilot.
-The fleet brings the role separation of GitHub Copilot CLI `/subagents` workflows to other Copilot clients, especially VS Code.
-The specialist behaviors are aligned with the user-supplied `copilot-cli.md` snapshot labeled CLI 1.0.44.
-See [Reference alignment](USAGE.md#reference-alignment) for the verified matches and deliberate portability differences.
+**Start in VS Code:** Copy the agent profiles, select **Subagent Fleet**, and give it a task. It will choose which specialists to use.
 
-This project does not add the `/subagents` CLI command to other clients.
-It does not transfer CLI settings between clients.
-It does not make different Copilot hosts behave identically.
+The profiles work in VS Code and other Copilot clients, but each client controls its own models, tools, and permissions. They do not add CLI `/subagents` to VS Code or carry CLI settings into other clients.
 
-Read [USAGE.md](USAGE.md) for installation procedures, model assignments, and workflow details.
-
-## Quick start for VS Code
-
-Follow these steps to use the fleet in VS Code:
+## Start in VS Code
 
 1. Copy the `.github/agents/*.agent.md` files to your repository at `.github/agents/`.
-2. Open your repository in VS Code.
-3. Open GitHub Copilot Chat.
-4. Select **Subagent Fleet** in the agent picker.
-5. Ask the coordinator to delegate a task. Its profile already includes the `agent` tool.
+2. Open the repository in VS Code and open GitHub Copilot Chat.
+3. Select **Subagent Fleet** in the agent picker.
+4. Send your task. For example: “Find the cause of the failing test, fix it, and review the change.”
 
-For a simple task, select a specialist profile directly in Chat.
+For one small task, select the relevant specialist instead. The coordinator already has the `agent` tool; there is no extra switch to enable.
 
-### Does saying "use a fleet of agents" activate this setup?
+See [USAGE.md](USAGE.md#install-the-fleet-profiles) for install commands and setup in other clients.
 
-Select **Subagent Fleet** as the active agent to use this repository's coordinator and routing rules.
-In VS Code, use the agent picker. In the GitHub Copilot app, use the agent picker or type `/agent` and choose **Subagent Fleet**.
-While it remains selected, send normal task prompts; you do not need to select it again for each message or manually select its specialists.
+## Select the coordinator
 
-Typing "use a fleet of agents" in the default Agent mode does not reliably activate this setup.
-The coordinator sets `disable-model-invocation: true`, so other agents cannot automatically invoke it as a subagent in VS Code.
-An ordinary agent might use available specialists, but that does not load this coordinator's workflow.
-See [Activate the fleet](USAGE.md#activate-the-fleet) for details and a sample prompt.
+Choose **Subagent Fleet** in the agent picker. In the Copilot app, you can also type `/agent` to select it.
 
-## Fleet roles
+Typing “use a fleet of agents” in the default agent does not select this coordinator. Another agent might delegate, but it will not reliably follow this fleet's rules.
 
-The fleet provides one coordinator and seven specialists in `.github/agents/*.agent.md`.
+Select **Subagent Fleet** as the parent instead. See [Activate the fleet](USAGE.md#activate-the-fleet).
 
-| Profile | Type | Responsibilities |
-| --- | --- | --- |
-| Subagent Fleet | Coordinator | Handles simple lookups, coordinates independent specialist work, and combines results. |
-| Fleet Explore | Specialist | Performs focused, read-only codebase investigations with file and line citations. |
-| Fleet Task | Specialist | Executes one development command, including formatters and installs. Returns one line on success and full errors on failure. |
-| Fleet General Purpose | Specialist | Owns edit-based implementation work and validates code changes. |
-| Fleet Rubber Duck | Specialist | Critiques plans, designs, implementations, and tests; preferably early in non-trivial work. |
-| Fleet Code Review | Specialist | Reviews assigned code changes for high-confidence defects. Owns final reviews and persisted interim reviews. |
-| Fleet Research | Specialist | Autonomously follows delegated research instructions, fetches implementations, and reports cited findings and gaps. |
-| Fleet Security Review | Specialist | Audits assigned code changes for exploitable vulnerabilities. Runs only on explicit request. |
+## Pick a specialist
 
-Each specialist profile names a preferred model; effort and context targets depend on the host.
-See [Model assignments](USAGE.md#model-assignments) in USAGE.md for the full matrix and how to select it in VS Code and the GitHub Copilot app.
+**For code and checks:**
 
-## Host compatibility and limits
+| Need | Agent |
+| --- | --- |
+| Coordinate several tasks | **Subagent Fleet**: delegates and combines results; does not edit or run commands. |
+| Change code | **Fleet General Purpose**: implements and checks changes. |
+| Find code | **Fleet Explore**: reads and searches; cites files and lines. |
+| Run a command | **Fleet Task**: runs it once; reports success briefly or the full error. |
 
-Copilot hosts control permissions, model availability, tool access, and process concurrency.
-A prompt and a `tools` list do not form a security sandbox.
+**For second opinions:**
 
-| Host | Support level | Usage notes |
-| --- | --- | --- |
-| VS Code | Supported | Select **Subagent Fleet** as the parent agent. Its profile includes the `agent` tool. Set thinking effort in the model picker. Subagents are stateless and cannot invoke nested subagents. |
-| Copilot CLI | Supported | Select profiles with `/agent` or `--agent`. CLI `/subagents` model settings do not export to other hosts. |
-| GitHub Copilot Desktop | Supported | Select profiles in the agent picker or use `/agent`. Check the app's model and reasoning-effort pickers; profile model preferences may not be honored. |
-| GitHub.com Cloud Agent | Supported | Select custom agents for cloud tasks. Tool aliases include `read`, `search`, `edit`, `execute`, and `agent`. The `web` alias is not applicable to cloud agent. The VS Code `agents` list is not an authorization boundary. |
-| JetBrains, Eclipse, Xcode | Preview | Select specialists directly. Use the coordinator only if your host environment supports subagent delegation. |
+| Need | Agent |
+| --- | --- |
+| Check a plan | **Fleet Rubber Duck**: critiques plans, code, or tests without editing. |
+| Review changes | **Fleet Code Review**: finds high-confidence defects without editing. |
+| Research sources | **Fleet Research**: investigates and cites what it found. |
+| Review security | **Fleet Security Review**: looks for exploitable issues, only when you ask. |
+
+Each specialist names a preferred model. Effort and context can differ by client. See [Model assignments](USAGE.md#model-assignments).
+
+## Where it works
+
+| Client | What to do |
+| --- | --- |
+| VS Code | Select **Subagent Fleet** as the parent. Set effort in the model picker. Subagents do not normally delegate again. |
+| Copilot app | Select the agent in the picker or with `/agent`. Check its model and effort pickers; it might not apply the profile's model choice. |
+| Copilot CLI | Use `/agent` or `--agent`. `/subagents` settings stay in the CLI. |
+| GitHub.com cloud agent | Custom agents work, but available tools differ. The VS Code `agents` list is not a security boundary. |
+| JetBrains, Eclipse, Xcode (preview) | Select a specialist directly unless your client supports delegation. |
+
+**Limits:** Your client controls models, permissions, tools, and concurrency. Agent instructions and tool lists are not a security sandbox.
+
+See [cloud-agent limits](USAGE.md#cloud-agent-limitations) and [differences from the CLI reference](USAGE.md#reference-alignment) in the usage guide.
 
 ## Official sources
 
-- [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
-- [Create custom agents](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents)
-- [Custom agents in VS Code](https://code.visualstudio.com/docs/agent-customization/custom-agents)
-- [VS Code language models and thinking effort](https://code.visualstudio.com/docs/agent-customization/language-models)
-- [Subagents in VS Code](https://code.visualstudio.com/docs/agents/run/subagents)
-- [Copilot CLI command reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference)
-- [Customize the GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app)
-- [GitHub Copilot app sessions and model selection](https://docs.github.com/en/copilot/how-tos/github-copilot-app/agent-sessions#choosing-a-model)
-- [Copilot in JetBrains IDEs](https://docs.github.com/en/copilot/concepts/agents/copilot-in-jetbrains)
+- VS Code: [Custom agents](https://code.visualstudio.com/docs/agent-customization/custom-agents), [subagents](https://code.visualstudio.com/docs/agents/run/subagents), and [thinking effort](https://code.visualstudio.com/docs/agent-customization/language-models).
+- Copilot app: [Custom agents](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app) and [model selection](https://docs.github.com/en/copilot/how-tos/github-copilot-app/agent-sessions#choosing-a-model).
+- GitHub: [Agent configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) and [cloud agent setup](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents).
+- Other clients: [CLI commands](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) and [JetBrains support](https://docs.github.com/en/copilot/concepts/agents/copilot-in-jetbrains).
+
+**Next:** [Copy the profiles into your repository](USAGE.md#install-the-fleet-profiles).

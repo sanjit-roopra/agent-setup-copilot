@@ -49,8 +49,8 @@ The fleet provides one coordinator and seven specialists in `.github/agents/*.ag
 | Fleet Research | Specialist | Autonomously follows delegated research instructions, fetches implementations, and reports cited findings and gaps. |
 | Fleet Security Review | Specialist | Audits assigned code changes for exploitable vulnerabilities. Runs only on explicit request. |
 
-Each specialist profile specifies a pinned model.
-See [Model assignments](USAGE.md#model-assignments) in USAGE.md for the full list.
+Each specialist profile names a preferred model; effort and context targets depend on the host.
+See [Model assignments](USAGE.md#model-assignments) in USAGE.md for the full matrix and how to select it in VS Code and the GitHub Copilot app.
 
 ## Host compatibility and limits
 
@@ -59,9 +59,9 @@ A prompt and a `tools` list do not form a security sandbox.
 
 | Host | Support level | Usage notes |
 | --- | --- | --- |
-| VS Code | Supported | Select **Subagent Fleet** as the parent agent. Enable the `agent/runSubagent` tool. Subagents are stateless and cannot invoke nested subagents. |
+| VS Code | Supported | Select **Subagent Fleet** as the parent agent. Enable the `agent/runSubagent` tool. Set thinking effort in the model picker. Subagents are stateless and cannot invoke nested subagents. |
 | Copilot CLI | Supported | Select profiles with `/agent` or `--agent`. CLI `/subagents` model settings do not export to other hosts. |
-| GitHub Copilot Desktop | Supported | Select profiles in the agent picker or use `/agent`. |
+| GitHub Copilot Desktop | Supported | Select profiles in the agent picker or use `/agent`. Check the app's model and reasoning-effort pickers; profile model preferences may not be honored. |
 | GitHub.com Cloud Agent | Supported | Select custom agents for cloud tasks. Tool aliases include `read`, `search`, `edit`, `execute`, and `agent`. The `web` alias is not applicable to cloud agent. The VS Code `agents` list is not an authorization boundary. |
 | JetBrains, Eclipse, Xcode | Preview | Select specialists directly. Use the coordinator only if your host environment supports subagent delegation. |
 
@@ -70,7 +70,9 @@ A prompt and a `tools` list do not form a security sandbox.
 - [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
 - [Create custom agents](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents)
 - [Custom agents in VS Code](https://code.visualstudio.com/docs/agent-customization/custom-agents)
+- [VS Code language models and thinking effort](https://code.visualstudio.com/docs/agent-customization/language-models)
 - [Subagents in VS Code](https://code.visualstudio.com/docs/agents/run/subagents)
 - [Copilot CLI command reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference)
 - [Customize the GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app)
+- [GitHub Copilot app sessions and model selection](https://docs.github.com/en/copilot/how-tos/github-copilot-app/agent-sessions#choosing-a-model)
 - [Copilot in JetBrains IDEs](https://docs.github.com/en/copilot/concepts/agents/copilot-in-jetbrains)

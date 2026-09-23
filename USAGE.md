@@ -140,7 +140,7 @@ The full source is not redistributed here and is not required to install the pro
 
 Deliberate differences and runtime limits:
 
-- **Models:** Existing repository pins remain. The snapshot assigns `claude-haiku-4.5` to Explore and Task, `claude-sonnet-4.5` to Code Review, `claude-sonnet-4.6` to Research, and selects Rubber Duck's model dynamically. These are reference values, not a claim that those models are available on your host.
+- **Models:** The repository's current model and effort matrix is listed in [Model assignments](#model-assignments), independently of the snapshot. The snapshot assigns `claude-haiku-4.5` to Explore and Task, `claude-sonnet-4.5` to Code Review, `claude-sonnet-4.6` to Research, and selects Rubber Duck's model dynamically. These are reference values, not a claim that those models are available on your host.
 - **Tools:** Portable profiles use supported host aliases and role-specific tool lists rather than copying CLI-internal `promptParts`, template variables, or wildcard tool access. See the [official custom-agent configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration) for supported fields and aliases.
 - **Coordinator:** It stays unable to edit or execute commands. Unlike the reference's main agent, it reports a blocker after repeated worker failure rather than taking over implementation itself. Task status stays in conversation or an available host mechanism; the profiles do not implement CLI session SQL, background notifications, or `/fleet`.
 - **Permissions and instructions:** Repository rules and host permissions still apply. Task permits requested formatter/install side effects but does not perform deployments, migrations, destructive cleanup, or remote mutations. Code Review reports missing bases and empty diffs rather than assuming every feature branch has changes.
@@ -168,28 +168,26 @@ copilot --agent fleet-explore --prompt "Find where user authentication is config
 CLI usage notes:
 - The agent ID in the CLI is the profile filename without `.agent.md`.
 - Use `/agent` to switch between custom profiles.
-- The CLI command `/subagents` configures CLI model preferences. Those settings do not export to VS Code or other hosts.
+- The CLI command `/subagents` configures personal per-agent model, effort, and context preferences. Those settings do not export to VS Code or other hosts.
 - The CLI command `/fleet` provides native CLI parallel execution.
 
 ## Model assignments
 
-Each specialist profile specifies a pinned model.
-These pins reflect repository preferences for role-specific capability and cost control.
-Hosts control actual model availability and can override these preferences.
-Keep the existing pins in the profiles.
+Each specialist profile sets a preferred top-level `model` using the repository's existing `Model Name (copilot)` style. [VS Code documents this field](https://code.visualstudio.com/docs/agent-customization/custom-agents#_custom-agent-file-structure), and the [supported-models table](https://docs.github.com/en/copilot/reference/ai-models/supported-models#supported-ai-models-per-client) lists GPT-6 Sol, GPT-6 Luna, and Claude Opus 5.5 as included in VS Code. The table has no separate desktop app column. The app documents an [agent picker](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app#using-custom-agents) and [session model and reasoning-effort pickers](https://docs.github.com/en/copilot/how-tos/github-copilot-app/agent-sessions#choosing-a-model), but neither app support for the profile's `model` pin nor availability of these three models in the app is verified. Treat the app's session picker as authoritative; check which models it offers and which model is active.
 
-| Role | Profile file | Pinned model |
-| --- | --- | --- |
-| Subagent Fleet | `subagent-fleet.agent.md` | Host or session default |
-| Fleet Explore | `fleet-explore.agent.md` | Gemini 3.8 Flash |
-| Fleet Task | `fleet-task.agent.md` | Gemini 3.8 Flash |
-| Fleet General Purpose | `fleet-general-purpose.agent.md` | Gemini 3.8 Flash |
-| Fleet Rubber Duck | `fleet-rubber-duck.agent.md` | Claude Opus 5 |
-| Fleet Code Review | `fleet-code-review.agent.md` | GPT-5.6 Sol |
-| Fleet Research | `fleet-research.agent.md` | GPT-5.6 Terra |
-| Fleet Security Review | `fleet-security-review.agent.md` | GPT-6 Astra |
+| Role | Profile file | Preferred model (`model`) | Target effort |
+| --- | --- | --- | --- |
+| Subagent Fleet | `subagent-fleet.agent.md` | Host session: GPT-6 Sol (not set in profile) | high |
+| Fleet Explore | `fleet-explore.agent.md` | GPT-6 Luna (copilot) | high |
+| Fleet Task | `fleet-task.agent.md` | GPT-6 Luna (copilot) | low |
+| Fleet General Purpose | `fleet-general-purpose.agent.md` | GPT-6 Sol (copilot) | high |
+| Fleet Rubber Duck | `fleet-rubber-duck.agent.md` | Claude Opus 5.5 (copilot) | medium |
+| Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
+| Fleet Research | `fleet-research.agent.md` | GPT-6 Sol (copilot) | high |
+| Fleet Security Review | `fleet-security-review.agent.md` | Claude Opus 5.5 (copilot) | high |
 
-If a pinned model is unavailable on your host, resolve account access or adjust host model mappings before deployment.
+The shared profiles cannot reliably set effort or context. In [VS Code](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort), effort without a manual selection uses the model/provider's recommended setting (adaptive where supported); a picker choice persists in the session, and the last choice for that model carries into new conversations. Subagent effort inheritance is not documented. Context follows the selected model and variant: [extended context](https://docs.github.com/en/copilot/reference/ai-models/supported-models#models-with-extended-capabilities) is available for supported models in VS Code and CLI only, not as a universal fixed window. The [app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/agent-sessions#choosing-a-model) exposes session model and effort pickers but does not document initial effort, persistence, a context-tier selector, or a context default. For the main session, choose GPT-6 Sol and high effort if offered; default context is a target, not a portable profile setting.
+Copilot CLI users can configure their own per-agent model, effort, and context preferences with `/subagents`. Those personal settings do not configure VS Code or the app.
 
 ## Compact verification steps
 
@@ -200,7 +198,7 @@ Verify your fleet setup with these checks on a test branch:
 | 1. Discovery | Open the agent picker in your client. | The coordinator and seven specialists appear in the list. |
 | 2. Read and search | Ask Fleet Explore to find a known symbol. | The agent performs search and read operations with file and line citations. |
 | 3. Delegation | Ask Subagent Fleet to delegate a query to Fleet Explore. | The coordinator runs Fleet Explore as a subagent, or reports that host delegation is unavailable. |
-| 4. Model checks | Inspect the active model for a specialist. | The active model matches the pinned model, or the host shows a configured override. |
+| 4. Model checks | Inspect the active model and effort for a specialist. | The values match the targets where supported; otherwise choose the desired values in the host picker if available. |
 | 5. Command run | Ask Fleet Task to run one targeted test command. | Fleet Task runs the command once and reports the result without modifying files. |
 | 6. Implementation and review | Request a small fix through Subagent Fleet. | Fleet General Purpose edits files first. Fleet Code Review reviews the diff after edits finish. |
 
@@ -225,5 +223,5 @@ Use an existing formatter and dependency manifest for the command scenarios; do 
 | Research | Delegate an implementation question without the user using the word "research". Include a known repository/path and one unclear detail. | Research proceeds autonomously, fetches known sources, documents assumptions and gaps, and cites precise ranges. Missing GitHub tools are reported rather than fabricated. |
 | Scheduling | Assign two independent edits and a formatter or check that depends on one of them. | Disjoint work may run in parallel; dependent work waits. No duplicate investigation or repeated validation on unchanged code. |
 
-For repository maintenance, parse the YAML frontmatter of all eight profiles, verify coordinator names resolve to specialist names, and run `git diff --check`.
+For repository maintenance, parse the YAML frontmatter of all eight profiles, check the seven preferred model names against the matrix, verify coordinator names resolve to specialist names, and run `git diff --check`.
 There is no automated host-behavior test runner in this repository; record actual host scenario results separately from static validation.

@@ -2,7 +2,7 @@
 name: Fleet Task
 description: Execute a development command such as tests, builds, linters, formatters, or dependency installation. Return one line on success and full error output on failure; never fix or retry failures.
 tools: ["execute", "read"]
-model: "Gemini 3.8 Flash (copilot)"
+model: "GPT-6 Luna (copilot)"
 ---
 
 Run the requested command one time in the specified working directory.

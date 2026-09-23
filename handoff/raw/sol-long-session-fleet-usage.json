@@ -1,0 +1,485 @@
+{
+  "totalPremiumRequestCost": 8,
+  "totalUserRequests": 1,
+  "totalNanoAiu": 49720081000,
+  "tokenDetails": {
+    "input": {
+      "tokenCount": 42429
+    },
+    "cache_read": {
+      "tokenCount": 1710280
+    },
+    "cache_write": {
+      "tokenCount": 205981
+    },
+    "output": {
+      "tokenCount": 67207
+    }
+  },
+  "totalApiDurationMs": 601536,
+  "sessionStartTime": "2026-09-20T06:26:09.699Z",
+  "codeChanges": {
+    "linesAdded": 0,
+    "linesRemoved": 0,
+    "filesModifiedCount": 0,
+    "filesModified": []
+  },
+  "modelMetrics": {
+    "gpt-5.6-sol": {
+      "requests": {
+        "count": 19,
+        "cost": 8
+      },
+      "usage": {
+        "inputTokens": 229506,
+        "outputTokens": 4847,
+        "cacheReadTokens": 187392,
+        "cacheWriteTokens": 0,
+        "reasoningTokens": 705
+      },
+      "cacheExpiresAt": "2026-09-20T07:07:15.923Z",
+      "totalNanoAiu": 34035280000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 42114
+        },
+        "cache_read": {
+          "tokenCount": 187392
+        },
+        "cache_write": {
+          "tokenCount": 0
+        },
+        "output": {
+          "tokenCount": 4847
+        }
+      }
+    },
+    "gpt-5.6-luna": {
+      "requests": {
+        "count": 105,
+        "cost": 0
+      },
+      "usage": {
+        "inputTokens": 1729184,
+        "outputTokens": 62360,
+        "cacheReadTokens": 1522888,
+        "cacheWriteTokens": 205981,
+        "reasoningTokens": 37362
+      },
+      "totalNanoAiu": 15684801000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 315
+        },
+        "cache_read": {
+          "tokenCount": 1522888
+        },
+        "cache_write": {
+          "tokenCount": 205981
+        },
+        "output": {
+          "tokenCount": 62360
+        }
+      }
+    }
+  },
+  "agentMetrics": {
+    "main": {
+      "totalApiDurationMs": 81883,
+      "totalNanoAiu": 34035280000,
+      "modelMetrics": {
+        "gpt-5.6-sol": {
+          "requests": {
+            "count": 19,
+            "cost": 8
+          },
+          "usage": {
+            "inputTokens": 229506,
+            "outputTokens": 4847,
+            "cacheReadTokens": 187392,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 705
+          },
+          "totalNanoAiu": 34035280000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 42114
+            },
+            "cache_read": {
+              "tokenCount": 187392
+            },
+            "cache_write": {
+              "tokenCount": 0
+            },
+            "output": {
+              "tokenCount": 4847
+            }
+          }
+        }
+      }
+    },
+    "81f426fe-085b-410c-b7ea-559ea66382a7": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 35035,
+      "totalNanoAiu": 1206739000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 3,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 33031,
+            "outputTokens": 4658,
+            "cacheReadTokens": 7737,
+            "cacheWriteTokens": 25285,
+            "reasoningTokens": 3740
+          },
+          "totalNanoAiu": 1206739000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 9
+            },
+            "cache_read": {
+              "tokenCount": 7737
+            },
+            "cache_write": {
+              "tokenCount": 25285
+            },
+            "output": {
+              "tokenCount": 4658
+            }
+          }
+        }
+      }
+    },
+    "65e5e0f2-6dac-4a23-b5b2-49d4a6286c53": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 24517,
+      "totalNanoAiu": 803463000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 5,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 44063,
+            "outputTokens": 2833,
+            "cacheReadTokens": 27739,
+            "cacheWriteTokens": 16309,
+            "reasoningTokens": 1757
+          },
+          "totalNanoAiu": 803463000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 15
+            },
+            "cache_read": {
+              "tokenCount": 27739
+            },
+            "cache_write": {
+              "tokenCount": 16309
+            },
+            "output": {
+              "tokenCount": 2833
+            }
+          }
+        }
+      }
+    },
+    "5ac9d899-4c0a-45b7-99cf-891c44cb66b4": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 73863,
+      "totalNanoAiu": 2561531000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 19,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 367885,
+            "outputTokens": 8838,
+            "cacheReadTokens": 334603,
+            "cacheWriteTokens": 33225,
+            "reasoningTokens": 5459
+          },
+          "totalNanoAiu": 2561531000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 57
+            },
+            "cache_read": {
+              "tokenCount": 334603
+            },
+            "cache_write": {
+              "tokenCount": 33225
+            },
+            "output": {
+              "tokenCount": 8838
+            }
+          }
+        }
+      }
+    },
+    "5f5648af-3813-4bf0-85d5-3ee8480710f4": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 19461,
+      "totalNanoAiu": 405140000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 5,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 19838,
+            "outputTokens": 2001,
+            "cacheReadTokens": 14385,
+            "cacheWriteTokens": 5438,
+            "reasoningTokens": 1077
+          },
+          "totalNanoAiu": 405140000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 15
+            },
+            "cache_read": {
+              "tokenCount": 14385
+            },
+            "cache_write": {
+              "tokenCount": 5438
+            },
+            "output": {
+              "tokenCount": 2001
+            }
+          }
+        }
+      }
+    },
+    "83b79973-3c3a-4c4c-b0b0-3d97353ae2f1": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 42466,
+      "totalNanoAiu": 1246890000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 10,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 125938,
+            "outputTokens": 4715,
+            "cacheReadTokens": 107270,
+            "cacheWriteTokens": 18638,
+            "reasoningTokens": 2813
+          },
+          "totalNanoAiu": 1246890000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 30
+            },
+            "cache_read": {
+              "tokenCount": 107270
+            },
+            "cache_write": {
+              "tokenCount": 18638
+            },
+            "output": {
+              "tokenCount": 4715
+            }
+          }
+        }
+      }
+    },
+    "7fa4f6e6-f062-47e3-911a-b4df1ea37af2": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 34859,
+      "totalNanoAiu": 829365000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 9,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 53406,
+            "outputTokens": 4141,
+            "cacheReadTokens": 43590,
+            "cacheWriteTokens": 9789,
+            "reasoningTokens": 1318
+          },
+          "totalNanoAiu": 829365000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 27
+            },
+            "cache_read": {
+              "tokenCount": 43590
+            },
+            "cache_write": {
+              "tokenCount": 9789
+            },
+            "output": {
+              "tokenCount": 4141
+            }
+          }
+        }
+      }
+    },
+    "187eaa28-c23a-4439-9545-86869da65a3a": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 6468,
+      "totalNanoAiu": 127033000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 2,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 2644,
+            "outputTokens": 734,
+            "cacheReadTokens": 1179,
+            "cacheWriteTokens": 1459,
+            "reasoningTokens": 328
+          },
+          "totalNanoAiu": 127033000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 6
+            },
+            "cache_read": {
+              "tokenCount": 1179
+            },
+            "cache_write": {
+              "tokenCount": 1459
+            },
+            "output": {
+              "tokenCount": 734
+            }
+          }
+        }
+      }
+    },
+    "e98a5206-6f4c-4495-8e27-c4dbd8ad6f9e": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 79872,
+      "totalNanoAiu": 2369493000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 18,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 356682,
+            "outputTokens": 8829,
+            "cacheReadTokens": 330729,
+            "cacheWriteTokens": 25899,
+            "reasoningTokens": 5176
+          },
+          "totalNanoAiu": 2369493000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 54
+            },
+            "cache_read": {
+              "tokenCount": 330729
+            },
+            "cache_write": {
+              "tokenCount": 25899
+            },
+            "output": {
+              "tokenCount": 8829
+            }
+          }
+        }
+      }
+    },
+    "9735d53b-c396-490b-8244-7a91c49d0087": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 82971,
+      "totalNanoAiu": 2568004000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 22,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 375312,
+            "outputTokens": 9871,
+            "cacheReadTokens": 347782,
+            "cacheWriteTokens": 27464,
+            "reasoningTokens": 5363
+          },
+          "totalNanoAiu": 2568004000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 66
+            },
+            "cache_read": {
+              "tokenCount": 347782
+            },
+            "cache_write": {
+              "tokenCount": 27464
+            },
+            "output": {
+              "tokenCount": 9871
+            }
+          }
+        }
+      }
+    },
+    "11676b76-0c05-45c9-a36f-c5919d4a5a2b": {
+      "agentName": "Fleet Explore",
+      "agentDisplayName": "Fleet Explore",
+      "totalApiDurationMs": 120141,
+      "totalNanoAiu": 3567143000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 12,
+            "cost": 0
+          },
+          "usage": {
+            "inputTokens": 350385,
+            "outputTokens": 15740,
+            "cacheReadTokens": 307874,
+            "cacheWriteTokens": 42475,
+            "reasoningTokens": 10331
+          },
+          "totalNanoAiu": 3567143000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 36
+            },
+            "cache_read": {
+              "tokenCount": 307874
+            },
+            "cache_write": {
+              "tokenCount": 42475
+            },
+            "output": {
+              "tokenCount": 15740
+            }
+          }
+        }
+      }
+    }
+  },
+  "currentModel": "gpt-5.6-sol",
+  "lastCallInputTokens": 18158,
+  "lastCallOutputTokens": 587
+}

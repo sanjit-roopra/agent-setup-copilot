@@ -1,0 +1,106 @@
+{
+  "name": "switch-to-luna",
+  "sessionId": "84ca102a-b2c0-4951-82fa-7fc237ef55f3",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-switch-to-luna-D5jhZE",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-sol",
+      "prompt": "scenario:cross-file-question",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:37:46.731Z",
+      "exitCode": 0,
+      "seconds": 21,
+      "correct": true,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 3,
+          "input": 19935,
+          "output": 485,
+          "cacheRead": 11776,
+          "cacheWrite": 0,
+          "reasoning": 91,
+          "credits": 4.70464,
+          "cacheExpiresAt": "2026-09-22T07:08:05.368Z"
+        }
+      },
+      "credits": 4.70464,
+      "answer": "`OrderService.submitOrder(id)` calls the delivery service’s `retryDelivery(order, this.send)` function. Before that call, `UserService.isActive(order.userId)` must return `true`; otherwise it throws `\"inactive user\"`.",
+      "usageFileFound": true
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:find-a-value",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:08.216Z",
+      "exitCode": 0,
+      "seconds": 8,
+      "correct": true,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 0,
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "credits": 0,
+          "cacheExpiresAt": "2026-09-22T07:08:05.368Z"
+        },
+        "gpt-5.6-luna": {
+          "requests": 1,
+          "input": 7679,
+          "output": 199,
+          "cacheRead": 0,
+          "cacheWrite": 7676,
+          "reasoning": 142,
+          "credits": 0.21584,
+          "cacheExpiresAt": "2026-09-22T07:08:10.282Z"
+        }
+      },
+      "credits": 0.21584,
+      "answer": "`retryDelivery` allows up to **7 delivery attempts**, with a **250 ms** wait between attempts. The retrying is performed by **`retryDelivery(parcel, send, sleep)`**, which invokes the supplied `send` function for each attempt.",
+      "usageFileFound": true
+    },
+    {
+      "turn": 3,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:mid-size-file",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:16.520Z",
+      "exitCode": 0,
+      "seconds": 8,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 0,
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "credits": 0,
+          "cacheExpiresAt": "2026-09-22T07:08:05.368Z"
+        },
+        "gpt-5.6-luna": {
+          "requests": 2,
+          "input": 19478,
+          "output": 243,
+          "cacheRead": 15465,
+          "cacheWrite": 4007,
+          "reasoning": 89,
+          "credits": 0.160385,
+          "cacheExpiresAt": "2026-09-22T07:08:20.686Z"
+        }
+      },
+      "credits": 0.160385,
+      "answer": "`SKU-077` has the largest discount at **40**. The available tiers are **bronze, silver, gold, and platinum**.",
+      "usageFileFound": true
+    }
+  ],
+  "credits": 5.080865
+}

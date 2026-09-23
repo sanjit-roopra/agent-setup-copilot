@@ -1,0 +1,116 @@
+{
+  "sessions": [
+    {
+      "name": "luna-gap-60",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 252169c53762. Use the view tool once to read src/delivery-service.mjs lines 1 to 400, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 60
+        }
+      ]
+    },
+    {
+      "name": "luna-gap-600",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 389104089592. Use the view tool once to read src/delivery-service.mjs lines 401 to 800, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 600
+        }
+      ]
+    },
+    {
+      "name": "luna-gap-1500",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe ae783777d8a0. Use the view tool once to read src/delivery-service.mjs lines 801 to 1200, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 1500
+        }
+      ]
+    },
+    {
+      "name": "luna-gap-2100",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 22c2246af154. Use the view tool once to read src/delivery-service.mjs lines 1201 to 1600, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2100
+        }
+      ]
+    },
+    {
+      "name": "luna-gap-2700",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe bcab4ddc24d5. Use the view tool once to read src/delivery-service.mjs lines 301 to 700, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2700
+        }
+      ]
+    },
+    {
+      "name": "sol-gap-600",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe dc54eaf90ceb. Use the view tool once to read src/delivery-service.mjs lines 601 to 1000, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 600
+        }
+      ]
+    },
+    {
+      "name": "sol-gap-1500",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe 8bbf3b83c072. Use the view tool once to read src/delivery-service.mjs lines 1001 to 1400, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 1500
+        }
+      ]
+    },
+    {
+      "name": "sol-gap-2100",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe 8622f1829a39. Use the view tool once to read src/delivery-service.mjs lines 201 to 600, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool."
+        },
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2100
+        }
+      ]
+    }
+  ]
+}

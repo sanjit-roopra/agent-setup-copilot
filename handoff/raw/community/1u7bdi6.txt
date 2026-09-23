@@ -1,0 +1,14 @@
+--- 2026-06-16 /u/alexrada | Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/
+ https://preview.redd.it/bajueboqvm7h1.png?width=277&format=png&auto=webp&s=7e7dda5013e50470792d0fd8f141bc39ef5180ea The title says it all. I've tried mentioning the model in the prompt, but didn't succeed. I'm not on usage, but number of requests, so multipliers makes sense to me. |by /u/alexrada [link] [comments] 
+--- 2026-06-16 /u/gnpwdr1 | /u/gnpwdr1 on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/oryvir5/
+ Why? Just why? 
+--- 2026-06-16 /u/alexrada | /u/alexrada on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/oryw6ar/
+ did you skip math classes? or you don't know what "discount" means 
+--- 2026-06-16 /u/valamdhir | /u/valamdhir on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/oryx6r9/
+ having those multiplier somehow look better than having usage limit 
+--- 2026-06-16 /u/jessehouwing | /u/jessehouwing on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/orzhneb/
+ The 10% discount only selects from a limited set of models and the whole idea is that you can't pick a specific one. It will never pick any of the really expensive models. 
+--- 2026-06-16 /u/alexrada | /u/alexrada on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/orzhwz4/
+ I've seen that behaviour, however was asking if there is a trick into forcing it choose the model I want. 
+--- 2026-06-16 /u/jessehouwing | /u/jessehouwing on Is there a way to trick github copilot in choosing the exact model you want but letting it on Auto to get the 10% discount on usage? | https://www.reddit.com/r/GithubCopilot/comments/1u7bdi6/is_there_a_way_to_trick_github_copilot_in/orzik0t/
+ No there isn't. 

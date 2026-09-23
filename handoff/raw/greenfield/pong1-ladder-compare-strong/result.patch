@@ -1,0 +1,666 @@
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..5be6c6a
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,30 @@
++# Pong
++
++This is a small Pong game implemented with only the Python 3 standard library.
++The game rules are kept separate from the terminal interface so they can be
++tested without curses.
++
++## Play
++
++From the repository root, run:
++
++```sh
++python3 -m pong
++```
++
++Controls:
++
++- `w` / `s`: move the left paddle up / down
++- Up / Down arrows: move the right paddle
++- `q`: quit
++
++The first player to reach five points wins.
++
++## Test
++
++Run the unit tests and Python syntax check with:
++
++```sh
++python3 -m unittest discover -s tests -q
++python3 -m py_compile pong/*.py
++```
+diff --git a/pong/__init__.py b/pong/__init__.py
+new file mode 100644
+index 0000000..3c493be
+--- /dev/null
++++ b/pong/__init__.py
+@@ -0,0 +1,5 @@
++"""A small standard-library Pong game."""
++
++from .game import Ball, Game, Paddle
++
++__all__ = ["Ball", "Game", "Paddle"]
+diff --git a/pong/__main__.py b/pong/__main__.py
+new file mode 100644
+index 0000000..bc49f2d
+--- /dev/null
++++ b/pong/__main__.py
+@@ -0,0 +1,81 @@
++"""Curses interface for the Pong game."""
++
++from __future__ import annotations
++
++import curses
++
++from .game import Game
++
++
++def draw(screen: curses.window, game: Game) -> None:
++    """Draw the current game state."""
++    _, columns = screen.getmaxyx()
++    screen.erase()
++    score = f" Left: {game.left_score}    Right: {game.right_score} "
++    screen.addnstr(0, 0, score, max(0, columns - 1))
++
++    top = 1
++    screen.addstr(top, 0, "+" + "-" * game.width + "+")
++    for row in range(game.height):
++        screen_row = top + 1 + row
++        screen.addch(screen_row, 0, "|")
++        screen.addch(screen_row, game.width + 1, "|")
++    screen.addstr(top + game.height + 1, 0, "+" + "-" * game.width + "+")
++
++    for row in range(game.left_paddle.y, game.left_paddle.y + game.left_paddle.height):
++        screen.addch(top + 1 + row, 1 + game.left_paddle_x, "#")
++    for row in range(
++        game.right_paddle.y,
++        game.right_paddle.y + game.right_paddle.height,
++    ):
++        screen.addch(top + 1 + row, 1 + game.right_paddle_x, "#")
++    screen.addch(top + 1 + game.ball.y, 1 + game.ball.x, "O")
++
++    if game.winner is not None:
++        message = f"{game.winner.title()} player wins! Press q to quit."
++        screen.addnstr(top + game.height + 2, 0, message, max(0, columns - 1))
++    screen.refresh()
++
++
++def draw_small_terminal(screen: curses.window) -> None:
++    """Prompt for a larger terminal."""
++    rows, columns = screen.getmaxyx()
++    screen.erase()
++    if rows:
++        message = "Terminal too small for Pong; resize or press q."
++        screen.addnstr(0, 0, message, max(0, columns - 1))
++    screen.refresh()
++
++
++def main(screen: curses.window) -> None:
++    """Run the interactive game loop."""
++    curses.curs_set(0)
++    screen.keypad(True)
++    screen.timeout(80)
++
++    rows, columns = screen.getmaxyx()
++    while rows < 8 or columns < 24:
++        draw_small_terminal(screen)
++        if screen.getch() == ord("q"):
++            return
++        rows, columns = screen.getmaxyx()
++
++    game = Game(width=columns - 2, height=rows - 4, paddle_height=4)
++    while True:
++        draw(screen, game)
++        key = screen.getch()
++        if key == ord("q"):
++            return
++        if key == ord("w"):
++            game.move_paddle("left", "up")
++        elif key == ord("s"):
++            game.move_paddle("left", "down")
++        elif key == curses.KEY_UP:
++            game.move_paddle("right", "up")
++        elif key == curses.KEY_DOWN:
++            game.move_paddle("right", "down")
++        game.step()
++
++
++if __name__ == "__main__":
++    curses.wrapper(main)
+diff --git a/pong/__pycache__/__init__.cpython-314.pyc b/pong/__pycache__/__init__.cpython-314.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..0aa52daeac55bdc0a408d0e349e619b10d5f2a11
+GIT binary patch
+literal 256
+zcmdPq<K<!ig2xv(WR-zv5C;aBpp4IIKt=;Y5JL$=9AglpC!+^b36lqN39|=F35z^~
+z9zzhLKVu1N5R)>4CUcdtqe5|RVor`iaY<rcN@7upZcb)WQDRZ0LO_0Ax<YzlZmOOp
+z^DP!9pqg7O?m+G>wt&Qxl$=yQO}1O?@$o77$?@^GSU?JkKu#!P1`#Yk0wfF66(7Hn
+z;WLoSa7&;7Xrz98d}dx|NqoFsLFFwDo80`A(wtPgB5t4pMj$R01`;2b85tRGGH5<$
+SP`SvU@`y{NiM@yuC=LM4DnOF}
+
+literal 0
+HcmV?d00001
+
+diff --git a/pong/__pycache__/__main__.cpython-314.pyc b/pong/__pycache__/__main__.cpython-314.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..6690d0893a5dbd330a5b1db8c808e39af985ed15
+GIT binary patch
+literal 5385
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/pong/__pycache__/game.cpython-314.pyc b/pong/__pycache__/game.cpython-314.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..da23a72c6024c17146611d77dffb7d02579fd6ac
+GIT binary patch
+literal 10642
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/pong/game.py b/pong/game.py
+new file mode 100644
+index 0000000..b37b1df
+--- /dev/null
++++ b/pong/game.py
+@@ -0,0 +1,160 @@
++"""Terminal-independent game rules and state for Pong."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++
++
++@dataclass
++class Paddle:
++    """A vertical paddle whose y coordinate is its top row."""
++
++    y: int
++    height: int
++
++    @property
++    def bottom(self) -> int:
++        return self.y + self.height - 1
++
++
++@dataclass
++class Ball:
++    """The ball position and velocity in court coordinates."""
++
++    x: int
++    y: int
++    vx: int
++    vy: int
++
++
++class Game:
++    """A deterministic Pong game that advances one tick at a time."""
++
++    WINNING_SCORE = 5
++
++    def __init__(
++        self,
++        width: int = 40,
++        height: int = 20,
++        paddle_height: int = 4,
++    ) -> None:
++        if width < 5:
++            raise ValueError("width must be at least 5")
++        if height < 2:
++            raise ValueError("height must be at least 2")
++        if not 1 <= paddle_height <= height:
++            raise ValueError("paddle_height must fit inside the court")
++
++        self.width = width
++        self.height = height
++        self.paddle_height = paddle_height
++        paddle_y = (height - paddle_height) // 2
++        self.left_paddle = Paddle(paddle_y, paddle_height)
++        self.right_paddle = Paddle(paddle_y, paddle_height)
++        self.ball = Ball(width // 2, height // 2, 1, 0)
++        self.score = {"left": 0, "right": 0}
++
++    @property
++    def court_size(self) -> tuple[int, int]:
++        return self.width, self.height
++
++    @property
++    def left_paddle_x(self) -> int:
++        return 1
++
++    @property
++    def right_paddle_x(self) -> int:
++        return self.width - 2
++
++    @property
++    def left_score(self) -> int:
++        return self.score["left"]
++
++    @property
++    def right_score(self) -> int:
++        return self.score["right"]
++
++    @property
++    def winner(self) -> str | None:
++        if self.left_score >= self.WINNING_SCORE:
++            return "left"
++        if self.right_score >= self.WINNING_SCORE:
++            return "right"
++        return None
++
++    @property
++    def game_over(self) -> bool:
++        return self.winner is not None
++
++    def move_paddle(self, player: str, direction: int | str) -> None:
++        """Move one paddle one row up or down, clamped to the court."""
++        if self.game_over:
++            return
++        if player == "left":
++            paddle = self.left_paddle
++        elif player == "right":
++            paddle = self.right_paddle
++        else:
++            raise ValueError("player must be 'left' or 'right'")
++
++        if direction in (-1, "up"):
++            delta = -1
++        elif direction in (1, "down"):
++            delta = 1
++        else:
++            raise ValueError("direction must be -1, 1, 'up', or 'down'")
++
++        paddle.y = max(0, min(self.height - paddle.height, paddle.y + delta))
++
++    def step(self) -> None:
++        """Advance the ball once and resolve walls, paddles, and scoring."""
++        if self.game_over:
++            return
++
++        previous_x = self.ball.x
++        self.ball.x += self.ball.vx
++        self.ball.y += self.ball.vy
++        self._bounce_off_walls()
++
++        if self.ball.vx < 0:
++            crossed_paddle = (
++                previous_x >= self.left_paddle_x
++                and self.ball.x <= self.left_paddle_x
++            )
++            if crossed_paddle and self._within_paddle(self.left_paddle):
++                self.ball.x = self.left_paddle_x
++                self.ball.vx = abs(self.ball.vx)
++            elif self.ball.x < self.left_paddle_x:
++                self._score("right", 1)
++        elif self.ball.vx > 0:
++            crossed_paddle = (
++                previous_x <= self.right_paddle_x
++                and self.ball.x >= self.right_paddle_x
++            )
++            if crossed_paddle and self._within_paddle(self.right_paddle):
++                self.ball.x = self.right_paddle_x
++                self.ball.vx = -abs(self.ball.vx)
++            elif self.ball.x > self.right_paddle_x:
++                self._score("left", -1)
++
++    def _within_paddle(self, paddle: Paddle) -> bool:
++        return paddle.y <= self.ball.y <= paddle.bottom
++
++    def _bounce_off_walls(self) -> None:
++        bottom = self.height - 1
++        while self.ball.y < 0 or self.ball.y > bottom:
++            if self.ball.y < 0:
++                self.ball.y = -self.ball.y
++                self.ball.vy = abs(self.ball.vy)
++            else:
++                self.ball.y = 2 * bottom - self.ball.y
++                self.ball.vy = -abs(self.ball.vy)
++
++    def _score(self, player: str, serve_velocity: int) -> None:
++        self.score[player] += 1
++        self.ball = Ball(
++            self.width // 2,
++            self.height // 2,
++            serve_velocity,
++            0,
++        )
+diff --git a/tests/__pycache__/test_game.cpython-314.pyc b/tests/__pycache__/test_game.cpython-314.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..114ed1b17d15dcf95e5799f33e9074a4f42a5564
+GIT binary patch
+literal 9379
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/tests/test_game.py b/tests/test_game.py
+new file mode 100644
+index 0000000..856c61f
+--- /dev/null
++++ b/tests/test_game.py
+@@ -0,0 +1,124 @@
++import unittest
++
++from pong.game import Game
++
++
++class GameRulesTest(unittest.TestCase):
++    def make_game(self) -> Game:
++        return Game(width=12, height=8, paddle_height=2)
++
++    def test_ball_moves_by_velocity_on_every_step(self) -> None:
++        game = self.make_game()
++        game.ball.x = 5
++        game.ball.y = 3
++        game.ball.vx = 2
++        game.ball.vy = 1
++
++        game.step()
++
++        self.assertEqual((game.ball.x, game.ball.y), (7, 4))
++
++    def test_ball_bounces_at_both_vertical_walls(self) -> None:
++        game = self.make_game()
++        game.ball.x = 5
++        game.ball.y = 0
++        game.ball.vx = 0
++        game.ball.vy = -1
++        game.step()
++        self.assertEqual((game.ball.y, game.ball.vy), (1, 1))
++        self.assertLess(game.ball.y, game.height)
++
++        game.ball.y = game.height - 1
++        game.ball.vy = 1
++        game.step()
++        self.assertEqual((game.ball.y, game.ball.vy), (game.height - 2, -1))
++        self.assertGreaterEqual(game.ball.y, 0)
++
++    def test_ball_bounces_from_each_paddle_when_aligned(self) -> None:
++        game = self.make_game()
++        game.left_paddle.y = 2
++        game.ball.x = game.left_paddle_x + 1
++        game.ball.y = 2
++        game.ball.vx = -1
++        game.ball.vy = 0
++        game.step()
++        self.assertEqual((game.ball.x, game.ball.vx), (game.left_paddle_x, 1))
++
++        game.right_paddle.y = 2
++        game.ball.x = game.right_paddle_x - 1
++        game.ball.y = 3
++        game.ball.vx = 1
++        game.step()
++        self.assertEqual((game.ball.x, game.ball.vx), (game.right_paddle_x, -1))
++
++    def test_passing_a_paddle_scores_and_serves_towards_scorer(self) -> None:
++        game = self.make_game()
++        game.ball.x = game.left_paddle_x
++        game.ball.y = 0
++        game.ball.vx = -1
++        game.step()
++        self.assertEqual(game.right_score, 1)
++        self.assertEqual(
++            (game.ball.x, game.ball.y, game.ball.vx),
++            (game.width // 2, game.height // 2, 1),
++        )
++
++        game.ball.x = game.right_paddle_x
++        game.ball.y = 0
++        game.ball.vx = 1
++        game.step()
++        self.assertEqual(game.left_score, 1)
++        self.assertEqual(
++            (game.ball.x, game.ball.y, game.ball.vx),
++            (game.width // 2, game.height // 2, -1),
++        )
++
++    def test_paddles_move_one_row_and_stop_at_court_edges(self) -> None:
++        game = self.make_game()
++        game.left_paddle.y = 0
++        game.move_paddle("left", "up")
++        self.assertEqual(game.left_paddle.y, 0)
++        game.move_paddle("left", "down")
++        self.assertEqual(game.left_paddle.y, 1)
++
++        bottom = game.height - game.right_paddle.height
++        game.right_paddle.y = bottom
++        game.move_paddle("right", 1)
++        self.assertEqual(game.right_paddle.y, bottom)
++        game.move_paddle("right", -1)
++        self.assertEqual(game.right_paddle.y, bottom - 1)
++
++    def test_game_freezes_after_first_player_reaches_five(self) -> None:
++        game = self.make_game()
++        game.score["left"] = 4
++        game.ball.x = game.right_paddle_x
++        game.ball.y = 0
++        game.ball.vx = 1
++        game.step()
++        self.assertEqual(game.left_score, 5)
++        self.assertEqual(game.winner, "left")
++
++        state_after_win = (
++            game.ball.x,
++            game.ball.y,
++            game.ball.vx,
++            game.ball.vy,
++            game.left_score,
++            game.right_score,
++        )
++        game.step()
++        self.assertEqual(
++            (
++                game.ball.x,
++                game.ball.y,
++                game.ball.vx,
++                game.ball.vy,
++                game.left_score,
++                game.right_score,
++            ),
++            state_after_win,
++        )
++
++
++if __name__ == "__main__":
++    unittest.main()

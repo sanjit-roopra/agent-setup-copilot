@@ -1,0 +1,488 @@
+diff --git a/pong/__init__.py b/pong/__init__.py
+new file mode 100644
+index 0000000..a431e7b
+--- /dev/null
++++ b/pong/__init__.py
+@@ -0,0 +1,5 @@
++"""A small terminal Pong game."""
++
++from .game import Ball, Paddle, PongGame
++
++__all__ = ["Ball", "Paddle", "PongGame"]
+diff --git a/pong/__main__.py b/pong/__main__.py
+new file mode 100644
+index 0000000..ee2fecf
+--- /dev/null
++++ b/pong/__main__.py
+@@ -0,0 +1,24 @@
++"""Launch Pong with ``python3 -m pong``."""
++
++from __future__ import annotations
++
++import sys
++
++from .terminal import run_game
++
++
++def main() -> int:
++    """Start an interactive match when attached to a terminal."""
++    if not (sys.stdin.isatty() and sys.stdout.isatty()):
++        print("Pong needs an interactive terminal. Run `python3 -m pong` from a terminal.", file=sys.stderr)
++        return 1
++    try:
++        run_game()
++    except KeyboardInterrupt:
++        print()
++        return 130
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/pong/game.py b/pong/game.py
+new file mode 100644
+index 0000000..ee92e90
+--- /dev/null
++++ b/pong/game.py
+@@ -0,0 +1,161 @@
++"""Game state and deterministic Pong physics."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++
++
++@dataclass
++class Paddle:
++    """A vertically moving paddle."""
++
++    x: float
++    y: float
++    height: int
++
++    def move(self, direction: int, board_height: int, amount: float = 1.0) -> None:
++        if direction not in (-1, 1):
++            raise ValueError("paddle direction must be -1 or 1")
++        if board_height < self.height:
++            raise ValueError("board must be at least as tall as the paddle")
++        self.y = max(0.0, min(self.y + direction * amount, board_height - self.height))
++
++    @property
++    def center(self) -> float:
++        return self.y + (self.height - 1) / 2
++
++
++@dataclass
++class Ball:
++    """The ball's position and velocity in board coordinates."""
++
++    x: float
++    y: float
++    velocity_x: float
++    velocity_y: float
++
++
++class PongGame:
++    """A two-player Pong match with one update per simulation tick."""
++
++    def __init__(
++        self,
++        width: int = 40,
++        height: int = 20,
++        paddle_height: int = 5,
++        winning_score: int = 7,
++    ) -> None:
++        if width < 10:
++            raise ValueError("board width must be at least 10")
++        if height < 5:
++            raise ValueError("board height must be at least 5")
++        if paddle_height < 1 or paddle_height > height:
++            raise ValueError("paddle height must fit inside the board")
++        if winning_score < 1:
++            raise ValueError("winning score must be positive")
++
++        self.width = width
++        self.height = height
++        self.paddle_height = paddle_height
++        self.winning_score = winning_score
++        paddle_y = (height - paddle_height) / 2
++        self.left_paddle = Paddle(1, paddle_y, paddle_height)
++        self.right_paddle = Paddle(width - 2, paddle_y, paddle_height)
++        self.ball = Ball(width / 2, height / 2, 1.0, 0.0)
++        self.left_score = 0
++        self.right_score = 0
++        self.serve_direction = 1
++
++    @property
++    def game_over(self) -> bool:
++        return self.left_score >= self.winning_score or self.right_score >= self.winning_score
++
++    @property
++    def winner(self) -> str | None:
++        if self.left_score >= self.winning_score:
++            return "left"
++        if self.right_score >= self.winning_score:
++            return "right"
++        return None
++
++    def move_paddle(self, player: str, direction: int, amount: float = 1.0) -> None:
++        """Move a named paddle, clamped to the board."""
++        if player == "left":
++            paddle = self.left_paddle
++        elif player == "right":
++            paddle = self.right_paddle
++        else:
++            raise ValueError("player must be 'left' or 'right'")
++        paddle.move(direction, self.height, amount)
++
++    def reset_match(self) -> None:
++        """Start a new match, clearing both scores and returning paddles to center."""
++        self.left_score = 0
++        self.right_score = 0
++        self._center_paddles()
++        self.reset_round(1)
++
++    def reset_round(self, direction: int | None = None) -> None:
++        """Place the ball at center and serve it in the requested direction."""
++        if direction is not None:
++            if direction not in (-1, 1):
++                raise ValueError("serve direction must be -1 or 1")
++            self.serve_direction = direction
++        self.ball = Ball(self.width / 2, self.height / 2, float(self.serve_direction), 0.0)
++
++    def update(self, ticks: float = 1.0) -> None:
++        """Advance the match by ``ticks`` simulation units."""
++        if ticks <= 0:
++            raise ValueError("ticks must be positive")
++        if self.game_over:
++            return
++
++        ball = self.ball
++        ball.x += ball.velocity_x * ticks
++        ball.y += ball.velocity_y * ticks
++        self._bounce_from_walls()
++        if self._hit_paddle(self.left_paddle, moving_right=False):
++            self._bounce_from_paddle(self.left_paddle, moving_right=True)
++        elif self._hit_paddle(self.right_paddle, moving_right=True):
++            self._bounce_from_paddle(self.right_paddle, moving_right=False)
++        elif ball.x < 0:
++            self.right_score += 1
++            self.reset_round(1)
++        elif ball.x >= self.width:
++            self.left_score += 1
++            self.reset_round(-1)
++
++    def _center_paddles(self) -> None:
++        center = (self.height - self.paddle_height) / 2
++        self.left_paddle.y = center
++        self.right_paddle.y = center
++
++    def _bounce_from_walls(self) -> None:
++        if self.ball.y < 0:
++            self.ball.y = 0
++            self.ball.velocity_y = abs(self.ball.velocity_y)
++        elif self.ball.y >= self.height - 1:
++            self.ball.y = self.height - 1
++            self.ball.velocity_y = -abs(self.ball.velocity_y)
++
++    def _hit_paddle(self, paddle: Paddle, moving_right: bool) -> bool:
++        if moving_right and self.ball.velocity_x <= 0:
++            return False
++        if not moving_right and self.ball.velocity_x >= 0:
++            return False
++        paddle_face = paddle.x + 1 if moving_right else paddle.x
++        within_face = self.ball.x <= paddle_face if moving_right else self.ball.x >= paddle_face
++        within_depth = (
++            self.ball.x >= paddle.x - 1
++            if moving_right
++            else self.ball.x <= paddle.x + 1
++        )
++        within_height = paddle.y - 0.5 <= self.ball.y <= paddle.y + paddle.height - 0.5
++        return within_face and within_depth and within_height
++
++    def _bounce_from_paddle(self, paddle: Paddle, moving_right: bool) -> None:
++        offset = (self.ball.y - paddle.center) / max(1.0, paddle.height / 2)
++        self.ball.velocity_y = offset * 1.5
++        speed = max(1.0, abs(self.ball.velocity_x))
++        self.ball.velocity_x = speed if moving_right else -speed
++        self.ball.x = paddle.x + 1 if moving_right else paddle.x
+diff --git a/pong/terminal.py b/pong/terminal.py
+new file mode 100644
+index 0000000..e3ea5a4
+--- /dev/null
++++ b/pong/terminal.py
+@@ -0,0 +1,139 @@
++"""Terminal rendering and keyboard input for Pong."""
++
++from __future__ import annotations
++
++import select
++import sys
++import termios
++import time
++import tty
++from contextlib import contextmanager
++from typing import Iterator, TextIO
++
++from .game import PongGame
++
++
++QUIT_KEYS = {"q", "Q", "\x03"}
++COMMANDS = {
++    "w": ("left",  -1),
++    "W": ("left",  -1),
++    "s": ("left", 1),
++    "S": ("left", 1),
++    "\x1b[A": ("right", -1),
++    "\x1b[B": ("right", 1),
++    "i": ("right", -1),
++    "I": ("right", -1),
++    "k": ("right", 1),
++    "K": ("right", 1),
++}
++
++
++def command_for_key(key: str) -> tuple[str, int] | str | None:
++    """Translate a key sequence to a paddle command, restart, quit, or nothing."""
++    if key in QUIT_KEYS:
++        return "quit"
++    if key in {"r", "R"}:
++        return "restart"
++    return COMMANDS.get(key)
++
++
++def render(game: PongGame, clear: bool = False) -> str:
++    """Return a text frame representing the current game state."""
++    board = [[" " for _ in range(game.width)] for _ in range(game.height)]
++    for paddle in (game.left_paddle, game.right_paddle):
++        x = int(paddle.x)
++        start = max(0, int(round(paddle.y)))
++        for y in range(start, min(game.height, start + paddle.height)):
++            board[y][x] = "█"
++
++    ball_x = max(0, min(game.width - 1, int(round(game.ball.x))))
++    ball_y = max(0, min(game.height - 1, int(round(game.ball.y))))
++    board[ball_y][ball_x] = "●"
++
++    lines = [
++        f" PONG     Left: {game.left_score}     Right: {game.right_score}",
++        "+" + "-" * game.width + "+",
++    ]
++    lines.extend("|" + "".join(row) + "|" for row in board)
++    lines.append("+" + "-" * game.width + "+")
++    if game.game_over:
++        lines.append(f" {game.winner.title()} player wins! Press R to restart or Q to quit.")
++    else:
++        lines.append(" W/S: left paddle   I/K or Up/Down: right paddle   Q: quit")
++    frame = "\n".join(lines) + "\n"
++    return "\x1b[2J\x1b[H" + frame if clear else frame
++
++
++def _read_key(stream: TextIO) -> str | None:
++    first = stream.read(1)
++    if not first:
++        return None
++    if first != "\x1b":
++        return first
++    sequence = first
++    for _ in range(2):
++        ready, _, _ = select.select([stream], [], [], 0.01)
++        if not ready:
++            break
++        sequence += stream.read(1)
++    return sequence
++
++
++def _available_keys(stream: TextIO) -> Iterator[str]:
++    ready, _, _ = select.select([stream], [], [], 0)
++    while ready:
++        key = _read_key(stream)
++        if key is None:
++            return
++        yield key
++        ready, _, _ = select.select([stream], [], [], 0)
++
++
++@contextmanager
++def raw_terminal(stream: TextIO) -> Iterator[None]:
++    """Temporarily enable character-at-a-time input and always restore the terminal."""
++    if not stream.isatty():
++        raise RuntimeError("Pong requires an interactive terminal")
++    fd = stream.fileno()
++    original = termios.tcgetattr(fd)
++    try:
++        tty.setcbreak(fd)
++        yield
++    finally:
++        termios.tcsetattr(fd, termios.TCSADRAIN, original)
++
++
++def run_game(
++    game: PongGame | None = None,
++    input_stream: TextIO | None = None,
++    output_stream: TextIO | None = None,
++    frame_delay: float = 0.05,
++    max_frames: int | None = None,
++) -> None:
++    """Run the interactive game until the user quits or a frame limit is reached."""
++    if frame_delay < 0:
++        raise ValueError("frame_delay must not be negative")
++    game = game or PongGame()
++    input_stream = input_stream or sys.stdin
++    output_stream = output_stream or sys.stdout
++    with raw_terminal(input_stream):
++        frame = 0
++        output_stream.write(render(game, clear=True))
++        output_stream.flush()
++        while not game.game_over or max_frames is not None:
++            for key in _available_keys(input_stream):
++                command = command_for_key(key)
++                if command == "quit":
++                    return
++                if command == "restart":
++                    game.reset_match()
++                elif isinstance(command, tuple):
++                    game.move_paddle(*command)
++            if not game.game_over:
++                game.update()
++            frame += 1
++            output_stream.write(render(game, clear=True))
++            output_stream.flush()
++            if max_frames is not None and frame >= max_frames:
++                return
++            time.sleep(frame_delay)
+diff --git a/tests/__init__.py b/tests/__init__.py
+new file mode 100644
+index 0000000..b8d3219
+--- /dev/null
++++ b/tests/__init__.py
+@@ -0,0 +1 @@
++"""Unit tests for the terminal Pong game."""
+diff --git a/tests/test_game.py b/tests/test_game.py
+new file mode 100644
+index 0000000..3c16555
+--- /dev/null
++++ b/tests/test_game.py
+@@ -0,0 +1,63 @@
++import unittest
++
++from pong.game import PongGame
++
++
++class PongGameTests(unittest.TestCase):
++    def test_paddles_are_clamped_to_the_board(self):
++        game = PongGame(width=20, height=10, paddle_height=3)
++
++        game.move_paddle("left", -1, amount=100)
++        self.assertEqual(game.left_paddle.y, 0)
++        game.move_paddle("left", 1, amount=100)
++        self.assertEqual(game.left_paddle.y, 7)
++
++    def test_ball_bounces_from_top_and_bottom_walls(self):
++        game = PongGame(width=20, height=10)
++        game.ball.y = 1
++        game.ball.velocity_y = -2
++        game.update()
++        self.assertEqual(game.ball.y, 0)
++        self.assertEqual(game.ball.velocity_y, 2)
++
++        game.ball.y = 8
++        game.ball.velocity_y = 2
++        game.update()
++        self.assertEqual(game.ball.y, 9)
++        self.assertEqual(game.ball.velocity_y, -2)
++
++    def test_ball_bounces_from_a_paddle(self):
++        game = PongGame(width=20, height=10, paddle_height=3)
++        game.left_paddle.y = 3
++        game.ball.x = 2
++        game.ball.y = 4
++        game.ball.velocity_x = -1
++        game.update()
++        self.assertEqual(game.ball.x, 2)
++        self.assertGreater(game.ball.velocity_x, 0)
++
++    def test_missed_ball_scores_and_starts_a_new_round(self):
++        game = PongGame(width=20, height=10)
++        game.ball.x = 1
++        game.ball.velocity_x = -2
++        game.update()
++        self.assertEqual(game.right_score, 1)
++        self.assertEqual(game.left_score, 0)
++        self.assertEqual(game.ball.x, game.width / 2)
++        self.assertGreater(game.ball.velocity_x, 0)
++
++    def test_winning_score_stops_updates_until_restart(self):
++        game = PongGame(width=20, height=10, winning_score=1)
++        game.right_score = 1
++        game.ball.x = 3
++        game.update()
++        self.assertEqual(game.ball.x, 3)
++        self.assertEqual(game.winner, "right")
++
++        game.reset_match()
++        self.assertFalse(game.game_over)
++        self.assertEqual((game.left_score, game.right_score), (0, 0))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_terminal.py b/tests/test_terminal.py
+new file mode 100644
+index 0000000..ba722e1
+--- /dev/null
++++ b/tests/test_terminal.py
+@@ -0,0 +1,53 @@
++import io
++import unittest
++from unittest.mock import patch
++
++from pong.__main__ import main
++from pong.game import PongGame
++from pong.terminal import command_for_key, raw_terminal, render
++
++
++class TerminalTests(unittest.TestCase):
++    def test_commands_cover_both_paddles_and_quit(self):
++        self.assertEqual(command_for_key("w"), ("left", -1))
++        self.assertEqual(command_for_key("s"), ("left", 1))
++        self.assertEqual(command_for_key("\x1b[A"), ("right", -1))
++        self.assertEqual(command_for_key("\x1b[B"), ("right", 1))
++        self.assertEqual(command_for_key("q"), "quit")
++        self.assertEqual(command_for_key("r"), "restart")
++        self.assertIsNone(command_for_key("x"))
++
++    def test_render_contains_board_scores_ball_and_controls(self):
++        game = PongGame(width=12, height=6, paddle_height=2)
++        game.left_score = 2
++        game.right_score = 3
++        frame = render(game)
++
++        self.assertIn("Left: 2", frame)
++        self.assertIn("Right: 3", frame)
++        self.assertIn("●", frame)
++        self.assertIn("W/S", frame)
++        self.assertEqual(frame.count("+" + "-" * game.width + "+"), 2)
++
++    def test_render_can_be_prefixed_for_screen_refresh(self):
++        frame = render(PongGame(width=12, height=6), clear=True)
++        self.assertTrue(frame.startswith("\x1b[2J\x1b[H"))
++
++    def test_raw_terminal_rejects_non_terminal_stream(self):
++        with self.assertRaisesRegex(RuntimeError, "interactive terminal"):
++            with raw_terminal(io.StringIO()):
++                pass
++
++    def test_main_reports_noninteractive_invocation_without_blocking(self):
++        error = io.StringIO()
++        with patch("sys.stdin", io.StringIO()), patch("sys.stdout", io.StringIO()), patch(
++            "sys.stderr", error
++        ):
++            status = main()
++
++        self.assertEqual(status, 1)
++        self.assertIn("interactive terminal", error.getvalue())
++
++
++if __name__ == "__main__":
++    unittest.main()

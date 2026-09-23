@@ -1,0 +1,104 @@
+{
+  "totalPremiumRequestCost": 1,
+  "totalUserRequests": 1,
+  "totalNanoAiu": 4237235000,
+  "tokenDetails": {
+    "input": {
+      "tokenCount": 90
+    },
+    "cache_read": {
+      "tokenCount": 557025
+    },
+    "cache_write": {
+      "tokenCount": 33473
+    },
+    "output": {
+      "tokenCount": 19038
+    }
+  },
+  "totalApiDurationMs": 199614,
+  "sessionStartTime": "2026-09-22T06:38:04.523Z",
+  "codeChanges": {
+    "linesAdded": 503,
+    "linesRemoved": 118,
+    "filesModifiedCount": 6,
+    "filesModified": [
+      "/Users/sanjit.roopra/.copilot/session-state/8916fcd7-522b-452c-8042-9cf6e5e590fb/files/pong-checklist.md",
+      "/Users/sanjit.roopra/.copilot/session-state/8916fcd7-522b-452c-8042-9cf6e5e590fb/files/audit_pong.py",
+      "/Users/sanjit.roopra/scratch/t1-pong-xhigh-out/attempt-a/pong/__init__.py",
+      "/Users/sanjit.roopra/scratch/t1-pong-xhigh-out/attempt-a/pong/game.py",
+      "/Users/sanjit.roopra/scratch/t1-pong-xhigh-out/attempt-a/pong/__main__.py",
+      "/Users/sanjit.roopra/scratch/t1-pong-xhigh-out/attempt-a/tests/test_game.py"
+    ]
+  },
+  "modelMetrics": {
+    "gpt-5.6-luna": {
+      "requests": {
+        "count": 30,
+        "cost": 1
+      },
+      "usage": {
+        "inputTokens": 590588,
+        "outputTokens": 19038,
+        "cacheReadTokens": 557025,
+        "cacheWriteTokens": 33473,
+        "reasoningTokens": 9645
+      },
+      "cacheExpiresAt": "2026-09-22T07:11:34.546Z",
+      "totalNanoAiu": 4237235000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 90
+        },
+        "cache_read": {
+          "tokenCount": 557025
+        },
+        "cache_write": {
+          "tokenCount": 33473
+        },
+        "output": {
+          "tokenCount": 19038
+        }
+      }
+    }
+  },
+  "agentMetrics": {
+    "main": {
+      "totalApiDurationMs": 199614,
+      "totalNanoAiu": 4237235000,
+      "modelMetrics": {
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 30,
+            "cost": 1
+          },
+          "usage": {
+            "inputTokens": 590588,
+            "outputTokens": 19038,
+            "cacheReadTokens": 557025,
+            "cacheWriteTokens": 33473,
+            "reasoningTokens": 9645
+          },
+          "totalNanoAiu": 4237235000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 90
+            },
+            "cache_read": {
+              "tokenCount": 557025
+            },
+            "cache_write": {
+              "tokenCount": 33473
+            },
+            "output": {
+              "tokenCount": 19038
+            }
+          }
+        }
+      }
+    }
+  },
+  "currentModel": "gpt-5.6-luna",
+  "lastCallInputTokens": 33476,
+  "lastCallOutputTokens": 397
+}

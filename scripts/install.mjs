@@ -27,7 +27,7 @@ for (const file of fs.readdirSync(path.join(source, '.github/agents'))) {
   let text = fs.readFileSync(path.join(source, '.github/agents', file), 'utf8');
   if (host === 'cli') {
     const id = file.slice(0, -'.agent.md'.length);
-    const model = id === 'subagent-fleet' ? 'gpt-5.6-sol' : policy.agents[id]?.cliModel;
+    const model = id === 'subagent-fleet' ? 'gpt-5.6-sol' : id === 'economy' ? 'gpt-5.6-luna' : policy.agents[id]?.cliModel;
     if (!model) throw new Error(`Missing model mapping: ${id}`);
     text = text.replace(/^model: .*$/m, `model: "${model}"\nmodelPolicy: required`);
     // CLI agent-frontmatter hooks are not part of the verified CLI contract.

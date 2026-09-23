@@ -1,0 +1,735 @@
+[>4;2m[?u[?2026$p[?1049h[?2004h[?1004h[?1003h[?1006h[?25l[?12$p[?1007$p]10;?\]11;?\]4;0;?\]4;1;?\]4;2;?\]4;3;?\]4;4;?\]4;5;?\]4;6;?\]4;7;?\]4;8;?\]4;9;?\]4;10;?\]4;11;?\]4;12;?\]4;13;?\]4;14;?\]4;15;?\[>q[H[2J[?25l[22;0t]0;GitHub Copilot[H[2J [1;97;44m[Current][m  Sessions  [2m Issues [m [2m Pull requests [m  Gists[?996n
+
+[34m  ╭─╮╭─╮
+  ╰─╯╰─╯[m  Copilot v1.0.87 uses AI.
+[35m  █ [96m▘▝[35m █[m  Check for mistakes.
+[35m   ▔▔▔▔ [m  [33m/experimental[m[27B[90m╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│[m [1mConfirm folder trust[137C[0;90m│
+│[m [90m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[m [90m│
+│[m [90m╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮[m [90m│
+│[m [90m│[m /Users/sanjit.roopra/scratch/t5-fusion-1[113C[90m│[m [90m│
+│[m [90m╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯[m [90m│
+│[158C│
+│[m Copilot can read files in this folder and, with your permission, edit them or run code and shell commands. It will remember your permissions for the rest of [90m│
+│[m  this session.[143C[90m│
+│[158C│
+│[m Do you trust the files in this folder?[119C[90m│
+│[158C│
+│[m [97;44m❯ 1. Yes[39m                                                                                                                                                    [m [90m│
+│[m   2. Yes, and remember this folder for future sessions[103C[90m│
+│[m   3. No (Esc)[144C[90m│
+│[158C│
+│[m [1m↑/↓[m to navigate · [1menter[m to select · [1mesc[m to cancel[108C[90m│
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[?7l╯[?7h[m[8;2H[34m●[m No copilot-instructions.md found. Run /init to generate.
+
+ [34m●[m Tip: /review
+   └ Run code review agent to analyze changes[5;5H[96m╴╶[35m [m[96m  [35m [m[96m╴╶[35m [m[96m▘▝[35m [m[96m╴╶[35m [m[96m  [35m [m[96m╴╶[35m [m[96m▘▝[35m [m[96m╴╶[35m [m[96m  [35m [m[96m╴╶[35m [m[96m▘▝[35m [m[28B[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+[K
+ ~/scratch/t5-fusion-1 [⎇ main]                         [46;141HSession: 0 AIC used 
+[2m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[m❯[K
+[2m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+[m [94m●[m [94mL[34moading: 2 skills, 1 MCP server — still waiting on extensions[m                                                                                  GPT-5.6 Terra[?7l [?7h[48;3H[?25h[?25l
+
+ [94m◉[m [34mLo[94mad[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mL[34moadi[94mng[m[48;3H[?25h[?25l
+
+ [34m○[m [34mLo[94mad[34ming:[94m 2[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mLoadi[94mng[34m: 2 [94msk[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng:[94m 2[34m ski[94mll[m[48;3H[?25h[?25l[35A[34m●[m MCP Servers reloaded: 2 servers connected[48;3H[?25h[?25l
+
+ [1m←[m open sidebar · [1m/[m commands · [1m?[m help · [1mtab[m next tab            [48;3H[?25h[?25l[7A[36m┃[m ❯ /add-dir[41;41HAllow file access to a directory and load its .github skills and agents as trusted configuration
+┃   /after[42;41HSchedule a one-shot prompt, skill, or schedulable slash command for this session (e.g. /after 30s ping me, /after 10m /…
+┃   /agent[43;41HBrowse and select agents: /agent [name]
+┃   /allow-all[44;41HEnable all permissions (tools, paths, and URLs)
+┃   /app[45;41HPrefer a visual workspace? Try out the GitHub Copilot desktop app
+┃   /ask                       [46;41HAsk a quick side question without adding to conversation history[K
+
+❯ /add-dir
+
+ [1m/help[m show help                                    [48;4H[?25h[?25l[7A[K
+[K
+[K
+[K
+[K
+ ~/scratch/t5-fusion-1 [⎇ main][46;41H                                                                [46;141HSession: 0 AIC used
+
+❯ /model hyd
+
+ [1m@[m files · [1m#[m issues[48;13H[?25h[?25lrafusio[?25h[?25ln[?25h[?25l❯ [K
+
+ [1m←[m open sidebar · [1m/[m commands · [1m?[m help · [1mtab[m next tab[48;3H[?25h[?25l[50;147H  HydraFusion[48;3H[?25h[?25l[33A[34m●[m Model changed from gpt-5.6-terra (high) to HydraFusion for this session[48;3H[?25h[?25lB
+
+ [1m@[m files · [1m#[m issues                                 [48;4H[?25h[?25luild a [?25h[?25lminimal[?25h[?25l Pong g[?25h[?25lame in [?25h[?25lPython,[?25h[?25l standa[?25h[?25lrd libr[?25h[?25lary onl[?25h[?25ly, play[?25h[?25lable in[?25h[?25l a term[?25h[?25linal wi[?25h[?25lth `pyt[?25h[?25lhon3 -m[?25h[?25l pong`.[?25h[?25l Keep i[?25h[?25lt minim[?25h[?25lal: one[?25h[?25l `pong` [?25h[?25lpackage[?25h[?25l with t[?25h[?25l[16;48r[48;1H
+[1;50r[47;152Hhe
+  smal[?25h[?25llest co[?25h[?25lde that[?25h[?25l plays[?25h[?25l, plus [?25h[?25l`unitte[?25h[?25lst` test[?25h[?25ls in `t[?25h[?25lests/`.[?25h[?25l No CLI[?25h[?25l option[?25h[?25ls, no c[?25h[?25lonfigur[?25h[?25lation, [?25h[?25lno ext[?25h[?25lras. St[?25h[?25lop as s[?25h[?25loon as [?25h[?25lthe te[?25h[?25lsts pas[?25h[?25ls.[?25h[?25l[16;47r[16;1HM[1;50r[48;1H❯[K
+
+ [94m●[m [94mW[34morking[m [1mesc[m interrupt[48;3H[?25h]0;Build a minimal Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Keep it minimal: one `pong` package with the smallest code that plays, plus `unittest` tests in `tests/`. No CLI options, no configuration, no extras. Stop as soon as the tests pass. - GitHub Copilot[?25l[31A❯ Build a minimal Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Keep it minimal: one `pong` package with   08:35
+   the smallest code that plays, plus `unittest` tests in `tests/`. No CLI options, no configuration, no extras. Stop as soon as the tests pass.[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l[28A[94m●[m [94mH[34mydraFusion · choosing a workflow · 0s
+[3C[m○ Selecting a workflow for this request
+   Nothing has run yet.
+   Esc to interrupt.[48;3H[?25h[?25l
+
+ [94m●[m [2A[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[21;45r[21;1HM[1;50r[20;2H[94m◉[m [34mH[20;18H[94mCr[34mitiq[94mue[34m ·[5Cing · 0s[m[K
+   [34m◐ First pass · primary worker
+[5C[mCritique pass · read-only reviewer   
+   ○ Revision pass · if changes are requested[50;2H[34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [94m○[m [2A[?25h[?25l[28A[34m◉[20;18HCritique · w[94mor[34mking[94m ·[34m 1[50;2H◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h]0;Build Minimal Pong Game - GitHub Copilot[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◎[6CFu[34msion[94m ·[20;30H[34morking · 2[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[28A[34m○[6CFusion ·[20;39H3[m[48;3H[?25h[?25l
+
+ [34m○[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[24;45r[24;1HM[1;50r[20;6H[94mdr[34maFus[94mio[24;4H[mReceiving model output · 38 B[48;3H[?25h[?25l[24;29H60 [50;2H[34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[24;29H106 B[48;3H[?25h[?25l[28A[34m◎[m [34mHydra[94mFu[34msion[94m ·[24;30H[m21 [48;3H[?25h[?25l[24;31H7 [50;2H[34m○[6Cng[m[48;3H[?25h[?25l[28A[94m◉[6C[34mFus[94mio[34mn · [94mCr[24;30H[m59 [48;3H[?25h[?25l[24;30H69[48;3H[?25h[?25l[24;30H85 [50;2H[34m◎[m [2A[?25h[?25l[28A[94m●[20;12H[34mion[94m ·[34m Cri[94mti[24;29H[m211 [48;3H[?25h[?25l[24;30H27 [50;2H[34m◉[m [2A[?25h[?25l[24;30H39 [48;3H[?25h[?25l[28A[94m◉[20;15H[34m · [94mCr[34mitiq[94mue[24;30H[m60 [48;3H[?25h[?25l[24;30H75 [50;2H[94m●[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m◎[20;18HCri[94mti[34mque [94m· [4B[C[m86 [48;3H[?25h[?25l[20;39H[34m4s[24;29H[m315 [48;3H[?25h[?25l[24;30H37 [50;2H[94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m○[20;21Htiq[94mue[34m · w[94mor[4B[m44 [48;3H[?25h[?25l[24;31H5 [50;2H[94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[24;31H7 [48;3H[?25h[?25l[28A[34m◎[20;24Hue [94m· [34mwork[94min[24;30H[m52 [48;3H[?25h[?25l[24;30H61 [50;2H[34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[24;30H72 [48;3H[?25h[?25l[28A[34m◉[20;27H· w[94mor[34mking[94m ·[24;30H[m82[48;3H[?25h[?25l[24;31H9 [50;2H[34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m●[20;30H[34mork[94min[34mg · [94m4s[24;29H[m453 [48;3H[?25h[?25l[24;29H506 [50;2H[34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m◉[m [34mHy[94mdr[20;33H[34ming · 5s[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l[28A[94m○[20;12Hio[24;29H[m786[50;2H[94m◎[m [2A[?25h[?25l
+
+ [94m○[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l[24;45r[24;1HM[1;50r[20;2H[34m◉[m [34mHydr[20;18H[94mCr[24;4H[m◐ Running tool operation[46;138HSession: 0.45
+
+❯ [?25h[?25l[28A[34m●[20;12Hion[94m ·[34m Cri[94mti[24;4H[32m✓ Tool operation complete; continuing the pass[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l[20;15H[34m · Criti[20;33H[94min[34mg · [94m6s[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m●[20;15H ·[34m Cri[94mti[20;33H[34ming · 7s[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [34m○[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[6Cng[m[48;3H[?25h[?25l[28A[34m◉[20;15H · Criti[20;39H8[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m◎[20;27H[94m· [34mwork[94min[34mg · 9[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[28A[94m○[20;27H[34m· workin[25;29H[m858 [48;3H[?25h[?25l[28A[94m◎[m [25;29H911 [50;2H[94m○[m [2A[?25h[?25l[25;30H25 [48;3H[?25h[?25l[25;30H58 [48;3H[?25h[?25l[28A[34m◉[m [25;30H73 [50;2H[94m◎[m [94mW[34mo[m[48;3H[?25h[?25l[25;29H1009 B[48;3H[?25h[?25l[28A[34m●[m [94mH[34my[25;31H[m23 [50;2H[94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[25;30H.0 KiB[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◉[m [34mHy[94mdr[m[48;3H[?25h[?25l[28A[34m◎[m [94mH[34mydra[94mFu[50;2H[34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[25;31H1 [48;3H[?25h[?25l[28A[94m○[m [34mHy[94mdr[34maFus[94mio[m[48;3H[?25h[?25l[20;6H[34mdraFusio[20;39H10s[50;2H◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[25;31H2 [48;3H[?25h[?25l[28A[94m◎[m [50;2H[34m○[6Cng[m[48;3H[?25h[?25l[28A[94m◉[m [25;31H3 [50;2H[94m◎[m [2A[?25h[?25l[28A[34m●[m [94mH[34my[m[48;3H[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l[28A[34m◉[m [34mHy[94mdr[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34mo[m[48;3H[?25h[?25l[25;31H4 [48;3H[?25h[?25l[28A[34m◎[m [94mH[34mydra[94mFu[50;2H[34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m○[m [34mHy[94mdr[34maFus[94mio[25;31H[m5 [50;2H[34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m◎[m [34mHydra[94mFu[34msion[94m ·[m[48;3H[?25h[?25l[25;31H6 [50;2H[34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◉[6C[34mFus[94mio[34mn · [94mCr[25;31H[m7 [50;2H[34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[25;31H8 [48;3H[?25h[?25l[28A[94m●[20;12H[34mion[94m ·[34m Cri[94mti[50;2H◉[6C[34mng[m[48;3H[?25h[?25l[25;31H9 [48;3H[?25h[?25l[28A[34m◉[20;15H · [94mCr[34mitiq[94mue[m[48;3H[?25h[?25l[25;29H2.0 [50;2H[94m●[m [2A[?25h[?25l[28A[34m◎[20;18HCri[94mti[34mque [94m· [20;40H[34m1[50;2H[94m◉[m [2A[?25h[?25l[25;31H1 [48;3H[?25h[?25l[28A[34m○[20;21Htiq[94mue[34m · w[94mor[50;2H[34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m◎[20;24Hue [94m· [34mwork[94min[50;2H[34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[94m◉[20;27H[34m· w[94mor[34mking[94m ·[25;31H[m2 [48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m●[20;30H[34mork[94min[34mg · [94m11[50;2H[34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◉[20;33H[34ming[94m ·[34m 11[m[48;3H[?25h[?25l
+
+ [94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[25;31H3 [48;3H[?25h[?25l[28A[34m◎[20;36H · [94m11[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l[28A[34m○[20;39H11[50;2H[94m◎[m [2A[?25h[?25l[28A[34m◎[m [50;2H[34m○[m [2A[?25h[?25l[28A[34m◉[m [28B[?25h[?25l[25;31H4 [50;2H[34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m●[m [28B[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[94m◉[m [94mH[34my[50;2H●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[20;40H[34m2s[m[48;3H[?25h[?25l[28A[94m◎[m [34mHy[94mdr[25;31H[m5 [50;2H[94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m○[m [94mH[34mydra[94mFu[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m◎[m [34mHy[94mdr[34maFus[94mio[m[48;3H[?25h[?25l[25;31H6 [50;2H[94m○[6C[34mng[m[48;3H[?25h[?25l[28A[34m◉[m [34mHydra[94mFu[34msion[94m ·[50;2H[34m◎[m [2A[?25h[?25l[28A[34m●[6CFus[94mio[34mn · [94mCr[m[48;3H[?25h[?25l[25;31H7 [50;2H[34m◉[m [2A[?25h[?25l[28A[94m◉[20;12H[34mion[94m ·[34m Cri[94mti[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◎[20;15H[34m · [94mCr[34mitiq[94mue[50;2H[34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[94m○[20;18H[34mCri[94mti[34mque [94m· [m[48;3H[?25h[?25l[25;31H8 [50;2H[94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◎[20;21Htiq[94mue[34m · w[94mor[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m◉[20;24Hue [94m· [34mwork[94min[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m●[20;27H· w[94mor[34mking[94m ·[m[48;3H[?25h[?25l[25;31H9 [50;2H[34m◉[6Cng[m[48;3H[?25h[?25l[20;40H[34m3s[m[48;3H[?25h[?25l[28A[34m◉[20;30Hork[94min[34mg · [94m13[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l[28A[94m◎[20;33H[34ming[94m ·[34m 13[m[48;3H[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l[28A[94m○[20;36H[34m · [94m13[25;29H[m3.0 [48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◎[20;39H[34m13[50;2H[94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◉[m [28B[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m●[m [28B[?25h[?25l[28A[34m◉[m [28B[?25h[?25l[25;31H1 [50;2H[34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m◎[m [94mH[34my[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l[28A[94m○[m [34mHy[94mdr[25;31H[m2 [48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[28A[94m◎[m [94mH[34mydra[94mFu[m[48;3H[?25h[?25l
+
+ [34m○[m [2A[?25h[?25l[25;31H3 [48;3H[?25h[?25l[28A[94m◉[m [34mHy[94mdr[34maFus[94mio[m[48;3H[?25h[?25l[20;40H[34m4s[50;2H[94m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m●[m [34mHydra[94mFu[34msion[94m ·[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m◉[6CFus[94mio[34mn · [94mCr[m[48;3H[?25h[?25l[25;31H4 [48;3H[?25h[?25l
+
+ [94m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◎[20;12Hion[94m ·[34m Cri[94mti[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m○[20;15H · [94mCr[34mitiq[94mue[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m◎[20;18H[34mCri[94mti[34mque [94m· [25;31H[m5 [48;3H[?25h[?25l
+
+ [34m○[6Cng[m[48;3H[?25h[?25l[28A[94m◉[20;21H[34mtiq[94mue[34m · w[94mor[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[28A[94m●[20;24H[34mue [94m· [34mwork[94min[m[48;3H[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l[28A[34m◉[20;27H· w[94mor[34mking[94m ·[25;31H[m6 [48;3H[?25h[?25l
+
+ [94m●[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m◎[20;30Hork[94min[34mg · [94m14[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m○[20;33Hing[94m ·[34m 14[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◎[20;36H · [94m14[m[48;3H[?25h[?25l[20;40H[94m5[34ms[50;2H○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◉[20;39H[34m15[25;31H[m7 [48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m●[m [28B[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l[28A[94m◉[m [28B[?25h[?25l[25;31H8 [50;2H[94m●[m [2A[?25h[?25l[28A[34m◎[m [28B[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l[28A[34m○[m [94mH[34my[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m◎[m [34mHy[94mdr[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m◉[m [94mH[34mydra[94mFu[m[48;3H[?25h[?25l[25;31H9 [48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m●[m [34mHy[94mdr[34maFus[94mio[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◉[m [34mHydra[94mFu[34msion[94m ·[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m◎[6C[34mFus[94mio[34mn · [94mCr[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l[28A[34m○[20;12Hion[94m ·[34m Cri[94mti[m[48;3H[?25h[?25l[20;40H[34m6s[50;2H[94m◎[m [2A[?25h[?25l[28A[34m◎[20;15H · [94mCr[34mitiq[94mue[m[48;3H[?25h[?25l
+
+ [94m○[m [2A[?25h[?25l[28A[34m◉[20;18HCri[94mti[34mque [94m· [m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m●[20;21Htiq[94mue[34m · w[94mor[25;29H[m4.0 [48;3H[?25h[?25l[28A[94m◉[20;24H[34mue [94m· [34mwork[94min[50;2H[34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[25;31H1 [48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m◎[20;27H[34m· w[94mor[34mking[94m ·[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m○[20;30H[34mork[94min[34mg · [94m16[m[48;3H[?25h[?25l[25;31H2 [50;2H[94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m◎[20;33Hing[94m ·[34m 16[m[48;3H[?25h[?25l
+
+ [94m○[6C[34mng[m[48;3H[?25h[?25l[28A[34m◉[20;36H · [94m16[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l[28A[34m●[20;39H16[m[48;3H[?25h[?25l[25;31H3 [50;2H[34m◉[m [2A[?25h[?25l[28A[34m◉[m [28B[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◎[m [28B[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[94m○[20;40H[34m7[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m◎[m [94mH[34my[m[48;3H[?25h[?25l[25;31H4 [48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m◉[m [34mHy[94mdr[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m●[m [94mH[34mydra[94mFu[25;31H[m5 [48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l[28A[34m◉[m [34mHy[94mdr[34maFus[94mio[m[48;3H[?25h[?25l[28A[34m◎[m [34mHydra[94mFu[34msion[94m ·[50;2H[34m●[m [2A[?25h[?25l[25;31H6 [50;2H[34m◉[m [2A[?25h[?25l[28A[94m○[6C[34mFus[94mio[34mn · [94mCr[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◎[20;12H[34mion[94m ·[34m Cri[94mti[m[48;3H[?25h[?25l[25;31H7 [50;2H[34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[94m◉[20;15H[34m · [94mCr[34mitiq[94mue[m[48;3H[?25h[?25l[28A[34m●[20;18HCri[94mti[34mque [94m· [50;2H◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m◉[20;21Htiq[94mue[34m · w[94mor[m[48;3H[?25h[?25l[25;31H8 [50;2H[94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m◎[20;24Hue [94m· [34mwork[94min[5C[34m8[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l[28A[34m○[20;27H· w[94mor[34mking[94m ·[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[28A[94m◎[20;30H[34mork[94min[34mg · [94m18[25;31H[m9 [48;3H[?25h[?25l
+
+ [34m○[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◉[20;33H[34ming[94m ·[34m 18[m[48;3H[?25h[?25l[28A[94m●[20;36H[34m · [94m18[50;2H◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m◉[20;39H18[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[46;149H64 
+
+❯ [?25h[?25l[28A[34m◎[m [4B◐ Running tool operation[K[50;2H[94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m○[m [4B[32m✓ Tool operation complete; continuing the pass[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[6Cng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l[28A[94m◉[m [94mH[34mydra[94mFu[20;40H[34m9[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m●[m [34mHydraFu[20;36H[94m ·[34m 20[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [94m○[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWo[m[48;3H[?25h[?25l
+
+ [94m○[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l[28A[34m◉[20;12H[94mio[34mn · [94mCr[20;36H[34m · 21[m[48;3H[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l[28A[34m◎[20;12Hion · Cr[20;39H[94m21[m[48;3H[?25h[?25l[25;29H5.0 [48;3H[?25h[?25l[28A[34m○[20;39H21[50;2H◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m◎[m [25;31H1 [50;2H[34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[20;40H[34m2s[m[48;3H[?25h[?25l[28A[94m◉[m [50;2H[34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[25;31H2 [48;3H[?25h[?25l[28A[94m●[m [28B[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m◉[m [94mH[34my[50;2H[94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l[25;31H3 [48;3H[?25h[?25l[28A[34m◎[m [34mHy[94mdr[50;2H◉[6C[34mng[m[48;3H[?25h[?25l[28A[34m○[m [94mH[34mydra[94mFu[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[25;31H4 [48;3H[?25h[?25l[28A[34m◎[m [34mHy[94mdr[34maFus[94mio[50;2H[34m○[m [2A[?25h[?25l[28A[94m◉[m [34mHydra[94mFu[34msion[94m ·[50;2H[34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[25;31H5 [48;3H[?25h[?25l[28A[94m●[6C[34mFus[94mio[34mn · [94mCr[25;31H[m6 [50;2H[34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[46;149H72 
+
+❯ [?25h[?25l[28A[34m◎[20;12Hio[20;24H[94mue[24;4H[m◐ Running tool operation[K[50;2H[94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[34m○[20;18HCri[94mti[34mque [94m· [20;40H[34m3[m[48;3H[?25h[?25l
+
+ [34m○[6Cng[m[48;3H[?25h[?25l[28A[34m◎[20;21Htiq[94mue[34m · w[94mor[24;4H[32m✓ Tool operation complete; continuing the pass[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l[28A[94m◎[m [94mH[20;24H[34mue · wor[20;40H4[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [94m○[m [2A[?25h[?25l
+
+ [94m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[34m◎[m [34mH[20;33H[94min[34mg · [94m25[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m○[6Cng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [94m◉[m [2A[?25h[?25l[28A[34m●[20;33Hing · 25[m[48;3H[?25h[?25l[28A[34m◉[m [28B[?25h[?25l[25;31H7 [50;2H[94m●[m [94mW[34mo[m[48;3H[?25h[?25l[28A[34m◎[m [25;31H8 [48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l[28A[34m○[m [94mH[34my[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l[28A[94m◎[m [34mHy[94mdr[50;2H[34m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[94m◉[m [94mH[34mydra[94mFu[m[48;3H[?25h[?25l
+
+ [34m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l[28A[94m●[m [34mHy[94mdr[34maFus[94mio[25;31H[m9 [48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l[28A[34m◉[m [34mHydra[94mFu[34msion[94m ·[20;40H[34m6[25;29H[m6.0 [48;3H[?25h[?25l[25;31H1 [50;2H[94m●[m [2A[?25h[?25l[28A[34m◎[6CFus[94mio[34mn · [94mCr[m[48;3H[?25h[?25l[25;31H2 [50;2H[94m◉[m [2A[?25h[?25l[28A[34m○[20;12Hion[94m ·[34m Cri[94mti[m[48;3H[?25h[?25l[25;31H3 [50;2H[34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m○[m [34mWo[94mrk[m[48;3H[?25h[?25l[46;150H9 
+
+❯ [?25h[?25l[24;45r[45;1H
+
+[1;50r[20;2H[94m◉[20;15H[34m · Criti[6Ccritiqu[94min[34mg · [94m26[34ms
+[3C[32m✓ First pass complete · 25s[m  
+   [34m◐ Critique pass · read-only reviewer[m[48;3H[?25h[?25l
+
+ [34m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[6C[34mng[m[48;3H[?25h[?25l
+
+ [94m◎[m [2A[?25h[?25l
+
+ [34m○[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l[28A[94m●[m [94mH[20;36H[34ming · 27[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [34m●[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[6C[34mng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [34m●[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [34m◉[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l[28A[34m◉[m [34mH[20;30H[94mri[34mtiqu[94min[5C[34m8[m[48;3H[?25h[?25l
+
+ [94m◎[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m●[m [2A[?25h[?25l
+
+ [34m◉[m [2A[?25h[?25l
+
+ [34m◎[m [94mW[34mo[m[48;3H[?25h[?25l
+
+ [94m○[m [34mWo[94mrk[m[48;3H[?25h[?25l
+
+ [94m◎[m [94mW[34morki[94mng[m[48;3H[?25h[?25l
+
+ [94m◉[m [34mWo[94mrk[34ming[m[48;3H[?25h[?25l
+
+ [34m●[m [34mWorki[94mng[m[48;3H[?25h[?25l
+
+ [34m◉[6Cng[m[48;3H[?25h[?25l
+
+ [34m◎[m [2A[?25h[?25l[46;149H99
+
+❯ [?25h[?25l[24;45r[24;1HM[1;50r[20;2H[94m◎[m [94mH[34mydra[94mFu[20;29H[34mfinishing up · 29s
+
+[3C[32m✓ Critique pass complete · 2s[m[K
+
+   Preparing the final response…[48;3H[?25h[?25l[28A[34m●[m [1mFusion [mCritique[K
+   └ Drafted[K
+[K
+[K
+[K
+[K[46;31H%] [4B [34m○[m [2A[?25h[?25l[25A[34m●[m I’ll inspect the repository layout, then add the minimal package and focused tests, and run only the targeted test suite.
+
+ / [1mSearch [m"*" No matches found
+ / [1mSearch [m"**/*" No matches found
+
+ / [1mSearch [m"^" in pyproject.toml|setup.py|setup.cfg|tox.ini|README*|*.py No matches found
+
+ [32m●[m [1mEdit [m Create pong/__init__.py  Create pong/__main__.py  Create tests/test_pong.py
+
+ [33m$[m [1mShell [mRun Pong unit tests 9 lines…
+   python3 -m unittest discover -s tests -v
+
+ [34m●[m Implemented a minimal standard-library Pong game playable with:
+
+   [36mpython3 -m pong
+
+[3C[mControls: [1mW/S[m for the left paddle, [1mUp/Down[m for the right paddle, [1mQ[m to quit.
+
+   Tests pass:
+
+   [36mRan 3 tests in 0.000s
+[3COK[m[48;3H[?25h[?25l[H
+
+[35m  █ [96m▘▝[35m █[m  Check for mistakes.[130C┃
+[35m   ▔▔▔▔ [m  [33m/experimental[m           [125C┃
+[158C[1K [37m┃
+[m [34m●[m No copilot-instructions.md found. Run /init to generate.[100C[37m┃
+[159C┃
+[3C[mTip: /review                                            [100C[37m┃
+[3C[m└ Run code review agent to analyze changes[114C[37m┃
+[158C[m[1K [37m┃
+[C[34m●[m MCP Servers reloaded: 2 servers connected [114C[37m┃
+[159C┃
+[4C[model changed from gpt-5.6-terra (high) to HydraFusion for this session[85C[37m┃
+[159C┃
+[C[m❯ Build a minimal Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Keep it minimal: one `pong` package with   08:35 [37m┃
+[3C[mthe smallest code that plays, plus `unittest` tests in `tests/`. No CLI options, no configuration, no extras. Stop as soon as the tests pass.[15C[37m┃
+[158C[m[1K [37m┃
+[C[32m●[m [1mFusion [mCritique                                                                                                                              [15C[37m┃
+[3C[m│ Drafted[147C[37m┃
+[C[m  │ Reviewed     [141C[37m┃
+[5C[mFinal response prepared[131C[37m┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃[50;2H[0;1m←[m open sidebar · [1m/[m commands · [1m?[m help · [1mtab[m next tab[48;3H[?25h[?25l[3;46r[46;1H
+
+
+
+
+[1;50r[3;160H┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃[33B[36m┃[m ❯ /add-dir                    [41;41HAllow file access to a directory and load its .github skills and agents as trusted configuration[K
+┃   /after[42;41HSchedule a one-shot prompt, skill, or schedulable slash command for this session (e.g. /after 30s ping me, /after 10m /…
+┃   /agent[43;41HBrowse and select agents: /agent [name]
+┃   /allow-all[44;41HEnable all permissions (tools, paths, and URLs)
+┃   /app[45;41HPrefer a visual workspace? Try out the GitHub Copilot desktop app
+┃   /ask[46;41HAsk a quick side question without adding to conversation history
+
+❯ /add-dir
+
+ [1m/help[m show help                                    [48;4H[?25h[?25l[7A  ❯ /exit[K
+    /exit print  Print the session after exiting[K
+[K
+[K
+[K
+[K
+
+❯ /exit [print]
+
+ [1m@[m files · [1m#[m issues[48;8H[?25h[?25l[2;46r[2;1HMMMMM[1;50r[3;1H[35m  █ [96m▘▝[35m █[m  Check for mistakes.[130C┃
+[35m   ▔▔▔▔ [m  [33m/experimental[136C[m┃
+[159C[37m┃
+[C[34m●[m No copilot-instructions.md found. Run /init to generate.[100C[37m┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃
+[159C┃[46;2H[m~/scratch/t5-fusion-1 [⎇ main%][46;138HSession: 0.99 AIC used
+
+❯ [K
+
+ [1m←[m open sidebar · [1m/[m commands · [1m?[m help · [1mtab[m next tab[48;3H[?25h]111;]110;[?25l[2A[K
+╭─╮╭─╮   Changes    [32m+117[m [31m-0[m[K
+╰─╯╰─╯   AI Credits 0.99 (1m 27s)
+█ ▘▝ █   Tokens     ↑ 72.7k (53.1k cached, 18.9k written) • ↓ 1.8k (356 reasoning)[K
+ ▔▔▔▔    Resume     copilot --resume=b78f08e0-843f-4309-9093-e3ba5584e79a[K[?25h[23;0t[?1006l[?1003l[?1002l[?1001l[?1000l[?9l[?1005l[?1015l[?1016l[?1004l[?2004l[>4;0m[?1049l[?25h
+  
+  ╭─╮╭─╮   Changes    [32m+117[39m [31m-0[39m
+  ╰─╯╰─╯   AI Credits 0.99 (1m 28s)
+  █ ▘▝ █   Tokens     ↑ 72.7k (53.1k cached, 18.9k written) • ↓ 1.8k (356 reasoning)
+   ▔▔▔▔    Resume     copilot --resume=b78f08e0-843f-4309-9093-e3ba5584e79a
+
+]111;]110;

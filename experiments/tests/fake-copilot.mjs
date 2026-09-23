@@ -9,7 +9,13 @@ const dir = value('-C'), model = value('--model'), prompt = value('-p'), mode = 
 const write = (file, content) => { fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true }); fs.writeFileSync(path.join(dir, file), content); };
 const attempt = path.basename(dir);
 
-if (model === 'strong') {
+if (model === 'spec') {
+  write('SPEC.md', '1. a is fixed.\n');
+  write('tests/accept.sh', 'grep -q fixed src/a.mjs\n');
+} else if (mode === 'tamper') {
+  write('src/a.mjs', 'export const a = "still broken";\n');
+  write('tests/accept.sh', 'true\n');
+} else if (model === 'strong') {
   fs.appendFileSync(process.env.FAKE_LOG, `${JSON.stringify({ attempt, sawOther: fs.existsSync(path.join(dir, '.ladder-other/src/b.mjs')), prompt })}\n`);
   if (attempt === 'strong-solo') for (let i = 0; i < 4; i++) write(`src/f${i}.mjs`, 'strong solo\n');
   else write('src/b.mjs', 'export const b = "settled by strong";\n');

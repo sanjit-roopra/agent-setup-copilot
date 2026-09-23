@@ -1,0 +1,45 @@
+{
+  "repo": "/Users/sanjit.roopra/scratch/t1-pong-xhigh",
+  "task": "Build a simple Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Put `unittest` tests in `tests/`.",
+  "cheapModel": "gpt-5.6-luna",
+  "strongModel": "gpt-5.6-sol",
+  "gate": "python3 -m unittest discover -s tests -q && python3 -m compileall -q .",
+  "startedAt": "2026-09-22T06:38:03.081Z",
+  "steps": [
+    {
+      "name": "gate before any change",
+      "passed": false,
+      "skipped": false
+    },
+    {
+      "name": "one cheap attempt",
+      "credits": "4.24",
+      "gate": true,
+      "changed": 4
+    }
+  ],
+  "credits": {
+    "attemptA": 4.237235,
+    "total": 4.237235
+  },
+  "disputed": [],
+  "verdict": "ACCEPTED: the single attempt passes the gate; nothing else checked it",
+  "patch": "/Users/sanjit.roopra/scratch/t1-pong-xhigh-out/result.patch",
+  "buckets": [
+    {
+      "uncached": 0.0018,
+      "cached": 1.11405,
+      "cacheWrite": 0.836825,
+      "output": 2.28456,
+      "priced": 4.237235,
+      "billed": 4.237235,
+      "residual": 0,
+      "reasoning": 9645,
+      "unpriced": []
+    }
+  ],
+  "answers": {
+    "attemptA": "Implemented a standard-library-only terminal Pong game.\n\n- Added `pong/game.py` with game physics, paddles, scoring, rendering, terminal input, and CLI options.\n- Added `pong/__main__.py` so it runs with `python3 -m pong`.\n- Added `tests/test_game.py` with 8 `unittest` cases covering movement, bouncing, scoring, winning, rendering, and validation.\n- Controls: `W/S` move the left paddle, `I/K` move the right paddle, `Q` quits.\n\n**Verification:** 30/30 checklist cells checked (16 applicable passed, 14 marked N/A). All 8 tests pass, compilation and CLI checks pass, and a pseudo-terminal smoke test confirmed quitting works. Scratch audit files were deleted.",
+    "attemptB": ""
+  }
+}

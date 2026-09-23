@@ -1,0 +1,346 @@
+{
+  "experiment": "T1",
+  "variant": "luna-max-xl-3",
+  "started": "2026-09-22T06:50:30.050Z",
+  "finished": "2026-09-22T07:07:29.333Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-luna",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "3",
+    "--label",
+    "luna-max",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--reasoning-effort",
+    "max",
+    "--timeout-sec",
+    "2400"
+  ],
+  "revision": "e2d8a351babaacabb96f2b7840ffb2c606744df1",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.87.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-T1-luna-max-xl-3",
+  "results": {
+    "model": "gpt-5.6-luna",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 381962,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 125,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 3712576,
+            "nanoAiu": 15046082000,
+            "buckets": {
+              "uncached": 0.0026400000000000004,
+              "cached": 7.161932000000001,
+              "cacheWrite": 3.28695,
+              "output": 4.5945599999999995,
+              "priced": 15.046082,
+              "billed": 15.046082,
+              "residual": 0,
+              "reasoning": 19434,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 3712576,
+          "output": 38288,
+          "cacheRead": 3580966,
+          "cacheWrite": 131478,
+          "reasoning": 19434,
+          "modelCalls": 44,
+          "premiumRequests": 0,
+          "nanoAiu": 15046082000,
+          "apiMs": 363642
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0026400000000000004,
+          "cached": 7.161932000000001,
+          "cacheWrite": 3.28695,
+          "output": 4.5945599999999995,
+          "priced": 15.046082,
+          "billed": 15.046082,
+          "residual": 0,
+          "reasoning": 19434,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "luna-max",
+        "total": {
+          "input": 3712576,
+          "output": 38288,
+          "cacheRead": 3580966,
+          "cacheWrite": 131478,
+          "reasoning": 19434,
+          "modelCalls": 44,
+          "premiumRequests": 0,
+          "nanoAiu": 15046082000,
+          "apiMs": 363642
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 2,
+        "exitCode": 0,
+        "wallMs": 316329,
+        "correct": false,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 84,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 1356599,
+            "nanoAiu": 9301403000,
+            "buckets": {
+              "uncached": 0.0012,
+              "cached": 2.495088,
+              "cacheWrite": 2.724875,
+              "output": 4.08024,
+              "priced": 9.301403,
+              "billed": 9.301403,
+              "residual": 0,
+              "reasoning": 14939,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 1356599,
+          "output": 34002,
+          "cacheRead": 1247544,
+          "cacheWrite": 108995,
+          "reasoning": 14939,
+          "modelCalls": 20,
+          "premiumRequests": 0,
+          "nanoAiu": 9301403000,
+          "apiMs": 295589
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0012,
+          "cached": 2.495088,
+          "cacheWrite": 2.724875,
+          "output": 4.08024,
+          "priced": 9.301403,
+          "billed": 9.301403,
+          "residual": 0,
+          "reasoning": 14939,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "fixed 13/14, 1 regressions",
+        "gradeDetail": {
+          "score": 13,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [
+            "rowan:step"
+          ],
+          "regression": false
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "luna-max",
+        "total": {
+          "input": 1356599,
+          "output": 34002,
+          "cacheRead": 1247544,
+          "cacheWrite": 108995,
+          "reasoning": 14939,
+          "modelCalls": 20,
+          "premiumRequests": 0,
+          "nanoAiu": 9301403000,
+          "apiMs": 295589
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 3,
+        "exitCode": 0,
+        "wallMs": 307571,
+        "correct": false,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 91,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 1169470,
+            "nanoAiu": 8335505000,
+            "buckets": {
+              "uncached": 0.00102,
+              "cached": 2.1029,
+              "cacheWrite": 2.949225,
+              "output": 3.2823599999999997,
+              "priced": 8.335505000000001,
+              "billed": 8.335505,
+              "residual": -1.7763568394002505e-15,
+              "reasoning": 16099,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 1169470,
+          "output": 27353,
+          "cacheRead": 1051450,
+          "cacheWrite": 117969,
+          "reasoning": 16099,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 8335505000,
+          "apiMs": 294583
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.00102,
+          "cached": 2.1029,
+          "cacheWrite": 2.949225,
+          "output": 3.2823599999999997,
+          "priced": 8.335505000000001,
+          "billed": 8.335505,
+          "residual": -1.7763568394002505e-15,
+          "reasoning": 16099,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "fixed 8/14, 0 regressions",
+        "gradeDetail": {
+          "score": 8,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "hazel:step",
+            "larch:cutoff",
+            "rowan:step",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [
+            "fern:floor",
+            "kelp:prefix",
+            "nettle:threshold",
+            "oak:order",
+            "tansy:rounding",
+            "ulmus:rounding"
+          ],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "luna-max",
+        "total": {
+          "input": 1169470,
+          "output": 27353,
+          "cacheRead": 1051450,
+          "cacheWrite": 117969,
+          "reasoning": 16099,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 8335505000,
+          "apiMs": 294583
+        }
+      }
+    ]
+  }
+}

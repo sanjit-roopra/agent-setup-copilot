@@ -1,0 +1,100 @@
+{
+  "totalPremiumRequestCost": 1,
+  "totalUserRequests": 1,
+  "totalNanoAiu": 65212620000,
+  "tokenDetails": {
+    "input": {
+      "tokenCount": 36
+    },
+    "cache_read": {
+      "tokenCount": 207343
+    },
+    "cache_write": {
+      "tokenCount": 34433
+    },
+    "output": {
+      "tokenCount": 19844
+    }
+  },
+  "totalApiDurationMs": 410661,
+  "sessionStartTime": "2026-09-21T07:20:57.574Z",
+  "codeChanges": {
+    "linesAdded": 721,
+    "linesRemoved": 17,
+    "filesModifiedCount": 2,
+    "filesModified": [
+      "/Users/sanjit.roopra/scratch/pong2-spec-out/spec/SPEC.md",
+      "/Users/sanjit.roopra/scratch/pong2-spec-out/spec/tests/test_acceptance.py"
+    ]
+  },
+  "modelMetrics": {
+    "gpt-5.6-sol": {
+      "requests": {
+        "count": 12,
+        "cost": 1
+      },
+      "usage": {
+        "inputTokens": 241812,
+        "outputTokens": 19844,
+        "cacheReadTokens": 207343,
+        "cacheWriteTokens": 34433,
+        "reasoningTokens": 8154
+      },
+      "cacheExpiresAt": "2026-09-21T07:57:54.356Z",
+      "totalNanoAiu": 65212620000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 36
+        },
+        "cache_read": {
+          "tokenCount": 207343
+        },
+        "cache_write": {
+          "tokenCount": 34433
+        },
+        "output": {
+          "tokenCount": 19844
+        }
+      }
+    }
+  },
+  "agentMetrics": {
+    "main": {
+      "totalApiDurationMs": 410661,
+      "totalNanoAiu": 65212620000,
+      "modelMetrics": {
+        "gpt-5.6-sol": {
+          "requests": {
+            "count": 12,
+            "cost": 1
+          },
+          "usage": {
+            "inputTokens": 241812,
+            "outputTokens": 19844,
+            "cacheReadTokens": 207343,
+            "cacheWriteTokens": 34433,
+            "reasoningTokens": 8154
+          },
+          "totalNanoAiu": 65212620000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 36
+            },
+            "cache_read": {
+              "tokenCount": 207343
+            },
+            "cache_write": {
+              "tokenCount": 34433
+            },
+            "output": {
+              "tokenCount": 19844
+            }
+          }
+        }
+      }
+    }
+  },
+  "currentModel": "gpt-5.6-sol",
+  "lastCallInputTokens": 34436,
+  "lastCallOutputTokens": 261
+}

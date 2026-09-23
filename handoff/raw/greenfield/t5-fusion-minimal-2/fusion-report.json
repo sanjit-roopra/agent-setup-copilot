@@ -1,0 +1,46 @@
+{
+  "session": "9d68f4c5-9d84-439c-9f47-32e00015a53d",
+  "seconds": 68,
+  "finished": true,
+  "turns": [
+    {
+      "pattern": "critique",
+      "policy": "max",
+      "primaryModel": "gpt-5.6-luna",
+      "secondaryModel": "gpt-5.6-terra"
+    }
+  ],
+  "phases": [
+    {
+      "kind": "draft",
+      "role": "solver",
+      "model": "gpt-5.6-luna",
+      "status": "succeeded",
+      "verdict": null,
+      "credits": 0.875796,
+      "requests": 5
+    },
+    {
+      "kind": "critic",
+      "role": "critic",
+      "model": "gpt-5.6-terra",
+      "status": "succeeded",
+      "verdict": null,
+      "credits": 0.203,
+      "requests": 1
+    }
+  ],
+  "outcomes": [
+    "completed"
+  ],
+  "degraded": [],
+  "credits": 1.078796,
+  "userTurns": 1,
+  "modelsSeen": [
+    "gpt-4o-mini",
+    "gpt-5.6-terra"
+  ],
+  "followUpModels": [
+    "gpt-5.6-luna"
+  ]
+}

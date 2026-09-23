@@ -1,0 +1,104 @@
+{
+  "model": "gpt-5.6-sol",
+  "worker": "gpt-5.6-luna",
+  "results": [
+    {
+      "scenario": "copilot-selective-bulk-fixture-20260920",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 77733,
+      "correct": true,
+      "unchecked": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 28,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 253263,
+          "nanoAiu": 50705440000
+        }
+      ],
+      "main": {
+        "input": 253263,
+        "output": 6311,
+        "cacheRead": 175616,
+        "cacheWrite": 0,
+        "modelCalls": 10,
+        "premiumRequests": 0,
+        "nanoAiu": 50705440000,
+        "apiMs": 66271
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 253263,
+        "output": 6311,
+        "cacheRead": 175616,
+        "cacheWrite": 0,
+        "modelCalls": 10,
+        "premiumRequests": 0,
+        "nanoAiu": 50705440000,
+        "apiMs": 66271
+      }
+    },
+    {
+      "scenario": "copilot-selective-bulk-fixture-20260920",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 62472,
+      "correct": true,
+      "unchecked": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 17,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 141920,
+          "nanoAiu": 37503120000
+        }
+      ],
+      "main": {
+        "input": 141920,
+        "output": 5021,
+        "cacheRead": 81408,
+        "cacheWrite": 0,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 37503120000,
+        "apiMs": 50333
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 141920,
+        "output": 5021,
+        "cacheRead": 81408,
+        "cacheWrite": 0,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 37503120000,
+        "apiMs": 50333
+      }
+    }
+  ]
+}

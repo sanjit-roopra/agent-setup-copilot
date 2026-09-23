@@ -1,0 +1,36 @@
+{
+  "session": "a1a86c57-6820-40a8-834c-e9410f38b067",
+  "seconds": 46,
+  "finished": true,
+  "turns": [
+    {
+      "pattern": "single",
+      "policy": "max",
+      "primaryModel": "claude-opus-5",
+      "secondaryModel": null
+    }
+  ],
+  "phases": [
+    {
+      "kind": "primary",
+      "role": "solver",
+      "model": "claude-opus-5",
+      "status": "succeeded",
+      "verdict": null,
+      "credits": 20.705048,
+      "requests": 4
+    }
+  ],
+  "outcomes": [
+    "completed"
+  ],
+  "degraded": [],
+  "credits": 20.705048,
+  "userTurns": 2,
+  "modelsSeen": [
+    "gpt-4o-mini"
+  ],
+  "followUpModels": [
+    "claude-opus-5"
+  ]
+}

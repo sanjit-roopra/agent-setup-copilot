@@ -1,0 +1,34 @@
+{
+  "name": "fresh-sol",
+  "sessionId": "af0c807a-4275-499f-a806-85ba00f054c0",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-fresh-sol-3lfzzK",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-sol",
+      "prompt": "scenario:find-a-value",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:56.653Z",
+      "exitCode": 0,
+      "seconds": 18,
+      "correct": true,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 2,
+          "input": 11231,
+          "output": 278,
+          "cacheRead": 5332,
+          "cacheWrite": 5893,
+          "reasoning": 78,
+          "credits": 3.71818,
+          "cacheExpiresAt": "2026-09-22T07:09:09.550Z"
+        }
+      },
+      "credits": 3.71818,
+      "answer": "A delivery is attempted **up to 7 times total**—the initial attempt plus **6 retries**. It waits **250 ms** between attempts. The retry logic is in **`retryDelivery()`**.",
+      "usageFileFound": true
+    }
+  ],
+  "credits": 3.71818
+}

@@ -1,0 +1,154 @@
+{
+  "totalPremiumRequestCost": 2,
+  "totalUserRequests": 1,
+  "totalNanoAiu": 4920480000,
+  "tokenDetails": {
+    "input": {
+      "tokenCount": 8162
+    },
+    "cache_read": {
+      "tokenCount": 11776
+    },
+    "cache_write": {
+      "tokenCount": 7676
+    },
+    "output": {
+      "tokenCount": 684
+    }
+  },
+  "totalApiDurationMs": 13085,
+  "sessionStartTime": "2026-09-22T06:37:48.278Z",
+  "codeChanges": {
+    "linesAdded": 0,
+    "linesRemoved": 0,
+    "filesModifiedCount": 0,
+    "filesModified": []
+  },
+  "modelMetrics": {
+    "gpt-5.6-sol": {
+      "requests": {
+        "count": 3,
+        "cost": 1
+      },
+      "usage": {
+        "inputTokens": 19935,
+        "outputTokens": 485,
+        "cacheReadTokens": 11776,
+        "cacheWriteTokens": 0,
+        "reasoningTokens": 91
+      },
+      "cacheExpiresAt": "2026-09-22T07:08:05.368Z",
+      "totalNanoAiu": 4704640000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 8159
+        },
+        "cache_read": {
+          "tokenCount": 11776
+        },
+        "cache_write": {
+          "tokenCount": 0
+        },
+        "output": {
+          "tokenCount": 485
+        }
+      }
+    },
+    "gpt-5.6-luna": {
+      "requests": {
+        "count": 1,
+        "cost": 1
+      },
+      "usage": {
+        "inputTokens": 7679,
+        "outputTokens": 199,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 7676,
+        "reasoningTokens": 142
+      },
+      "cacheExpiresAt": "2026-09-22T07:08:10.282Z",
+      "totalNanoAiu": 215840000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 3
+        },
+        "cache_read": {
+          "tokenCount": 0
+        },
+        "cache_write": {
+          "tokenCount": 7676
+        },
+        "output": {
+          "tokenCount": 199
+        }
+      }
+    }
+  },
+  "agentMetrics": {
+    "main": {
+      "totalApiDurationMs": 13085,
+      "totalNanoAiu": 4920480000,
+      "modelMetrics": {
+        "gpt-5.6-sol": {
+          "requests": {
+            "count": 3,
+            "cost": 1
+          },
+          "usage": {
+            "inputTokens": 19935,
+            "outputTokens": 485,
+            "cacheReadTokens": 11776,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 91
+          },
+          "totalNanoAiu": 4704640000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 8159
+            },
+            "cache_read": {
+              "tokenCount": 11776
+            },
+            "cache_write": {
+              "tokenCount": 0
+            },
+            "output": {
+              "tokenCount": 485
+            }
+          }
+        },
+        "gpt-5.6-luna": {
+          "requests": {
+            "count": 1,
+            "cost": 1
+          },
+          "usage": {
+            "inputTokens": 7679,
+            "outputTokens": 199,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 7676,
+            "reasoningTokens": 142
+          },
+          "totalNanoAiu": 215840000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 3
+            },
+            "cache_read": {
+              "tokenCount": 0
+            },
+            "cache_write": {
+              "tokenCount": 7676
+            },
+            "output": {
+              "tokenCount": 199
+            }
+          }
+        }
+      }
+    }
+  },
+  "currentModel": "gpt-5.6-luna",
+  "lastCallInputTokens": 7679,
+  "lastCallOutputTokens": 199
+}

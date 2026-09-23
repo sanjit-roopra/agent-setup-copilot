@@ -1,0 +1,300 @@
+{
+  "model": "gpt-5.6-sol",
+  "worker": "gpt-5.6-luna",
+  "results": [
+    {
+      "scenario": "generate-tests",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 45962,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 8,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 75842,
+          "nanoAiu": 12270960000
+        }
+      ],
+      "main": {
+        "input": 75842,
+        "output": 1289,
+        "cacheRead": 57344,
+        "cacheWrite": 0,
+        "modelCalls": 5,
+        "premiumRequests": 0,
+        "nanoAiu": 12270960000,
+        "apiMs": 19356
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 75842,
+        "output": 1289,
+        "cacheRead": 57344,
+        "cacheWrite": 0,
+        "modelCalls": 5,
+        "premiumRequests": 0,
+        "nanoAiu": 12270960000,
+        "apiMs": 19356
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "economy",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 27009,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 11,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 61657,
+          "nanoAiu": 563861000
+        }
+      ],
+      "main": {
+        "input": 61657,
+        "output": 1353,
+        "cacheRead": 49558,
+        "cacheWrite": 12081,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 563861000,
+        "apiMs": 16679
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 61657,
+        "output": 1353,
+        "cacheRead": 49558,
+        "cacheWrite": 12081,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 563861000,
+        "apiMs": 16679
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "baseline",
+      "run": 2,
+      "exitCode": 0,
+      "wallMs": 22476,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 5,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 55962,
+          "nanoAiu": 7978640000
+        }
+      ],
+      "main": {
+        "input": 55962,
+        "output": 907,
+        "cacheRead": 45056,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 7978640000,
+        "apiMs": 11763
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 55962,
+        "output": 907,
+        "cacheRead": 45056,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 7978640000,
+        "apiMs": 11763
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "economy",
+      "run": 2,
+      "exitCode": 0,
+      "wallMs": 37764,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 16,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 88541,
+          "nanoAiu": 773209000
+        }
+      ],
+      "main": {
+        "input": 88541,
+        "output": 1974,
+        "cacheRead": 72917,
+        "cacheWrite": 15603,
+        "modelCalls": 7,
+        "premiumRequests": 0,
+        "nanoAiu": 773209000,
+        "apiMs": 18638
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 88541,
+        "output": 1974,
+        "cacheRead": 72917,
+        "cacheWrite": 15603,
+        "modelCalls": 7,
+        "premiumRequests": 0,
+        "nanoAiu": 773209000,
+        "apiMs": 18638
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "baseline",
+      "run": 3,
+      "exitCode": 0,
+      "wallMs": 25756,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 6,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 56053,
+          "nanoAiu": 11372480000
+        }
+      ],
+      "main": {
+        "input": 56053,
+        "output": 1019,
+        "cacheRead": 36352,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 11372480000,
+        "apiMs": 14633
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 56053,
+        "output": 1019,
+        "cacheRead": 36352,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 11372480000,
+        "apiMs": 14633
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "economy",
+      "run": 3,
+      "exitCode": 0,
+      "wallMs": 26170,
+      "correct": true,
+      "unchecked": false,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 13,
+      "turns": [
+        {
+          "turn": 1,
+          "mainInput": 71534,
+          "nanoAiu": 706317000
+        }
+      ],
+      "main": {
+        "input": 71534,
+        "output": 1817,
+        "cacheRead": 56521,
+        "cacheWrite": 14995,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 706317000,
+        "apiMs": 15188
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 71534,
+        "output": 1817,
+        "cacheRead": 56521,
+        "cacheWrite": 14995,
+        "modelCalls": 6,
+        "premiumRequests": 0,
+        "nanoAiu": 706317000,
+        "apiMs": 15188
+      }
+    }
+  ]
+}

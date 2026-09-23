@@ -1,0 +1,81 @@
+{
+  "repo": "/Users/sanjit.roopra/scratch/pong2-plain",
+  "task": "Build a simple Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Put `unittest` tests in `tests/`.",
+  "cheapModel": "gpt-5.6-luna",
+  "strongModel": "gpt-5.6-sol",
+  "gate": "python3 -m unittest discover -s tests -q && python3 -m compileall -q .",
+  "startedAt": "2026-09-21T07:20:55.073Z",
+  "steps": [
+    {
+      "name": "gate before any change",
+      "passed": false,
+      "skipped": false
+    },
+    {
+      "name": "one cheap attempt",
+      "credits": "6.51",
+      "gate": true,
+      "changed": 7
+    }
+  ],
+  "credits": {
+    "attemptA": 6.510315,
+    "total": 6.510315
+  },
+  "disputed": [],
+  "verdict": "ACCEPTED: the single attempt passes the gate; nothing else checked it",
+  "patch": "/Users/sanjit.roopra/scratch/pong2-plain-out/result.patch",
+  "comparison": {
+    "oneCheapAttempt": {
+      "credits": 6.510315,
+      "gate": true,
+      "seconds": 285,
+      "files": 7,
+      "linesAdded": 446
+    },
+    "ladder": {
+      "credits": 6.510315,
+      "gate": true,
+      "seconds": 285,
+      "files": 7,
+      "linesAdded": 446
+    },
+    "strongAlone": {
+      "credits": 48.75298,
+      "gate": true,
+      "seconds": 270,
+      "files": 6,
+      "linesAdded": 471
+    },
+    "strongAlonePatch": "/Users/sanjit.roopra/scratch/pong2-plain-out/strong-solo.patch",
+    "strongAloneAnswer": "Implemented a standard-library-only terminal Pong game, playable with `python3 -m pong`.\n\n- Added two-player controls: **W/S** and **arrow keys**, with **Q** to quit.\n- Added ball physics, paddle/wall collisions, scoring, winning state, and reset behavior.\n- Added ANSI terminal rendering with safe cursor and terminal-state restoration.\n- Added 15 `unittest` tests covering game logic, rendering, controls, and module entry point.\n- Checked all **48 checklist cells** across 8 units and 6 requirements; all passed or were correctly N/A.\n- Deleted the temporary checklist/audit files and generated caches.\n\n`python3 -m unittest discover -s tests -v` passes all 15 tests."
+  },
+  "buckets": [
+    {
+      "uncached": 0.00252,
+      "cached": 2.1794,
+      "cacheWrite": 1.295875,
+      "output": 3.03252,
+      "priced": 6.510315,
+      "billed": 6.510315,
+      "residual": 0,
+      "reasoning": 9586,
+      "unpriced": []
+    },
+    {
+      "uncached": 0.03,
+      "cached": 12.37448,
+      "cacheWrite": 10.0805,
+      "output": 26.268,
+      "priced": 48.75298,
+      "billed": 48.75298,
+      "residual": 0,
+      "reasoning": 5315,
+      "unpriced": []
+    }
+  ],
+  "answers": {
+    "attemptA": "Implemented a standard-library-only terminal Pong game runnable with `python3 -m pong`.\n\n**Fixes:** added deterministic game physics and scoring, terminal rendering/input with paddle controls and quit/restart handling, terminal-state restoration, module entry point, and `unittest` coverage for game mechanics and terminal behavior. Added `tests/__init__.py` so discovery works.\n\n**Verification:** all 66 checklist cells across 11 units were checked; `python3 -m unittest discover` passes all 10 tests, syntax and whitespace checks pass, and a pseudo-terminal smoke test confirmed rendering and quitting with `q`. Scratch files were deleted.",
+    "attemptB": ""
+  }
+}

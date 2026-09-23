@@ -14,12 +14,17 @@ been measured for this fleet.
 
 ## What changes
 
-- The coordinator remains delegation-only and now has an explicit GPT-5.6 Sol pin.
+- The coordinator is pinned to GPT-5.6 Sol. It handles small tasks directly using
+  read, search, edit and execute tools, and delegates substantial bounded work.
+  Task-size routing is advisory, not a hard cost limit. Routine verified edits do
+  not automatically trigger independent review; user/repository requirements and
+  remaining material correctness risk still trigger review.
 - A workspace PreToolUse hook checks fleet dispatch: it rejects model overrides
   outside each worker's pin and caps delegation input at 16,000 UTF-8 bytes. In
   the VS Code variant it ignores delegation that does not name a fleet agent, so
   ordinary sessions and other custom agents in the same workspace keep working.
-- VS Code scoped hooks restrict the coordinator to named fleet specialists. Code
+- VS Code scoped hooks restrict coordinator delegation to named fleet specialists,
+  while allowing direct work under ordinary host permissions. Code
   Review, Rubber Duck and Security Review have bounded source reads and no shell.
   Code Review and Security Review also keep text search, file search, directory
   listing and usages, because a search hit is already a small targeted read. The
@@ -28,7 +33,7 @@ been measured for this fleet.
 - Cheap Explore, Task and General Purpose workers are not subject to the scoped
   read gate. They retain the tools needed to do their job. This prevents a blocked
   expensive read from triggering a cheap worker that is blocked identically.
-- Reviewers receive an exact diff packet prepared by Task. They read the whole
+- Reviewers receive an exact diff packet prepared directly by the coordinator or by Task. They read the whole
   assigned diff in as few reads as the host allows, and relevant original source
   in bounded ranges. They do not trust a cheap model's review.
 - As in Shunt, only whole-file reads of large files are blocked. The cheap model
@@ -104,7 +109,7 @@ limit. This is not a company spending cap; use GitHub's billing controls as well
 | --- | --- | --- |
 | Model-override and delegation-size guard for fleet agents | Workspace hook | Workspace hook |
 | Non-fleet and built-in delegation blocked | Coordinator scoped hook only; other sessions unaffected | Workspace hook, all sessions (`dispatchUnknown: "deny"`) |
-| Coordinator has only delegation tools | Profile plus scoped hook | Profile tool list |
+| Coordinator can read, search, edit and execute directly | Profile; scoped hook passes direct calls | Profile tool list |
 | Expensive reviewers cannot use shell | Profile tool list plus scoped hook | Profile tool list |
 | Reviewers cannot use changed-file, semantic-search or nested-agent tools from the `search` set | Scoped hook | Not enforced by this implementation |
 | Text/file searches require an explicit `maxResults` of 1–100, no ignored files | Scoped hook validates requests; host renders results | Not enforced by this implementation |
@@ -214,7 +219,7 @@ node --test tests/*.test.mjs
 
 Live smoke checks on a disposable branch, with current Copilot/VS Code:
 
-1. Verify all eight profiles appear and inspect actual resolved worker models.
+1. Verify the coordinator, seven specialists and Economy appear and inspect actual resolved worker models.
 2. Have Code Review try to read all of a 500-line file. Expect a denial that
    names Fleet Explore before file contents enter its context. Then read 20
    lines, and a full review packet, successfully.
@@ -229,8 +234,10 @@ Live smoke checks on a disposable branch, with current Copilot/VS Code:
    Explore to an expensive model. Expect dispatch refusal.
 6. Change a CLI worker's configured model to an unavailable test value in a
    disposable installation. Confirm refusal, not parent-model fallback.
-7. Run a small change through implementation, exact diff preparation, full scoped
-   review and tests. Verify unchanged successful checks are not repeated.
+7. Ask Sol for a targeted lookup and a small edit with checks. Verify direct tool
+   use, without compulsory delegation or a separate review. Then explicitly request
+   independent review; verify exact diff preparation and scoped review. Verify
+   unchanged successful checks are not repeated.
 8. Test the parent/worker model tier restriction. If Security Review is refused,
    select it directly. Do not quietly raise all sessions to Astra.
 

@@ -162,7 +162,8 @@ export function evaluate(event, role = 'dispatch', config = policy, workspace = 
     if (typeof tool !== 'string' || !object(args)) return 'Invalid tool name or arguments.';
     if (role === 'dispatch') return delegates.has(tool) ? delegation(args, config, false) : null;
     if (role === 'coordinator') {
-      return delegates.has(tool) ? delegation(args, config, true) : 'The coordinator can only delegate to named fleet specialists.';
+      // Sol may work directly. Passing preserves normal host permissions; routing is advisory.
+      return delegates.has(tool) ? delegation(args, config, true) : null;
     }
     if (searches.has(tool)) return boundedSearch(tool, args, event, config, workspace);
     if (!reads.has(tool)) {

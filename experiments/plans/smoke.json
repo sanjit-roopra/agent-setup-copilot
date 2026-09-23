@@ -1,0 +1,3 @@
+{ "sessions": [ { "name": "smoke", "turns": [
+  { "model": "gpt-5.6-luna", "prompt": "scenario:find-a-value" },
+  { "model": "gpt-5.6-luna", "prompt": "Repeat your previous answer in one line. Do not use any tool.", "gapSec": 5 } ] } ] }

@@ -1,0 +1,58 @@
+{
+  "name": "luna-gap-1500",
+  "sessionId": "11699d43-dacb-4d9c-8734-d77a44fe74f2",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-1500-lMWNsB",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-luna",
+      "prompt": "Probe ae783777d8a0. Use the view tool once to read src/delivery-service.mjs lines 801 to 1200, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:40:49.983Z",
+      "exitCode": 0,
+      "seconds": 29,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 2,
+          "input": 15012,
+          "output": 264,
+          "cacheRead": 5366,
+          "cacheWrite": 9640,
+          "reasoning": 173,
+          "credits": 0.283532,
+          "cacheExpiresAt": "2026-09-22T07:11:15.434Z"
+        }
+      },
+      "credits": 0.283532,
+      "answer": "24 event handlers; the first is `handleParcelCancelled`."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+      "gapSec": 1500,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T07:06:19.343Z",
+      "exitCode": 0,
+      "seconds": 5,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 1,
+          "input": 9688,
+          "output": 35,
+          "cacheRead": 5366,
+          "cacheWrite": 4319,
+          "reasoning": 17,
+          "credits": 0.122967,
+          "cacheExpiresAt": "2026-09-22T07:36:21.749Z"
+        }
+      },
+      "credits": 0.122967,
+      "answer": "24 event handlers; the first is `handleParcelCancelled`."
+    }
+  ],
+  "credits": 0.406499
+}

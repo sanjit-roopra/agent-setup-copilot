@@ -1,0 +1,58 @@
+{
+  "name": "luna-gap-60",
+  "sessionId": "be54bcda-3363-4931-81f7-904d2ea08068",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-60-yk0wrO",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-luna",
+      "prompt": "Probe 252169c53762. Use the view tool once to read src/delivery-service.mjs lines 1 to 400, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:40:49.778Z",
+      "exitCode": 0,
+      "seconds": 31,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 2,
+          "input": 15006,
+          "output": 226,
+          "cacheRead": 5361,
+          "cacheWrite": 9639,
+          "reasoning": 134,
+          "credits": 0.278937,
+          "cacheExpiresAt": "2026-09-22T07:11:17.053Z"
+        }
+      },
+      "credits": 0.278937,
+      "answer": "25 event handlers are defined; the first is `handleInvoiceCreated`."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+      "gapSec": 60,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:42:20.953Z",
+      "exitCode": 0,
+      "seconds": 4,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 1,
+          "input": 9679,
+          "output": 18,
+          "cacheRead": 5361,
+          "cacheWrite": 4315,
+          "reasoning": 0,
+          "credits": 0.120817,
+          "cacheExpiresAt": "2026-09-22T07:12:22.835Z"
+        }
+      },
+      "credits": 0.120817,
+      "answer": "25 event handlers are defined; the first is `handleInvoiceCreated`."
+    }
+  ],
+  "credits": 0.399754
+}

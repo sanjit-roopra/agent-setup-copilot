@@ -1,0 +1,1215 @@
+diff --git a/SPEC.md b/SPEC.md
+new file mode 100644
+index 0000000..e6928be
+--- /dev/null
++++ b/SPEC.md
+@@ -0,0 +1,212 @@
++# Terminal Pong specification
++
++The implementation targets Python 3.11 or newer and uses only the Python
++standard library. Coordinates are measured in terminal character cells. A
++positive `x` direction is right and a positive `y` direction is down.
++
++## Requirements
++
++1. **Package, command, and dependencies.** The repository shall contain the
++   importable package files `pong/__init__.py`, `pong/core.py`,
++   `pong/terminal.py`, and `pong/__main__.py`. Running `python3 -m pong` shall
++   start the game and exit with the status returned by
++   `pong.__main__.main()`. Production code shall import no third-party
++   packages. The game is a local two-player game: the left player uses W/S and
++   the right player uses O/L. Source and on-screen text shall not require
++   Unicode support.
++
++2. **Public constants and units.** `pong` shall export these constants with
++   exactly these values:
++
++   | Name | Value | Meaning |
++   | --- | ---: | --- |
++   | `SCREEN_WIDTH` | `80` | rendered columns |
++   | `SCREEN_HEIGHT` | `24` | rendered rows |
++   | `COURT_WIDTH` | `80` | court columns, numbered 0 through 79 |
++   | `COURT_HEIGHT` | `22` | court rows, numbered 0 through 21 |
++   | `LEFT_PADDLE_X` | `2` | left paddle column |
++   | `RIGHT_PADDLE_X` | `77` | right paddle column |
++   | `PADDLE_HEIGHT` | `5` | paddle cells |
++   | `PADDLE_SPEED` | `1` | cells per simulation tick |
++   | `BALL_HORIZONTAL_SPEED` | `0.5` | cells per simulation tick |
++   | `BALL_INITIAL_VERTICAL_SPEED` | `0.3` | cells per simulation tick |
++   | `BALL_DEFLECT_SPEED` | `0.5` | cells per simulation tick |
++   | `TICK_RATE` | `30` | simulation ticks per second |
++   | `TICK_SECONDS` | `1 / 30` | seconds per simulation tick |
++   | `SERVE_TICKS` | `30` | active ticks before a serve |
++   | `WINNING_SCORE` | `5` | points needed to win |
++   | `MAX_CATCH_UP_TICKS` | `5` | maximum updates in one terminal-loop pass |
++
++   The playable vertical ball range is the inclusive interval 1 through 20.
++   A paddle top is clamped to the inclusive interval 1 through 16. The paddle
++   collision planes are `x = 3` (left) and `x = 76` (right).
++
++3. **Public model and real starting state.** `pong` shall export string enums
++   `Side` (`LEFT = "left"`, `RIGHT = "right"`) and `Phase`
++   (`SERVE = "serve"`, `PLAYING = "playing"`, `GAME_OVER = "game_over"`).
++   It shall export these frozen dataclasses, with the fields in the shown
++   order:
++
++   ```python
++   @dataclass(frozen=True)
++   class Controls:
++       left_move: int = 0
++       right_move: int = 0
++       toggle_pause: bool = False
++       restart: bool = False
++       quit: bool = False
++
++   @dataclass(frozen=True)
++   class GameState:
++       left_paddle_y: int
++       right_paddle_y: int
++       ball_x: float
++       ball_y: float
++       ball_vx: float
++       ball_vy: float
++       left_score: int
++       right_score: int
++       phase: Phase
++       serve_ticks_remaining: int
++       serve_direction: Side
++       paused: bool
++       winner: Side | None
++       tick: int
++       points_played: int
++   ```
++
++   `Controls` shall raise `ValueError` unless each move is `-1`, `0`, or `1`.
++   `initial_state() -> GameState` shall return a new value equal to:
++   `(8, 8, 39.5, 10.5, 0.0, 0.0, 0, 0, Phase.SERVE, 30, Side.RIGHT,
++   False, None, 0, 0)` in field order. Public state transitions return new
++   values and never mutate an existing state.
++
++4. **Key parsing.** `parse_keys(keys: str) -> Controls` shall be pure and
++   case-insensitive. W/S request left movement -1/+1 and O/L request right
++   movement -1/+1. If both directions for one paddle occur in the same
++   string, that paddle's movement is 0, regardless of order or repetition.
++   An odd number of spaces sets `toggle_pause`; an even number does not.
++   R sets `restart`; Q or control-C (`"\x03"`) sets `quit`. Unknown characters,
++   including terminal escape sequences, are ignored. Parsing does not perform
++   I/O.
++
++5. **Core transition, paddles, pause, and restart.**
++   `advance(state: GameState, controls: Controls = Controls()) -> GameState`
++   shall be pure. Restart has highest priority: if `controls.restart` is true,
++   return `initial_state()` irrespective of every other field. In `SERVE` or
++   `PLAYING`, a pause toggle has next priority and only flips `paused`; that
++   call does not move anything or increment `tick`. While paused, all controls
++   other than restart or a pause toggle are ignored and the state is
++   unchanged. `controls.quit` has no core effect. On every other call in
++   `SERVE` or `PLAYING`, first move each paddle by its requested move times
++   `PADDLE_SPEED`, clamp its top to 1..16, then update the serve or ball, and
++   increment `tick` exactly once. In `GAME_OVER`, every call without restart
++   returns the unchanged state, including a pause toggle.
++
++6. **Serve timeline.** During `SERVE`, the ball remains at `(39.5, 10.5)` with
++   zero velocity while `serve_ticks_remaining` is decremented. The call that
++   changes it from 1 to 0 changes the phase to `PLAYING` and sets velocity but
++   does not yet move the ball. Horizontal velocity is `+0.5` when
++   `serve_direction` is `RIGHT`, otherwise `-0.5`. Vertical velocity is
++   `+0.3` when `points_played` is even and `-0.3` when it is odd. Thus the
++   first 29 calls leave one serve tick, the 30th launches at the center, and
++   the 31st moves the ball.
++
++7. **Ball movement and walls.** A `PLAYING` update computes candidate
++   `x = ball_x + ball_vx` and `y = ball_y + ball_vy`. Before paddle and goal
++   handling, a candidate above 1 is mirror-reflected to `2 - y` and vertical
++   velocity becomes positive; a candidate below 20 is mirror-reflected to
++   `40 - y` and vertical velocity becomes negative. Equality with 1 or 20
++   does not reflect. Generated game states must keep the ball within the
++   vertical playable range.
++
++8. **Paddle collisions.** After wall handling, a left collision occurs only
++   when the ball is moving left, its old `x` is greater than 3, its candidate
++   `x` is at or left of 3, and candidate `y` is in the half-open interval
++   `[left_paddle_y, left_paddle_y + 5)`. A right collision is the symmetric
++   test for a right-moving ball crossing 76 from an old `x` below 76. Mirror
++   the candidate horizontal coordinate around the plane (`x = 6 - x` on the
++   left; `x = 152 - x` on the right), and set horizontal velocity away from
++   the paddle with magnitude 0.5. Let `relative_y = candidate_y - paddle_y`.
++   Set vertical velocity to `-0.5` if `relative_y < 5/3`, to `0.0` if
++   `5/3 <= relative_y < 10/3`, and to `+0.5` otherwise. A ball outside the
++   paddle interval continues toward the goal. These tests and intervals are
++   symmetric for both paddles.
++
++9. **Scoring, subsequent serves, and winning.** After wall and paddle
++   handling, a candidate `x < 0` awards one point to the right player; a
++   candidate `x > 79` awards one point to the left player. Equality with 0 or
++   79 is not a score. Increment `points_played`, reset the ball to the center
++   with zero velocity, preserve both paddle positions, and set
++   `serve_direction` toward the player who conceded the point. If the new
++   score is below 5, enter `SERVE` with 30 remaining ticks and no winner. If
++   it is 5, enter `GAME_OVER`, use zero remaining ticks, and set `winner` to
++   the scoring side. The first player to 5 wins; there is no win-by-two rule.
++
++10. **Determinism over time.** The core shall use no clock, randomness, global
++    mutable state, terminal, or network. Repeated default transitions from
++    the real starting state have these checkpoints: after 30 calls the ball
++    is launched from center at `(0.5, 0.3)` velocity; after 50 calls its
++    position is `(49.5, 16.5)`; after 110 calls the left score is 1 and the
++    next 30-tick serve is waiting at center; after 550 calls the state is
++    `GAME_OVER` with score 5-0, `Side.LEFT` as winner, `points_played == 5`,
++    and `tick == 550`.
++
++11. **Pure renderer.** `render(state: GameState) -> str` shall perform no I/O
++    and return exactly 24 lines of exactly 80 ASCII characters, joined with
++    `"\n"` and with no trailing newline. Line 1 is a centered status; lines
++    2..23 are the court; line 24 is centered controls text. Centering uses
++    `str.center(80)`. The court uses `+` corners, `-` top/bottom edges, `|`
++    side edges and paddle cells, spaces inside, and `o` for the ball. Paddles
++    occupy their configured column and five rows beginning at their top.
++    Render the ball at `(floor(ball_x + 0.5), floor(ball_y + 0.5))`, with the
++    ball taking precedence over every other court glyph, including a paddle or
++    border. The controls text is exactly
++    `"W/S: left  O/L: right  SPACE: pause  R: restart  Q: quit"`. The status
++    is `f"Left {left_score}  Right {right_score}  {phase_text}".center(80)`,
++    where `phase_text` is `PAUSED` when paused, `SERVE {ceil(remaining / 30)}s`
++    in `SERVE`, `PLAY` in `PLAYING`, or
++    `"{winner.name} WINS - R TO RESTART"` in `GAME_OVER`. Enum `name` is used,
++    so winner names are uppercase. Rendering the same state repeatedly is
++    byte-for-byte stable.
++
++12. **Terminal boundary and lifecycle.** `pong.terminal` shall publicly
++    define a `typing.Protocol` named `Terminal` with methods
++    `get_size() -> tuple[int, int]`, `enter() -> None`, `restore() -> None`,
++    `read_keys() -> str`, `write(text: str) -> None`,
++    `monotonic() -> float`, and `sleep(seconds: float) -> None`. It shall
++    provide a standard-library `SystemTerminal` implementing non-blocking key
++    reads, flushed writes, and reversible raw/cbreak terminal setup, and
++    `run(terminal: Terminal | None = None) -> int`, defaulting to
++    `SystemTerminal`. Before entering terminal mode, `run` checks for at least
++    80 columns and 24 rows. If too small, it writes exactly
++    `"Pong requires a terminal of at least 80 columns by 24 rows.\n"`, does
++    not call `enter` or `restore`, and returns 1.
++
++    With sufficient size, `run` calls `enter`, hides the cursor and clears the
++    screen with `"\x1b[2J\x1b[?25l"`, immediately writes the initial render
++    at home (`"\x1b[H"`), and then runs fixed 1/30-second updates. Keys read
++    since the previous update are parsed together. Quit exits without another
++    update. The loop uses the injected monotonic clock and sleep, performs at
++    most `MAX_CATCH_UP_TICKS` overdue updates per pass, applies a key batch
++    only to the first such update, drops older excess lag, and renders after
++    updates. `SystemTerminal.read_keys` signals input EOF by raising
++    `EOFError`. In a `finally` block `run` writes `"\x1b[?25h\n"` and calls
++    `restore`, including after control-C, EOF, or any exception; unexpected
++    exceptions are re-raised after cleanup. Normal Q, `KeyboardInterrupt`,
++    or `EOFError` exit returns 0. Key presses are discrete one-cell requests
++    (normal terminal key repeat supplies continued movement), not persistent
++    held-key state.
++
++13. **Module entry point.** `pong.__main__` shall expose
++    `main(terminal: Terminal | None = None) -> int`, which delegates to
++    `pong.terminal.run(terminal)`. Its module-execution guard shall raise
++    `SystemExit(main())`. Consequently tests and embedding code can exercise
++    exactly the same path as `python3 -m pong` using a fake terminal, without
++    accessing a real terminal or clock.
++
++## Public imports
++
++For convenience, `pong.__init__` shall re-export all constants in requirement
++2 and `Side`, `Phase`, `Controls`, `GameState`, `initial_state`, `parse_keys`,
++`advance`, and `render`. Terminal-specific names remain in `pong.terminal`.
+diff --git a/pong/__init__.py b/pong/__init__.py
+new file mode 100644
+index 0000000..3a07836
+--- /dev/null
++++ b/pong/__init__.py
+@@ -0,0 +1,53 @@
++from .core import (
++    BALL_DEFLECT_SPEED,
++    BALL_HORIZONTAL_SPEED,
++    BALL_INITIAL_VERTICAL_SPEED,
++    COURT_HEIGHT,
++    COURT_WIDTH,
++    LEFT_PADDLE_X,
++    MAX_CATCH_UP_TICKS,
++    PADDLE_HEIGHT,
++    PADDLE_SPEED,
++    RIGHT_PADDLE_X,
++    SCREEN_HEIGHT,
++    SCREEN_WIDTH,
++    SERVE_TICKS,
++    TICK_RATE,
++    TICK_SECONDS,
++    WINNING_SCORE,
++    Controls,
++    GameState,
++    Phase,
++    Side,
++    advance,
++    initial_state,
++    parse_keys,
++    render,
++)
++
++__all__ = [
++    "SCREEN_WIDTH",
++    "SCREEN_HEIGHT",
++    "COURT_WIDTH",
++    "COURT_HEIGHT",
++    "LEFT_PADDLE_X",
++    "RIGHT_PADDLE_X",
++    "PADDLE_HEIGHT",
++    "PADDLE_SPEED",
++    "BALL_HORIZONTAL_SPEED",
++    "BALL_INITIAL_VERTICAL_SPEED",
++    "BALL_DEFLECT_SPEED",
++    "TICK_RATE",
++    "TICK_SECONDS",
++    "SERVE_TICKS",
++    "WINNING_SCORE",
++    "MAX_CATCH_UP_TICKS",
++    "Side",
++    "Phase",
++    "Controls",
++    "GameState",
++    "initial_state",
++    "parse_keys",
++    "advance",
++    "render",
++]
+diff --git a/pong/__main__.py b/pong/__main__.py
+new file mode 100644
+index 0000000..4b37254
+--- /dev/null
++++ b/pong/__main__.py
+@@ -0,0 +1,9 @@
++from .terminal import Terminal, run
++
++
++def main(terminal: Terminal | None = None) -> int:
++    return run(terminal)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/pong/core.py b/pong/core.py
+new file mode 100644
+index 0000000..c246f71
+--- /dev/null
++++ b/pong/core.py
+@@ -0,0 +1,275 @@
++from dataclasses import dataclass, replace
++from enum import Enum
++from math import ceil, floor
++
++
++SCREEN_WIDTH = 80
++SCREEN_HEIGHT = 24
++COURT_WIDTH = 80
++COURT_HEIGHT = 22
++LEFT_PADDLE_X = 2
++RIGHT_PADDLE_X = 77
++PADDLE_HEIGHT = 5
++PADDLE_SPEED = 1
++BALL_HORIZONTAL_SPEED = 0.5
++BALL_INITIAL_VERTICAL_SPEED = 0.3
++BALL_DEFLECT_SPEED = 0.5
++TICK_RATE = 30
++TICK_SECONDS = 1 / TICK_RATE
++SERVE_TICKS = 30
++WINNING_SCORE = 5
++MAX_CATCH_UP_TICKS = 5
++
++
++class Side(str, Enum):
++    LEFT = "left"
++    RIGHT = "right"
++
++
++class Phase(str, Enum):
++    SERVE = "serve"
++    PLAYING = "playing"
++    GAME_OVER = "game_over"
++
++
++@dataclass(frozen=True)
++class Controls:
++    left_move: int = 0
++    right_move: int = 0
++    toggle_pause: bool = False
++    restart: bool = False
++    quit: bool = False
++
++    def __post_init__(self) -> None:
++        if type(self.left_move) is not int or self.left_move not in (-1, 0, 1):
++            raise ValueError("left_move must be -1, 0, or 1")
++        if type(self.right_move) is not int or self.right_move not in (-1, 0, 1):
++            raise ValueError("right_move must be -1, 0, or 1")
++
++
++@dataclass(frozen=True)
++class GameState:
++    left_paddle_y: int
++    right_paddle_y: int
++    ball_x: float
++    ball_y: float
++    ball_vx: float
++    ball_vy: float
++    left_score: int
++    right_score: int
++    phase: Phase
++    serve_ticks_remaining: int
++    serve_direction: Side
++    paused: bool
++    winner: Side | None
++    tick: int
++    points_played: int
++
++
++def initial_state() -> GameState:
++    return GameState(
++        8,
++        8,
++        39.5,
++        10.5,
++        0.0,
++        0.0,
++        0,
++        0,
++        Phase.SERVE,
++        SERVE_TICKS,
++        Side.RIGHT,
++        False,
++        None,
++        0,
++        0,
++    )
++
++
++def parse_keys(keys: str) -> Controls:
++    lowered = keys.casefold()
++    left_up = "w" in lowered
++    left_down = "s" in lowered
++    right_up = "o" in lowered
++    right_down = "l" in lowered
++    return Controls(
++        left_move=0 if left_up and left_down else (-1 if left_up else 1 if left_down else 0),
++        right_move=0 if right_up and right_down else (-1 if right_up else 1 if right_down else 0),
++        toggle_pause=lowered.count(" ") % 2 == 1,
++        restart="r" in lowered,
++        quit="q" in lowered or "\x03" in keys,
++    )
++
++
++def _paddle_y(value: int, move: int) -> int:
++    return max(1, min(16, value + move * PADDLE_SPEED))
++
++
++def _deflection_y(relative_y: float) -> float:
++    if relative_y < PADDLE_HEIGHT / 3:
++        return -BALL_DEFLECT_SPEED
++    if relative_y < (PADDLE_HEIGHT * 2) / 3:
++        return 0.0
++    return BALL_DEFLECT_SPEED
++
++
++def advance(state: GameState, controls: Controls = Controls()) -> GameState:
++    if controls.restart:
++        return initial_state()
++    if state.phase is Phase.GAME_OVER:
++        return state
++    if controls.toggle_pause:
++        return replace(state, paused=not state.paused)
++    if state.paused:
++        return state
++
++    left_paddle_y = _paddle_y(state.left_paddle_y, controls.left_move)
++    right_paddle_y = _paddle_y(state.right_paddle_y, controls.right_move)
++    tick = state.tick + 1
++
++    if state.phase is Phase.SERVE:
++        remaining = state.serve_ticks_remaining - 1
++        if remaining > 0:
++            return replace(
++                state,
++                left_paddle_y=left_paddle_y,
++                right_paddle_y=right_paddle_y,
++                ball_x=39.5,
++                ball_y=10.5,
++                ball_vx=0.0,
++                ball_vy=0.0,
++                serve_ticks_remaining=remaining,
++                tick=tick,
++            )
++        return replace(
++            state,
++            left_paddle_y=left_paddle_y,
++            right_paddle_y=right_paddle_y,
++            ball_x=39.5,
++            ball_y=10.5,
++            ball_vx=BALL_HORIZONTAL_SPEED
++            if state.serve_direction is Side.RIGHT
++            else -BALL_HORIZONTAL_SPEED,
++            ball_vy=BALL_INITIAL_VERTICAL_SPEED
++            if state.points_played % 2 == 0
++            else -BALL_INITIAL_VERTICAL_SPEED,
++            phase=Phase.PLAYING,
++            serve_ticks_remaining=0,
++            tick=tick,
++        )
++
++    old_x = state.ball_x
++    candidate_x = state.ball_x + state.ball_vx
++    candidate_y = state.ball_y + state.ball_vy
++    ball_vy = state.ball_vy
++
++    if candidate_y < 1:
++        candidate_y = 2 - candidate_y
++        ball_vy = abs(ball_vy)
++    elif candidate_y > 20:
++        candidate_y = 40 - candidate_y
++        ball_vy = -abs(ball_vy)
++
++    if (
++        state.ball_vx < 0
++        and old_x > 3
++        and candidate_x <= 3
++        and left_paddle_y <= candidate_y < left_paddle_y + PADDLE_HEIGHT
++    ):
++        candidate_x = 6 - candidate_x
++        ball_vx = BALL_HORIZONTAL_SPEED
++        ball_vy = _deflection_y(candidate_y - left_paddle_y)
++    elif (
++        state.ball_vx > 0
++        and old_x < 76
++        and candidate_x >= 76
++        and right_paddle_y <= candidate_y < right_paddle_y + PADDLE_HEIGHT
++    ):
++        candidate_x = 152 - candidate_x
++        ball_vx = -BALL_HORIZONTAL_SPEED
++        ball_vy = _deflection_y(candidate_y - right_paddle_y)
++    else:
++        ball_vx = state.ball_vx
++
++    if candidate_x < 0 or candidate_x > 79:
++        left_score = state.left_score
++        right_score = state.right_score
++        if candidate_x < 0:
++            right_score += 1
++            serve_direction = Side.LEFT
++            winner = Side.RIGHT
++        else:
++            left_score += 1
++            serve_direction = Side.RIGHT
++            winner = Side.LEFT
++        points_played = state.points_played + 1
++        phase = Phase.GAME_OVER if max(left_score, right_score) >= WINNING_SCORE else Phase.SERVE
++        return replace(
++            state,
++            left_paddle_y=left_paddle_y,
++            right_paddle_y=right_paddle_y,
++            ball_x=39.5,
++            ball_y=10.5,
++            ball_vx=0.0,
++            ball_vy=0.0,
++            left_score=left_score,
++            right_score=right_score,
++            phase=phase,
++            serve_ticks_remaining=0 if phase is Phase.GAME_OVER else SERVE_TICKS,
++            serve_direction=serve_direction,
++            winner=winner if phase is Phase.GAME_OVER else None,
++            tick=tick,
++            points_played=points_played,
++        )
++
++    return replace(
++        state,
++        left_paddle_y=left_paddle_y,
++        right_paddle_y=right_paddle_y,
++        ball_x=candidate_x,
++        ball_y=candidate_y,
++        ball_vx=ball_vx,
++        ball_vy=ball_vy,
++        tick=tick,
++    )
++
++
++def render(state: GameState) -> str:
++    if state.paused:
++        phase_text = "PAUSED"
++    elif state.phase is Phase.SERVE:
++        phase_text = f"SERVE {ceil(state.serve_ticks_remaining / SERVE_TICKS)}s"
++    elif state.phase is Phase.PLAYING:
++        phase_text = "PLAY"
++    else:
++        phase_text = f"{state.winner.name} WINS - R TO RESTART"
++
++    status = f"Left {state.left_score}  Right {state.right_score}  {phase_text}".center(
++        SCREEN_WIDTH
++    )
++    court = []
++    ball_column = floor(state.ball_x + 0.5)
++    ball_row = floor(state.ball_y + 0.5)
++    for row in range(COURT_HEIGHT):
++        if row in (0, COURT_HEIGHT - 1):
++            line = ["+"] + ["-"] * (COURT_WIDTH - 2) + ["+"]
++        else:
++            line = [" "] * COURT_WIDTH
++            line[0] = "|"
++            line[-1] = "|"
++            if state.left_paddle_y <= row < state.left_paddle_y + PADDLE_HEIGHT:
++                line[LEFT_PADDLE_X] = "|"
++            if state.right_paddle_y <= row < state.right_paddle_y + PADDLE_HEIGHT:
++                line[RIGHT_PADDLE_X] = "|"
++        if (
++            row == ball_row
++            and 0 <= ball_row < COURT_HEIGHT
++            and 0 <= ball_column < COURT_WIDTH
++        ):
++            line[ball_column] = "o"
++        court.append("".join(line))
++
++    controls = "W/S: left  O/L: right  SPACE: pause  R: restart  Q: quit".center(
++        SCREEN_WIDTH
++    )
++    return "\n".join([status, *court, controls])
+diff --git a/pong/terminal.py b/pong/terminal.py
+new file mode 100644
+index 0000000..45a436c
+--- /dev/null
++++ b/pong/terminal.py
+@@ -0,0 +1,140 @@
++import fcntl
++import os
++import select
++import shutil
++import sys
++import termios
++import tty
++from time import monotonic, sleep
++from typing import Protocol
++
++from .core import (
++    MAX_CATCH_UP_TICKS,
++    SCREEN_HEIGHT,
++    SCREEN_WIDTH,
++    TICK_SECONDS,
++    Controls,
++    advance,
++    initial_state,
++    parse_keys,
++    render,
++)
++
++
++class Terminal(Protocol):
++    def get_size(self) -> tuple[int, int]:
++        ...
++
++    def enter(self) -> None:
++        ...
++
++    def restore(self) -> None:
++        ...
++
++    def read_keys(self) -> str:
++        ...
++
++    def write(self, text: str) -> None:
++        ...
++
++    def monotonic(self) -> float:
++        ...
++
++    def sleep(self, seconds: float) -> None:
++        ...
++
++
++class SystemTerminal:
++    def __init__(self) -> None:
++        self._fd: int | None = None
++        self._old_attrs = None
++        self._old_flags: int | None = None
++
++    def get_size(self) -> tuple[int, int]:
++        size = shutil.get_terminal_size(fallback=(0, 0))
++        return size.columns, size.lines
++
++    def enter(self) -> None:
++        self._fd = sys.stdin.fileno()
++        self._old_flags = fcntl.fcntl(self._fd, fcntl.F_GETFL)
++        fcntl.fcntl(self._fd, fcntl.F_SETFL, self._old_flags | os.O_NONBLOCK)
++        if os.isatty(self._fd):
++            self._old_attrs = termios.tcgetattr(self._fd)
++            tty.setcbreak(self._fd)
++
++    def restore(self) -> None:
++        if self._fd is None:
++            return
++        if self._old_attrs is not None:
++            termios.tcsetattr(self._fd, termios.TCSADRAIN, self._old_attrs)
++        if self._old_flags is not None:
++            fcntl.fcntl(self._fd, fcntl.F_SETFL, self._old_flags)
++        self._fd = None
++        self._old_attrs = None
++        self._old_flags = None
++
++    def read_keys(self) -> str:
++        if self._fd is None:
++            raise RuntimeError("terminal is not entered")
++        readable, _, _ = select.select([self._fd], [], [], 0)
++        if not readable:
++            return ""
++        data = os.read(self._fd, 4096)
++        if not data:
++            raise EOFError
++        return data.decode("ascii", errors="ignore")
++
++    def write(self, text: str) -> None:
++        sys.stdout.write(text)
++        sys.stdout.flush()
++
++    def monotonic(self) -> float:
++        return monotonic()
++
++    def sleep(self, seconds: float) -> None:
++        sleep(seconds)
++
++
++def run(terminal: Terminal | None = None) -> int:
++    if terminal is None:
++        terminal = SystemTerminal()
++    columns, rows = terminal.get_size()
++    if columns < SCREEN_WIDTH or rows < SCREEN_HEIGHT:
++        terminal.write("Pong requires a terminal of at least 80 columns by 24 rows.\n")
++        return 1
++
++    try:
++        terminal.enter()
++        terminal.write("\x1b[2J\x1b[?25l")
++        state = initial_state()
++        terminal.write("\x1b[H" + render(state))
++        next_tick = terminal.monotonic() + TICK_SECONDS
++        pending_keys = ""
++
++        while True:
++            controls = parse_keys(pending_keys)
++            if controls.quit:
++                return 0
++
++            now = terminal.monotonic()
++            updates = 0
++            while now >= next_tick and updates < MAX_CATCH_UP_TICKS:
++                state = advance(state, controls if updates == 0 else Controls())
++                updates += 1
++                next_tick += TICK_SECONDS
++
++            if updates:
++                pending_keys = ""
++                if now >= next_tick:
++                    next_tick = now + TICK_SECONDS
++                terminal.write("\x1b[H" + render(state))
++
++            pending_keys += terminal.read_keys()
++            if parse_keys(pending_keys).quit:
++                return 0
++            terminal.sleep(max(0.0, next_tick - terminal.monotonic()))
++    except (EOFError, KeyboardInterrupt):
++        return 0
++    finally:
++        terminal.write("\x1b[?25h\n")
++        terminal.restore()
+diff --git a/tests/test_acceptance.py b/tests/test_acceptance.py
+new file mode 100644
+index 0000000..ea16057
+--- /dev/null
++++ b/tests/test_acceptance.py
+@@ -0,0 +1,490 @@
++import ast
++import dataclasses
++import math
++import sys
++import unittest
++from dataclasses import FrozenInstanceError, replace
++from pathlib import Path
++
++import pong
++from pong import (
++    BALL_DEFLECT_SPEED,
++    BALL_HORIZONTAL_SPEED,
++    BALL_INITIAL_VERTICAL_SPEED,
++    COURT_HEIGHT,
++    COURT_WIDTH,
++    LEFT_PADDLE_X,
++    MAX_CATCH_UP_TICKS,
++    PADDLE_HEIGHT,
++    PADDLE_SPEED,
++    RIGHT_PADDLE_X,
++    SCREEN_HEIGHT,
++    SCREEN_WIDTH,
++    SERVE_TICKS,
++    TICK_RATE,
++    TICK_SECONDS,
++    WINNING_SCORE,
++    Controls,
++    GameState,
++    Phase,
++    Side,
++    advance,
++    initial_state,
++    parse_keys,
++    render,
++)
++from pong.terminal import SystemTerminal, Terminal, run
++
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++class FakeTerminal:
++    def __init__(self, keys=(), size=(80, 24), fail_on_read=False):
++        self.keys = list(keys)
++        self.size = size
++        self.fail_on_read = fail_on_read
++        self.enter_count = 0
++        self.restore_count = 0
++        self.writes = []
++        self.sleeps = []
++        self.now = 0.0
++
++    def get_size(self):
++        return self.size
++
++    def enter(self):
++        self.enter_count += 1
++
++    def restore(self):
++        self.restore_count += 1
++
++    def read_keys(self):
++        if self.fail_on_read:
++            raise RuntimeError("read failed")
++        return self.keys.pop(0) if self.keys else "q"
++
++    def write(self, text):
++        self.writes.append(text)
++
++    def monotonic(self):
++        return self.now
++
++    def sleep(self, seconds):
++        self.sleeps.append(seconds)
++        self.now += seconds
++
++
++class PongAcceptanceTests(unittest.TestCase):
++    def test_R01_package_layout_command_modules_and_standard_library_only(self):
++        """R01: required package modules exist and production imports are stdlib/local."""
++        expected = {
++            ROOT / "pong" / "__init__.py",
++            ROOT / "pong" / "core.py",
++            ROOT / "pong" / "terminal.py",
++            ROOT / "pong" / "__main__.py",
++        }
++        self.assertTrue(all(path.is_file() for path in expected))
++
++        allowed = set(sys.stdlib_module_names) | {"pong"}
++        for path in (ROOT / "pong").glob("*.py"):
++            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++            for node in ast.walk(tree):
++                if isinstance(node, ast.Import):
++                    roots = [alias.name.split(".", 1)[0] for alias in node.names]
++                elif isinstance(node, ast.ImportFrom) and node.level == 0:
++                    roots = [(node.module or "").split(".", 1)[0]]
++                else:
++                    continue
++                self.assertTrue(
++                    all(root in allowed for root in roots),
++                    f"{path} imports a non-standard dependency: {roots}",
++                )
++
++    def test_R02_public_constants_have_fixed_values_and_units(self):
++        """R02: all dimensions, rates, speeds, and limits are public and exact."""
++        self.assertEqual(
++            (
++                SCREEN_WIDTH,
++                SCREEN_HEIGHT,
++                COURT_WIDTH,
++                COURT_HEIGHT,
++                LEFT_PADDLE_X,
++                RIGHT_PADDLE_X,
++                PADDLE_HEIGHT,
++                PADDLE_SPEED,
++                BALL_HORIZONTAL_SPEED,
++                BALL_INITIAL_VERTICAL_SPEED,
++                BALL_DEFLECT_SPEED,
++                TICK_RATE,
++                TICK_SECONDS,
++                SERVE_TICKS,
++                WINNING_SCORE,
++                MAX_CATCH_UP_TICKS,
++            ),
++            (80, 24, 80, 22, 2, 77, 5, 1, 0.5, 0.3, 0.5, 30, 1 / 30, 30, 5, 5),
++        )
++
++    def test_R03_public_frozen_model_and_real_starting_state(self):
++        """R03: enums, field order, validation, immutability, and start are fixed."""
++        self.assertEqual((Side.LEFT.value, Side.RIGHT.value), ("left", "right"))
++        self.assertIsInstance(Side.LEFT, str)
++        self.assertIsInstance(Phase.SERVE, str)
++        self.assertEqual(
++            (Phase.SERVE.value, Phase.PLAYING.value, Phase.GAME_OVER.value),
++            ("serve", "playing", "game_over"),
++        )
++        self.assertEqual(
++            [field.name for field in dataclasses.fields(Controls)],
++            ["left_move", "right_move", "toggle_pause", "restart", "quit"],
++        )
++        self.assertEqual(
++            [field.name for field in dataclasses.fields(GameState)],
++            [
++                "left_paddle_y",
++                "right_paddle_y",
++                "ball_x",
++                "ball_y",
++                "ball_vx",
++                "ball_vy",
++                "left_score",
++                "right_score",
++                "phase",
++                "serve_ticks_remaining",
++                "serve_direction",
++                "paused",
++                "winner",
++                "tick",
++                "points_played",
++            ],
++        )
++        state = initial_state()
++        self.assertEqual(
++            tuple(getattr(state, field.name) for field in dataclasses.fields(state)),
++            (
++                8,
++                8,
++                39.5,
++                10.5,
++                0.0,
++                0.0,
++                0,
++                0,
++                Phase.SERVE,
++                30,
++                Side.RIGHT,
++                False,
++                None,
++                0,
++                0,
++            ),
++        )
++        self.assertIsNot(state, initial_state())
++        with self.assertRaises(FrozenInstanceError):
++            state.left_score = 1
++        controls = Controls()
++        with self.assertRaises(FrozenInstanceError):
++            controls.quit = True
++        for bad in (-2, 2):
++            with self.assertRaises(ValueError):
++                Controls(left_move=bad)
++            with self.assertRaises(ValueError):
++                Controls(right_move=bad)
++
++    def test_R04_key_parsing_is_pure_case_insensitive_and_batch_based(self):
++        """R04: key batches map exactly to discrete controls."""
++        self.assertEqual(parse_keys("W"), Controls(left_move=-1))
++        self.assertEqual(parse_keys("s"), Controls(left_move=1))
++        self.assertEqual(parse_keys("O"), Controls(right_move=-1))
++        self.assertEqual(parse_keys("l"), Controls(right_move=1))
++        self.assertEqual(
++            parse_keys("wwSSooLL rQ\x03\x1b[A?"),
++            Controls(toggle_pause=True, restart=True, quit=True),
++        )
++        self.assertEqual(parse_keys("  "), Controls())
++
++    def test_R05_transition_moves_clamps_pauses_and_restarts_without_mutation(self):
++        """R05: transition priority, clamping, tick, pause, quit, and restart hold."""
++        original = initial_state()
++        moved = advance(original, Controls(left_move=-1, right_move=1))
++        self.assertEqual((moved.left_paddle_y, moved.right_paddle_y), (7, 9))
++        self.assertEqual((moved.tick, moved.serve_ticks_remaining), (1, 29))
++        self.assertEqual((original.left_paddle_y, original.tick), (8, 0))
++
++        clamped = original
++        for _ in range(30):
++            clamped = advance(clamped, Controls(left_move=-1, right_move=1))
++        self.assertEqual((clamped.left_paddle_y, clamped.right_paddle_y), (1, 16))
++
++        paused = advance(moved, Controls(toggle_pause=True, left_move=1))
++        self.assertTrue(paused.paused)
++        self.assertEqual(paused.tick, moved.tick)
++        self.assertEqual(paused.left_paddle_y, moved.left_paddle_y)
++        self.assertEqual(advance(paused, Controls(left_move=1, quit=True)), paused)
++        resumed = advance(paused, Controls(toggle_pause=True))
++        self.assertEqual(resumed, replace(paused, paused=False))
++        self.assertEqual(
++            advance(paused, Controls(restart=True, toggle_pause=True, quit=True)),
++            initial_state(),
++        )
++
++    def test_R06_serve_has_an_exact_30_tick_launch_timeline(self):
++        """R06: serve waits, launches by parity/direction, then moves."""
++        state = initial_state()
++        for _ in range(29):
++            state = advance(state)
++        self.assertEqual(
++            (state.phase, state.serve_ticks_remaining, state.ball_x, state.ball_y),
++            (Phase.SERVE, 1, 39.5, 10.5),
++        )
++        state = advance(state)
++        self.assertEqual(
++            (state.phase, state.ball_x, state.ball_y, state.ball_vx, state.ball_vy),
++            (Phase.PLAYING, 39.5, 10.5, 0.5, 0.3),
++        )
++        state = advance(state)
++        self.assertAlmostEqual(state.ball_x, 40.0)
++        self.assertAlmostEqual(state.ball_y, 10.8)
++
++        reverse = replace(
++            initial_state(),
++            serve_ticks_remaining=1,
++            serve_direction=Side.LEFT,
++            points_played=1,
++        )
++        reverse = advance(reverse)
++        self.assertEqual((reverse.ball_vx, reverse.ball_vy), (-0.5, -0.3))
++
++    def test_R07_ball_uses_mirrored_wall_reflection_after_candidate_movement(self):
++        """R07: top and bottom reflections preserve overshoot and valid bounds."""
++        base = replace(
++            initial_state(),
++            phase=Phase.PLAYING,
++            serve_ticks_remaining=0,
++            ball_x=40.0,
++            ball_vx=0.5,
++        )
++        top = advance(replace(base, ball_y=1.1, ball_vy=-0.3))
++        self.assertAlmostEqual(top.ball_y, 1.2)
++        self.assertAlmostEqual(top.ball_vy, 0.3)
++        bottom = advance(replace(base, ball_y=19.9, ball_vy=0.3))
++        self.assertAlmostEqual(bottom.ball_y, 19.8)
++        self.assertAlmostEqual(bottom.ball_vy, -0.3)
++        exact = advance(replace(base, ball_y=1.3, ball_vy=-0.3))
++        self.assertAlmostEqual(exact.ball_y, 1.0)
++        self.assertAlmostEqual(exact.ball_vy, -0.3)
++
++    def test_R08_paddle_crossing_collision_is_symmetric_and_uses_three_zones(self):
++        """R08: collision planes, half-open paddle range, reflection, and zones hold."""
++        base = replace(
++            initial_state(),
++            phase=Phase.PLAYING,
++            serve_ticks_remaining=0,
++            ball_vy=0.0,
++        )
++        for y, expected_vy in ((8.5, -0.5), (10.5, 0.0), (12.0, 0.5)):
++            right = advance(
++                replace(base, ball_x=75.75, ball_y=y, ball_vx=0.5)
++            )
++            self.assertAlmostEqual(right.ball_x, 75.75)
++            self.assertEqual((right.ball_vx, right.ball_vy), (-0.5, expected_vy))
++
++            left = advance(replace(base, ball_x=3.25, ball_y=y, ball_vx=-0.5))
++            self.assertAlmostEqual(left.ball_x, 3.25)
++            self.assertEqual((left.ball_vx, left.ball_vy), (0.5, expected_vy))
++
++        miss = advance(replace(base, ball_x=75.75, ball_y=13.0, ball_vx=0.5))
++        self.assertEqual((miss.ball_x, miss.ball_vx), (76.25, 0.5))
++
++    def test_R09_goals_reset_for_serve_preserve_paddles_and_end_at_five(self):
++        """R09: strict goal boundaries, next serve, score limit, and winner are exact."""
++        base = replace(
++            initial_state(),
++            left_paddle_y=4,
++            right_paddle_y=14,
++            phase=Phase.PLAYING,
++            serve_ticks_remaining=0,
++            ball_y=18.0,
++            ball_vy=0.0,
++        )
++        boundary = advance(replace(base, ball_x=78.5, ball_vx=0.5))
++        self.assertEqual((boundary.ball_x, boundary.left_score), (79.0, 0))
++
++        point = advance(replace(base, ball_x=78.75, ball_vx=0.5))
++        self.assertEqual(
++            (
++                point.left_score,
++                point.right_score,
++                point.phase,
++                point.ball_x,
++                point.ball_y,
++                point.ball_vx,
++                point.ball_vy,
++                point.serve_ticks_remaining,
++                point.serve_direction,
++                point.winner,
++                point.points_played,
++                point.left_paddle_y,
++                point.right_paddle_y,
++            ),
++            (
++                1,
++                0,
++                Phase.SERVE,
++                39.5,
++                10.5,
++                0.0,
++                0.0,
++                30,
++                Side.RIGHT,
++                None,
++                1,
++                4,
++                14,
++            ),
++        )
++
++        winner = advance(
++            replace(base, left_score=4, ball_x=78.75, ball_vx=0.5)
++        )
++        self.assertEqual(
++            (
++                winner.left_score,
++                winner.phase,
++                winner.serve_ticks_remaining,
++                winner.winner,
++            ),
++            (5, Phase.GAME_OVER, 0, Side.LEFT),
++        )
++        self.assertEqual(advance(winner), winner)
++        self.assertEqual(advance(winner, Controls(toggle_pause=True)), winner)
++
++        right_point = advance(replace(base, ball_x=0.25, ball_vx=-0.5))
++        self.assertEqual(
++            (right_point.right_score, right_point.serve_direction),
++            (1, Side.LEFT),
++        )
++
++    def test_R10_real_start_reaches_all_long_run_deterministic_checkpoints(self):
++        """R10: 550 real transitions establish trajectory, repeated scores, and game over."""
++        state = initial_state()
++        checkpoints = {}
++        for step in range(1, 551):
++            state = advance(state)
++            if step in {30, 50, 110, 550}:
++                checkpoints[step] = state
++        at_30 = checkpoints[30]
++        self.assertEqual(
++            (at_30.ball_x, at_30.ball_y, at_30.ball_vx, at_30.ball_vy),
++            (39.5, 10.5, 0.5, 0.3),
++        )
++        self.assertAlmostEqual(checkpoints[50].ball_x, 49.5)
++        self.assertAlmostEqual(checkpoints[50].ball_y, 16.5)
++        at_110 = checkpoints[110]
++        self.assertEqual(
++            (
++                at_110.left_score,
++                at_110.phase,
++                at_110.serve_ticks_remaining,
++                at_110.ball_x,
++                at_110.ball_y,
++            ),
++            (1, Phase.SERVE, 30, 39.5, 10.5),
++        )
++        at_550 = checkpoints[550]
++        self.assertEqual(
++            (
++                at_550.left_score,
++                at_550.right_score,
++                at_550.phase,
++                at_550.winner,
++                at_550.points_played,
++                at_550.tick,
++            ),
++            (5, 0, Phase.GAME_OVER, Side.LEFT, 5, 550),
++        )
++
++    def test_R11_renderer_is_exact_sized_ascii_stable_and_state_descriptive(self):
++        """R11: renderer layout, glyph positions, status variants, and purity hold."""
++        state = initial_state()
++        picture = render(state)
++        self.assertEqual(picture, render(state))
++        self.assertFalse(picture.endswith("\n"))
++        lines = picture.splitlines()
++        self.assertEqual(len(lines), 24)
++        self.assertTrue(all(len(line) == 80 and line.isascii() for line in lines))
++        self.assertEqual(lines[0], "Left 0  Right 0  SERVE 1s".center(80))
++        self.assertEqual(lines[1][0] + lines[1][-1], "++")
++        self.assertEqual(lines[1][1:-1], "-" * 78)
++        self.assertEqual(lines[22], "+" + "-" * 78 + "+")
++        self.assertEqual(lines[9][LEFT_PADDLE_X], "|")
++        self.assertEqual(lines[9][RIGHT_PADDLE_X], "|")
++        self.assertEqual(lines[12][40], "o")
++        self.assertEqual(
++            lines[23],
++            "W/S: left  O/L: right  SPACE: pause  R: restart  Q: quit".center(80),
++        )
++        edge_ball = replace(
++            state,
++            phase=Phase.PLAYING,
++            serve_ticks_remaining=0,
++            ball_x=79.0,
++            ball_y=10.0,
++        )
++        self.assertEqual(render(edge_ball).splitlines()[11][79], "o")
++
++        self.assertIn("PAUSED", render(replace(state, paused=True)).splitlines()[0])
++        game_over = replace(
++            state, phase=Phase.GAME_OVER, serve_ticks_remaining=0, winner=Side.RIGHT
++        )
++        self.assertIn(
++            "RIGHT WINS - R TO RESTART", render(game_over).splitlines()[0]
++        )
++
++    def test_R12_terminal_boundary_checks_size_times_updates_and_always_restores(self):
++        """R12: fake terminal verifies sizing, fixed timing, ANSI lifecycle, and cleanup."""
++        self.assertTrue(getattr(Terminal, "_is_protocol", False))
++        self.assertTrue(all(hasattr(SystemTerminal, name) for name in (
++            "get_size",
++            "enter",
++            "restore",
++            "read_keys",
++            "write",
++            "monotonic",
++            "sleep",
++        )))
++        small = FakeTerminal(size=(79, 24))
++        self.assertEqual(run(small), 1)
++        self.assertEqual(
++            small.writes,
++            ["Pong requires a terminal of at least 80 columns by 24 rows.\n"],
++        )
++        self.assertEqual((small.enter_count, small.restore_count), (0, 0))
++
++        terminal = FakeTerminal(keys=["", "q"])
++        self.assertEqual(run(terminal), 0)
++        self.assertEqual((terminal.enter_count, terminal.restore_count), (1, 1))
++        output = "".join(terminal.writes)
++        self.assertIn("\x1b[2J\x1b[?25l\x1b[H", output)
++        self.assertTrue(output.endswith("\x1b[?25h\n"))
++        self.assertEqual(len(terminal.sleeps), 1)
++        self.assertTrue(math.isclose(terminal.sleeps[0], TICK_SECONDS))
++        self.assertGreaterEqual(output.count("\x1b[H"), 2)
++
++        failing = FakeTerminal(fail_on_read=True)
++        with self.assertRaisesRegex(RuntimeError, "read failed"):
++            run(failing)
++        self.assertEqual((failing.enter_count, failing.restore_count), (1, 1))
++        self.assertTrue("".join(failing.writes).endswith("\x1b[?25h\n"))
++
++    def test_R13_module_main_delegates_the_runnable_path_with_injected_terminal(self):
++        """R13: the module entry point exposes and runs the same injectable game path."""
++        from pong.__main__ import main
++
++        terminal = FakeTerminal(keys=["q"])
++        self.assertEqual(main(terminal), 0)
++        self.assertEqual((terminal.enter_count, terminal.restore_count), (1, 1))
++
++
++if __name__ == "__main__":
++    unittest.main()

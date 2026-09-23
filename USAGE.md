@@ -27,8 +27,8 @@ Reload your client if the profiles do not appear in the agent picker.
 
 ## Choose a role
 
-Select a specialist directly for simple or single-step tasks.
-Select **Subagent Fleet** for complex tasks that need coordination.
+Select **Subagent Fleet** to keep Sol as primary for both small tasks and coordinated work.
+Select a specialist or **Economy** directly when you already know a cheaper model is sufficient.
 
 Follow these role boundaries:
 - **Fleet General Purpose**: Owns edit-based implementation and code verification.
@@ -60,9 +60,9 @@ The tool lists in the fleet profiles are intentional:
 - **Fleet Task**: Uses `execute` and `read`.
 - **Fleet General Purpose**: Uses `read`, `search`, `edit`, and `execute`.
 - **Fleet Rubber Duck**: Uses `read` with a scoped size guard in VS Code.
-- **Fleet Code Review**: Uses `read` and `search`. In VS Code a scoped guard bounds reads and allows only text search, file search, directory listing and usages. Fleet Task prepares its exact diff packet.
+- **Fleet Code Review**: Uses `read` and `search`. In VS Code a scoped guard bounds reads and allows only text search, file search, directory listing and usages. The coordinator can prepare its exact diff packet directly.
 - **Fleet Research**: Uses `read`, `search`, and `web`.
-- **Fleet Security Review**: Uses the same read and search tools and scoped guard as Fleet Code Review. Fleet Task prepares its exact diff packet.
+- **Fleet Security Review**: Uses the same read and search tools and scoped guard as Fleet Code Review. The coordinator can prepare its exact diff packet directly.
 
 ### Delegation rules
 VS Code subagents are stateless.
@@ -76,9 +76,13 @@ In VS Code, subagents normally cannot invoke nested subagents.
 Select **Subagent Fleet** as the parent agent.
 Specialists complete their tasks without secondary delegation.
 
-The coordinator has only the `agent` tool. A worker that must edit files or run
-commands must declare its own required tools. Fleet General Purpose declares
-`read`, `search`, `edit`, and `execute` for this reason.
+The Sol coordinator has `read`, `search`, `edit`, `execute`, and `agent` tools.
+It handles small lookups, focused edits and short checks directly, and delegates
+substantial bounded work to specialists. Routing is advisory; the dispatch hook
+still enforces specialist names, model pins and delegation size. Direct tool calls
+retain ordinary host permissions. Independent review is requested when required
+by the user or repository, or when material correctness risk remains; it is not an
+automatic step for every routine edit. Workers declare their own required tools.
 
 ## Cloud-agent limitations
 

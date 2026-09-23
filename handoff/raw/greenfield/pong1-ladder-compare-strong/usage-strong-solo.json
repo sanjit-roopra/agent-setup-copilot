@@ -1,0 +1,105 @@
+{
+  "totalPremiumRequestCost": 1,
+  "totalUserRequests": 1,
+  "totalNanoAiu": 66205840000,
+  "tokenDetails": {
+    "input": {
+      "tokenCount": 52306
+    },
+    "cache_read": {
+      "tokenCount": 398336
+    },
+    "cache_write": {
+      "tokenCount": 0
+    },
+    "output": {
+      "tokenCount": 14675
+    }
+  },
+  "totalApiDurationMs": 190920,
+  "sessionStartTime": "2026-09-21T06:36:48.426Z",
+  "codeChanges": {
+    "linesAdded": 407,
+    "linesRemoved": 100,
+    "filesModifiedCount": 7,
+    "filesModified": [
+      "/Users/sanjit.roopra/.copilot/session-state/0d6843ed-aaf9-46d5-9d0a-97c80a01d98d/files/pong-checklist.tsv",
+      "/Users/sanjit.roopra/.copilot/session-state/0d6843ed-aaf9-46d5-9d0a-97c80a01d98d/files/audit_pong.py",
+      "/Users/sanjit.roopra/scratch/pong-out/strong-solo/pong/__init__.py",
+      "/Users/sanjit.roopra/scratch/pong-out/strong-solo/pong/game.py",
+      "/Users/sanjit.roopra/scratch/pong-out/strong-solo/pong/__main__.py",
+      "/Users/sanjit.roopra/scratch/pong-out/strong-solo/tests/test_game.py",
+      "/Users/sanjit.roopra/scratch/pong-out/strong-solo/README.md"
+    ]
+  },
+  "modelMetrics": {
+    "gpt-5.6-sol": {
+      "requests": {
+        "count": 27,
+        "cost": 1
+      },
+      "usage": {
+        "inputTokens": 450642,
+        "outputTokens": 14675,
+        "cacheReadTokens": 398336,
+        "cacheWriteTokens": 0,
+        "reasoningTokens": 6027
+      },
+      "cacheExpiresAt": "2026-09-21T07:10:09.544Z",
+      "totalNanoAiu": 66205840000,
+      "tokenDetails": {
+        "input": {
+          "tokenCount": 52306
+        },
+        "cache_read": {
+          "tokenCount": 398336
+        },
+        "cache_write": {
+          "tokenCount": 0
+        },
+        "output": {
+          "tokenCount": 14675
+        }
+      }
+    }
+  },
+  "agentMetrics": {
+    "main": {
+      "totalApiDurationMs": 190920,
+      "totalNanoAiu": 66205840000,
+      "modelMetrics": {
+        "gpt-5.6-sol": {
+          "requests": {
+            "count": 27,
+            "cost": 1
+          },
+          "usage": {
+            "inputTokens": 450642,
+            "outputTokens": 14675,
+            "cacheReadTokens": 398336,
+            "cacheWriteTokens": 0,
+            "reasoningTokens": 6027
+          },
+          "totalNanoAiu": 66205840000,
+          "tokenDetails": {
+            "input": {
+              "tokenCount": 52306
+            },
+            "cache_read": {
+              "tokenCount": 398336
+            },
+            "cache_write": {
+              "tokenCount": 0
+            },
+            "output": {
+              "tokenCount": 14675
+            }
+          }
+        }
+      }
+    }
+  },
+  "currentModel": "gpt-5.6-sol",
+  "lastCallInputTokens": 28466,
+  "lastCallOutputTokens": 161
+}

@@ -1,0 +1,6 @@
+--- 2026-06-11 /u/ihatebeinganonymous | Is the cache "reset" when starting a new session? | https://www.reddit.com/r/GithubCopilot/comments/1u34ipv/is_the_cache_reset_when_starting_a_new_session/
+ |by /u/ihatebeinganonymous [link] [comments] 
+--- 2026-06-11 /u/AutoModerator | /u/AutoModerator on Is the cache "reset" when starting a new session? | https://www.reddit.com/r/GithubCopilot/comments/1u34ipv/is_the_cache_reset_when_starting_a_new_session/or2dwt7/
+ Hello /u/ihatebeinganonymous . Looks like you have posted a query. Once your query is resolved, please reply the solution comment with "!solved" to help everyone else know the solution and mark the post as solved. I am a bot, and this action was performed automatically. Please contact the moderators of this subreddit if you have any questions or concerns. 
+--- 2026-06-11 /u/popiazaza | /u/popiazaza on Is the cache "reset" when starting a new session? | https://www.reddit.com/r/GithubCopilot/comments/1u34ipv/is_the_cache_reset_when_starting_a_new_session/or4di0c/
+ About 5 mins for most provider. It is bake right in the API, so changing session doesn't matter. Note that changing reasoning capability may break the cache though. 

@@ -1,0 +1,1 @@
+Build a minimal Pong game in Python, standard library only, playable in a terminal with `python3 -m pong`. Keep it minimal: one `pong` package with the smallest code that plays, plus `unittest` tests in `tests/`. No CLI options, no configuration, no extras. Stop as soon as the tests pass.

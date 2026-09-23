@@ -10,6 +10,13 @@ It does not make different Copilot hosts behave identically.
 Read [USAGE.md](USAGE.md) for installation procedures and workflow details.
 See [strict routing](docs/STRICT-ROUTING.md) for executable cost guards and
 [model costs](docs/MODEL-COSTS.md) for the dated price comparison.
+Sol now handles small tasks directly and delegates selectively. See the
+[measured comparison and limitations](docs/SELECTIVE-FLEET-RESULTS.md).
+
+For lower cost on routine work, select **Economy** after installation, or run
+`copilot --agent economy` with the CLI installation. It uses Luna directly for
+questions, edits and checks. Read [the cost-saving workflow](docs/ECONOMY.md)
+for measured results and when to use a stronger model.
 
 For a strong main model with Shunt-style cheap bulk reading and boilerplate generation,
 see the separate [Shunt Copilot plugin](shunt-copilot/README.md). It has its own
@@ -33,11 +40,12 @@ For a simple task, select a specialist profile directly in Chat.
 
 ## Fleet roles
 
-The fleet provides one coordinator and seven specialists in `.github/agents/*.agent.md`.
+The repository provides one coordinator, seven specialists and a standalone Economy profile in `.github/agents/*.agent.md`.
 
 | Profile | Type | Responsibilities |
 | --- | --- | --- |
-| Subagent Fleet | Coordinator | Coordinates specialists. Sends full task context. Combines returned findings. |
+| Economy | Standalone | Completes routine questions, edits and checks directly on Luna; reports a focused handoff when blocked. |
+| Subagent Fleet | Coordinator | Handles small tasks directly on Sol; delegates substantial bounded work and integrates findings. |
 | Fleet Explore | Specialist | Performs focused, read-only codebase investigations with file and line citations. |
 | Fleet Task | Specialist | Runs one build, test, or check-only lint command without editing source files. |
 | Fleet General Purpose | Specialist | Owns edit-based implementation work and validates code changes. |

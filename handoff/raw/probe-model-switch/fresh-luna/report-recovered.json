@@ -1,0 +1,60 @@
+{
+  "name": "fresh-luna",
+  "sessionId": "759015f9-122a-4b8f-b388-db07c90a28bc",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-fresh-luna-vrjCi7",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:find-a-value",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:24.724Z",
+      "exitCode": 0,
+      "seconds": 17,
+      "correct": true,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 3,
+          "input": 17906,
+          "output": 320,
+          "cacheRead": 11361,
+          "cacheWrite": 6536,
+          "reasoning": 28,
+          "credits": 0.224702,
+          "cacheExpiresAt": "2026-09-22T07:08:40.138Z"
+        }
+      },
+      "credits": 0.224702,
+      "answer": "A delivery is attempted **7 times total** (the initial attempt plus up to 6 retries), with a **250 ms** wait between attempts. The retrying is handled by **`retryDelivery`** in `src/delivery-service.mjs`.",
+      "usageFileFound": true
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:mid-size-file",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:42.157Z",
+      "exitCode": 0,
+      "seconds": 14,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-luna": {
+          "requests": 5,
+          "input": 48559,
+          "output": 706,
+          "cacheRead": 42613,
+          "cacheWrite": 5931,
+          "reasoning": 229,
+          "credits": 0.318521,
+          "cacheExpiresAt": "2026-09-22T07:08:54.398Z"
+        }
+      },
+      "credits": 0.318521,
+      "answer": "The largest discount is **22%**, shared by **SKU-014, SKU-030, SKU-046, SKU-062, SKU-078, SKU-094, and SKU-110**.\n\nThe available tiers are **bronze, silver, gold, and platinum**.",
+      "usageFileFound": true
+    }
+  ],
+  "credits": 0.543223
+}

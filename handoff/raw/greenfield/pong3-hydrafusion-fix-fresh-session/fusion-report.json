@@ -1,0 +1,36 @@
+{
+  "session": "b763cb76-949e-4211-9f47-8677558dbd0c",
+  "seconds": 158,
+  "finished": true,
+  "turns": [
+    {
+      "pattern": "single",
+      "policy": "max",
+      "primaryModel": "gpt-5.6-sol",
+      "secondaryModel": null
+    }
+  ],
+  "phases": [
+    {
+      "kind": "primary",
+      "role": "solver",
+      "model": "gpt-5.6-sol",
+      "status": "succeeded",
+      "verdict": null,
+      "credits": 35.76976,
+      "requests": 12
+    }
+  ],
+  "outcomes": [
+    "completed"
+  ],
+  "degraded": [],
+  "credits": 35.76976,
+  "userTurns": 1,
+  "modelsSeen": [
+    "gpt-4o-mini"
+  ],
+  "followUpModels": [
+    "gpt-5.6-sol"
+  ]
+}

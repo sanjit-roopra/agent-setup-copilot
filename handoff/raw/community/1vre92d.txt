@@ -1,0 +1,28 @@
+--- 2026-08-18 /u/Infinite-Local5435 | Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/
+ Settings icon > Agents > Explore > Open in file explorer > Change model way from the default 4.5 Haiku and Gemini 3 Pro and Auto. Just set it to: model: ['GPT-5.6 Luna (copilot)'] Or a BYOK local model like FastContext-4B (removed but can download community gguf files) I was spending approximately 20 tokens per explore (1-3 times per prompt) and sometimes 60 if it called Sonnet 4.6 via auto, but after changing to Luna it only spends 6-10 tokens. Plus, with a local model it's basically free savings! |by /u/Infinite-Local5435 [link] [comments] 
+--- 2026-08-18 /u/jukasper | /u/jukasper on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4fggjf/
+ Hi all, thank you so much for raising this. We understand that defaults matter, so we are currently exploring on changing and updating the current default for the explore agent to Luna. 
+--- 2026-08-18 /u/Affectionate_Fly4124 | /u/Affectionate_Fly4124 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4gsbwv/
+ I posted something similar earlier, but I'd like to request an option to not specify a model when invoking sub-agents (for both the VSCode and CLI versions). Even if I change the default model for the explore agent, I believe the parent agent can still override it. I've set up a custom-agent with Luna, but sometimes it ends up running on 5.3 Codex or Opus instead. 
+--- 2026-08-18 /u/AutoModerator | /u/AutoModerator on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4fggmk/
+ u/jukasper thanks for responding. u/jukasper from the GitHub Copilot Team has replied to this post. You can check their reply here . I am a bot, and this action was performed automatically. Please contact the moderators of this subreddit if you have any questions or concerns. 
+--- 2026-08-18 /u/Infinite-Local5435 | /u/Infinite-Local5435 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4cqqa3/
+ You'll need to do it again for every time VSCode updates 
+--- 2026-08-18 /u/Megasware128 | /u/Megasware128 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4ep1pf/
+ You can just change the explore agent model in the VSCode settings. You don't need to change the md 
+--- 2026-08-18 /u/Much-Chance1866 | /u/Much-Chance1866 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4d018t/
+ They should make this as default setting. 
+--- 2026-08-18 /u/Infinite-Local5435 | /u/Infinite-Local5435 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4d1w9o/
+ It's so annoying, I also found that if you open a new repo it needs to be set AGAIN as well. 
+--- 2026-08-18 /u/MaitoSnoo | /u/MaitoSnoo on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4dhggq/
+ that has nothing really to do with copilot though, in VS Code the same setting can be set at the repo level, user level and system wide 
+--- 2026-08-18 /u/henfiber | /u/henfiber on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4dw3sf/
+ What is the the explore agent for? 
+--- 2026-08-18 /u/MasterBathingBear | /u/MasterBathingBear on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4dztts/
+ That’s the agent that searches through your code 
+--- 2026-08-18 /u/BlacksmithLittle7005 | /u/BlacksmithLittle7005 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4ei4w9/
+ Doesn't work. When I change it it keeps using haiku, and when I restart vs code it just reverts back to the original config. Anyone have a way to get this working? 
+--- 2026-08-19 /u/Infinite-Local5435 | /u/Infinite-Local5435 on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4j7gtk/
+ I think GHCP Staff are working on it, so for now I guess all we can to do manually set it again each time 
+--- 2026-08-18 /u/EdibleTree | /u/EdibleTree on Your reminder to edit the explore agent markdown for token savings | https://www.reddit.com/r/GithubCopilot/comments/1vre92d/your_reminder_to_edit_the_explore_agent_markdown/p4dpzsn/
+ I had mine overwrite a few times so I gave up 

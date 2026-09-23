@@ -1,0 +1,20 @@
+--- 2026-07-16 /u/Affectionate_Fly4124 | GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/
+ OpenAI's official docs say GPT-5.6 and later models guarantee a minimum 30-minute cache retention (prompt_cache_options.ttl). https://developers.openai.com/api/docs/guides/prompt-caching But in GH Copilot, GPT-5.6 Luna's cache expires once you go past 5 minutes. Test wait times alone blow past that, so costs go up. Anyone else seeing this? Does the Copilot team have plans to fix this? |by /u/Affectionate_Fly4124 [link] [comments] 
+--- 2026-07-16 /u/Swayre | /u/Swayre on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxv3gem/
+ The answer is on that page, microsoft is hosting the inference and promising enterprises zero data retention, so they are using the "in_memory" policy: "When using the in-memory policy, cached prefixes generally remain active for 5 to 10 minutes of inactivity" 
+--- 2026-07-16 /u/just_blue | /u/just_blue on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxv8njm/
+ Now look at GHCP documentation: https://docs.github.com/en/copilot/tutorials/optimize-ai-usage#4-preserve-the-cache I quote: Caches expire after a period of inactivity (24 hours for OpenAI models and 1 hour for most others). The problem is, that the cache time and configuration is nowhere properly documented. I´d say this should even be in UI: If it is clear that after 10 minutes the cache is lost, this must be reflected as a warning. 
+--- 2026-07-16 /u/Prestigious_Race_636 | /u/Prestigious_Race_636 on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxv8taj/
+ I just posted that this happened to me on opus as well: https://www.reddit.com/r/GithubCopilot/comments/1uxyetk/copilot_prompt_caching_ttl_went_way_down_on/ I don't think it's related to a specific model. 
+--- 2026-07-16 /u/just_blue | /u/just_blue on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxv991n/
+ Pretty sure it always had the default (5-10 min) for anthropic. 1 hour TTL has a different pricing: 2x instead of 1.25x cache write cost. We are paying 1.25x -> it is 5 min cache. 
+--- 2026-07-16 /u/Prestigious_Race_636 | /u/Prestigious_Race_636 on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxvbwru/
+ Maybe officially, but actual usage stats: https://preview.redd.it/lihg00hhykdh1.png?width=1730&format=png&auto=webp&s=f6d710e3aac3c34368d48c0692bed2527554728e Show it used to be longer then 10 minutes just a week ago 
+--- 2026-07-16 /u/popiazaza | /u/popiazaza on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxvkowm/
+ Note that for the new 30 mins cache, you have to pay for cache write at 1.25x of the normal input price. It's no longer free. If GHCP keep 1x price with 5 mins cache, I feel like that's fair. 
+--- 2026-07-16 /u/krzyk | /u/krzyk on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxvoxji/
+ Also, they don't document the price for cache write for got models (e.g. for sol it is $6.25) 
+--- 2026-07-16 /u/StuckWithDellAgain | /u/StuckWithDellAgain on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxvuc7w/
+ Where and how are you checking this? 
+--- 2026-07-16 /u/CuTe_M0nitor | /u/CuTe_M0nitor on GPT-5.6 cache expires after 5 minutes | https://www.reddit.com/r/GithubCopilot/comments/1uxzcso/gpt56_cache_expires_after_5_minutes/oxwrjqe/
+ Because they make more money keeping the cache at 5min 

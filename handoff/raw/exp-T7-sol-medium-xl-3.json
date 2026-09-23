@@ -1,0 +1,344 @@
+{
+  "experiment": "T7",
+  "variant": "sol-medium-xl-3",
+  "started": "2026-09-22T08:47:55.017Z",
+  "finished": "2026-09-22T12:11:24.700Z",
+  "exitCode": 0,
+  "benchmarkArgs": [
+    "--model",
+    "gpt-5.6-sol",
+    "--arm",
+    "baseline",
+    "--scenario",
+    "spec-audit-xl",
+    "--runs",
+    "3",
+    "--label",
+    "sol-medium",
+    "--tools",
+    "view,rg,glob,bash,apply_patch",
+    "--reasoning-effort",
+    "medium",
+    "--timeout-sec",
+    "2400"
+  ],
+  "revision": "e2d8a351babaacabb96f2b7840ffb2c606744df1",
+  "workingTreeDirty": true,
+  "cliVersion": "GitHub Copilot CLI 1.0.87.\nRun 'copilot update' to check for updates.",
+  "outDir": "/Users/sanjit.roopra/git/dedalus/agent-setup-copilot/handoff/runs/exp-T7-sol-medium-xl-3",
+  "results": {
+    "model": "gpt-5.6-sol",
+    "worker": "gpt-5.6-luna",
+    "results": [
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 1,
+        "exitCode": 0,
+        "wallMs": 140405,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 42,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 437936,
+            "nanoAiu": 56904000000,
+            "buckets": {
+              "uncached": 22.5984,
+              "cached": 15.2576,
+              "cacheWrite": 0,
+              "output": 19.048,
+              "priced": 56.903999999999996,
+              "billed": 56.904,
+              "residual": 7.105427357601002e-15,
+              "reasoning": 2109,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 437936,
+          "output": 9524,
+          "cacheRead": 381440,
+          "cacheWrite": 0,
+          "reasoning": 2109,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 56904000000,
+          "apiMs": 125707
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 22.5984,
+          "cached": 15.2576,
+          "cacheWrite": 0,
+          "output": 19.048,
+          "priced": 56.903999999999996,
+          "billed": 56.904,
+          "residual": 7.105427357601002e-15,
+          "reasoning": 2109,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "sol-medium",
+        "total": {
+          "input": 437936,
+          "output": 9524,
+          "cacheRead": 381440,
+          "cacheWrite": 0,
+          "reasoning": 2109,
+          "modelCalls": 17,
+          "premiumRequests": 0,
+          "nanoAiu": 56904000000,
+          "apiMs": 125707
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 2,
+        "exitCode": 0,
+        "wallMs": 206617,
+        "correct": true,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 41,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 519712,
+            "nanoAiu": 73567840000,
+            "buckets": {
+              "uncached": 0.0156,
+              "cached": 17.945240000000002,
+              "cacheWrite": 35.521,
+              "output": 20.086,
+              "priced": 73.56784,
+              "billed": 73.56784,
+              "residual": 0,
+              "reasoning": 2246,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 519712,
+          "output": 10043,
+          "cacheRead": 448631,
+          "cacheWrite": 71042,
+          "reasoning": 2246,
+          "modelCalls": 13,
+          "premiumRequests": 0,
+          "nanoAiu": 73567840000,
+          "apiMs": 192299
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0.0156,
+          "cached": 17.945240000000002,
+          "cacheWrite": 35.521,
+          "output": 20.086,
+          "priced": 73.56784,
+          "billed": 73.56784,
+          "residual": 0,
+          "reasoning": 2246,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "sol-medium",
+        "total": {
+          "input": 519712,
+          "output": 10043,
+          "cacheRead": 448631,
+          "cacheWrite": 71042,
+          "reasoning": 2246,
+          "modelCalls": 13,
+          "premiumRequests": 0,
+          "nanoAiu": 73567840000,
+          "apiMs": 192299
+        }
+      },
+      {
+        "scenario": "spec-audit-xl",
+        "arm": "baseline",
+        "run": 3,
+        "exitCode": null,
+        "wallMs": 11843668,
+        "correct": false,
+        "unchecked": false,
+        "delegations": 0,
+        "redirects": 0,
+        "toolCalls": 59,
+        "turns": [
+          {
+            "turn": 1,
+            "mainInput": 0,
+            "nanoAiu": 0,
+            "buckets": {
+              "uncached": 0,
+              "cached": 0,
+              "cacheWrite": 0,
+              "output": 0,
+              "priced": 0,
+              "billed": 0,
+              "residual": 0,
+              "reasoning": 0,
+              "unpriced": []
+            }
+          }
+        ],
+        "main": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "worker": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        },
+        "buckets": {
+          "uncached": 0,
+          "cached": 0,
+          "cacheWrite": 0,
+          "output": 0,
+          "priced": 0,
+          "billed": 0,
+          "residual": 0,
+          "reasoning": 0,
+          "unpriced": []
+        },
+        "firstCallInput": null,
+        "escalated": false,
+        "ladder": null,
+        "grade": "passed",
+        "gradeDetail": {
+          "score": 14,
+          "of": 14,
+          "fixed": [
+            "aster:step",
+            "aster:cutoff",
+            "fern:step",
+            "fern:floor",
+            "hazel:step",
+            "kelp:prefix",
+            "larch:cutoff",
+            "nettle:threshold",
+            "oak:order",
+            "rowan:step",
+            "tansy:rounding",
+            "ulmus:rounding",
+            "yarrow:step",
+            "yarrow:prefix"
+          ],
+          "missed": [],
+          "regression": true
+        },
+        "reviewCredits": 0,
+        "escalationCredits": 0,
+        "label": "sol-medium",
+        "total": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "reasoning": 0,
+          "modelCalls": 0,
+          "premiumRequests": 0,
+          "nanoAiu": 0,
+          "apiMs": 0
+        }
+      }
+    ]
+  }
+}

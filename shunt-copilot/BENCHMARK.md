@@ -1,11 +1,17 @@
 # Measuring whether Shunt helps in Copilot
 
-This benchmark asks Copilot CLI the same question in up to three ways and compares what each run really cost:
+This benchmark asks Copilot CLI the same question in up to four ways and compares what each run really cost:
 
 - `baseline` — plain Copilot CLI
 - `shunt` — this plugin loaded
 - `fleet` — the repository's Subagent Fleet coordinator, which hands work to cheap subagents inside the same session
+- `economy` — direct Luna execution with the standalone Economy profile, including edits and checks
  Every number comes from Copilot CLI's own usage report (`--usage-output-file`). Nothing is estimated from file sizes.
+
+The fleet now allows Sol to handle small tasks directly and delegate selectively.
+See [the revised-fleet measurements](../docs/SELECTIVE-FLEET-RESULTS.md). Results
+below describe the earlier delegation-only fleet. Long-session checks now validate
+each answer separately, so later facts cannot hide an unanswered earlier question.
 
 ## Before you start
 
@@ -53,10 +59,10 @@ Each side works in its own throwaway `git clone` of the committed state, so your
 
 | Option | What it does | Default |
 | --- | --- | --- |
-| `--model <id>` | Main model for both runs | Your CLI default |
+| `--model <id>` | Main model for baseline and Shunt; fleet pins Sol and economy pins Luna | Your CLI default |
 | `--scenario <name>` | Run only one scenario. `long-session` asks eight questions in one conversation and only runs when named | The five single questions |
 | `--runs <n>` | Repeat each run `n` times and report the median | `1` |
-| `--arm <list>` | Comma-separated sides to run: `baseline`, `shunt`, `fleet` | `baseline,shunt` |
+| `--arm <list>` | Comma-separated sides to run: `baseline`, `shunt`, `fleet`, `economy` | `baseline,shunt` |
 | `--out <folder>` | Where to keep results | A new temp folder |
 | `--timeout-sec <n>` | Give up on one session after `n` seconds | `600` |
 | `--project <path>` with `--prompts <file>` | Use your own git repository and questions instead of the built-in ones | Off |

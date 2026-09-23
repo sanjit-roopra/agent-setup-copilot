@@ -455,6 +455,12 @@ function readJson(file) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; }
 }
 
+// The copilot launcher execs a child binary; killing only the launcher leaves that child alive holding our stdout pipe,
+// so 'close' never fires and a stalled session hangs the whole run. Kill the process group, then drop the pipe.
+function killTree(child) {
+  try { process.kill(-child.pid, 'SIGKILL'); } catch { try { child.kill('SIGKILL'); } catch {} }
+  child.stdout?.destroy();
+}
 function runCopilot({ executable, dir, prompt, model, arm, sessionId, usageFile, workerUsageDir, transcript, timeoutMs, extraArgs = [], customInstructions = false }) {
   // One session id across the turns of a scenario makes each later prompt continue the same conversation.
   const args = ['-C', dir, '-p', prompt, `--session-id=${sessionId}`, '--allow-all-tools', '--allow-all-paths',
@@ -469,11 +475,11 @@ function runCopilot({ executable, dir, prompt, model, arm, sessionId, usageFile,
   args.push(...extraArgs);
   return new Promise(resolve => {
     const started = Date.now();
-    const child = spawn(executable, args, { cwd: dir, shell: false, stdio: ['ignore', 'pipe', 'ignore'],
+    const child = spawn(executable, args, { cwd: dir, shell: false, detached: true, stdio: ['ignore', 'pipe', 'ignore'],
       env: { ...process.env, SHUNT_COPILOT_USAGE_DIR: workerUsageDir } });
     const out = fs.createWriteStream(transcript);
     child.stdout.pipe(out);
-    const timer = setTimeout(() => child.kill('SIGKILL'), timeoutMs);
+    const timer = setTimeout(() => killTree(child), timeoutMs);
     child.on('error', () => resolve({ exitCode: -1, wallMs: Date.now() - started }));
     child.on('close', code => { clearTimeout(timer); out.end(() => resolve({ exitCode: code, wallMs: Date.now() - started })); });
   });

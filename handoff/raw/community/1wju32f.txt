@@ -1,0 +1,20 @@
+--- 2026-09-18 /u/Hemanath_S | Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/
+ How many of you used hrdrafusion? Whats your experience with it |by /u/Hemanath_S [link] [comments] 
+--- 2026-09-18 /u/Ok_Fish403 | /u/Ok_Fish403 on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pamqvd4/
+ I could not enable it even after turning on experimental (maybe it is blocked in my organization) 
+--- 2026-09-19 /u/Hemanath_S | /u/Hemanath_S on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pap4mx8/
+ I can’t disagree 
+--- 2026-09-18 /u/porkyminch | /u/porkyminch on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pamwi92/
+ I’ve heard from coworkers who’ve tried using it that it’s garbage. More expensive than the good models and worse. 
+--- 2026-09-19 /u/hallatore | /u/hallatore on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/paqg4fh/
+ I've been really happy with it. I'm mostly a "opus 5 only" user. I saw my cost go down 80-90%, and I'm still happy with the result it produces. 
+--- 2026-09-19 /u/Hemanath_S | /u/Hemanath_S on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/parzbmq/
+ I think you should try sol for a while and compare the difference, opus5 is very expensive 
+--- 2026-09-19 /u/Popular-Ad-9134 | /u/Popular-Ad-9134 on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pary5tc/
+ Expensive but much quicker then gem-teams I used. Sadly I ran into a issue where I couldn't recontinue the session so was kinda stuck. 
+--- 2026-09-19 /u/Hemanath_S | /u/Hemanath_S on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/parzecm/
+ Gem-teams? 
+--- 2026-09-19 /u/Popular-Ad-9134 | /u/Popular-Ad-9134 on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pas0acv/
+ Multi agent shizzle that also does orchestration 
+--- 2026-09-19 /u/Mackesanz | /u/Mackesanz on Hydrafusion usage review | https://www.reddit.com/r/GithubCopilot/comments/1wju32f/hydrafusion_usage_review/pas0zvb/
+ Other than the very low context window i quite like it, it really performs well for a reasonable cost. 

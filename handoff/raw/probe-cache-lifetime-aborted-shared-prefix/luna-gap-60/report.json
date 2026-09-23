@@ -1,0 +1,36 @@
+{
+  "name": "luna-gap-60",
+  "sessionId": "6d8d358c-045f-40a9-84e1-fba62bb71d9a",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-60-ShhbsG",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-luna",
+      "prompt": "Use the view tool once to read src/delivery-service.mjs lines 1 to 400, then answer in one line: which function retries a delivery and how many times? Use no other tool.",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:36:56.557Z",
+      "exitCode": 0,
+      "seconds": 34,
+      "correct": null,
+      "delta": {},
+      "credits": 0,
+      "answer": "The `retryDelivery` function retries a delivery 3 times."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+      "gapSec": 60,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:30.443Z",
+      "exitCode": 0,
+      "seconds": 5,
+      "correct": null,
+      "delta": {},
+      "credits": 0,
+      "answer": "The `retryDelivery` function retries a delivery 3 times."
+    }
+  ],
+  "credits": 0
+}

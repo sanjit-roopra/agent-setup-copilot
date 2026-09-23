@@ -1,0 +1,166 @@
+{
+  "plan": "experiments/plans/model-switch.json",
+  "started": "2026-09-22T06:36:56.528Z",
+  "finished": "2026-09-22T06:39:15.045Z",
+  "cliVersion": null,
+  "sessions": [
+    {
+      "name": "stay-sol",
+      "sessionId": "bf48db2d-38f3-4be3-8332-a121763aa1f2",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-stay-sol-lLqoKw",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:cross-file-question",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:36:56.557Z",
+          "exitCode": 0,
+          "seconds": 35,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "`OrderService.submitOrder(id)` calls the delivery service’s `retryDelivery(order, this.send)` function. Before that call, `UserService.isActive(order.userId)` must return `true`; otherwise it throws `\"inactive user\"`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:find-a-value",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:37:31.122Z",
+          "exitCode": 0,
+          "seconds": 7,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "`retryDelivery()` performs the retries: up to **7 attempts**, waiting **250 ms** between attempts."
+        },
+        {
+          "turn": 3,
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:mid-size-file",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:37:38.169Z",
+          "exitCode": 0,
+          "seconds": 9,
+          "correct": null,
+          "delta": {},
+          "credits": 0,
+          "answer": "**SKU-077** has the largest discount at **40% off**. The tiers are **bronze, silver, gold, and platinum**."
+        }
+      ],
+      "credits": 0
+    },
+    {
+      "name": "switch-to-luna",
+      "sessionId": "84ca102a-b2c0-4951-82fa-7fc237ef55f3",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-switch-to-luna-D5jhZE",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:cross-file-question",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:37:46.731Z",
+          "exitCode": 0,
+          "seconds": 21,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "`OrderService.submitOrder(id)` calls the delivery service’s `retryDelivery(order, this.send)` function. Before that call, `UserService.isActive(order.userId)` must return `true`; otherwise it throws `\"inactive user\"`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:find-a-value",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:38:08.216Z",
+          "exitCode": 0,
+          "seconds": 8,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "`retryDelivery` allows up to **7 delivery attempts**, with a **250 ms** wait between attempts. The retrying is performed by **`retryDelivery(parcel, send, sleep)`**, which invokes the supplied `send` function for each attempt."
+        },
+        {
+          "turn": 3,
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:mid-size-file",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:38:16.520Z",
+          "exitCode": 0,
+          "seconds": 8,
+          "correct": null,
+          "delta": {},
+          "credits": 0,
+          "answer": "`SKU-077` has the largest discount at **40**. The available tiers are **bronze, silver, gold, and platinum**."
+        }
+      ],
+      "credits": 0
+    },
+    {
+      "name": "fresh-luna",
+      "sessionId": "759015f9-122a-4b8f-b388-db07c90a28bc",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-fresh-luna-vrjCi7",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:find-a-value",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:38:24.724Z",
+          "exitCode": 0,
+          "seconds": 17,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "A delivery is attempted **7 times total** (the initial attempt plus up to 6 retries), with a **250 ms** wait between attempts. The retrying is handled by **`retryDelivery`** in `src/delivery-service.mjs`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:mid-size-file",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:38:42.157Z",
+          "exitCode": 0,
+          "seconds": 14,
+          "correct": null,
+          "delta": {},
+          "credits": 0,
+          "answer": "The largest discount is **22%**, shared by **SKU-014, SKU-030, SKU-046, SKU-062, SKU-078, SKU-094, and SKU-110**.\n\nThe available tiers are **bronze, silver, gold, and platinum**."
+        }
+      ],
+      "credits": 0
+    },
+    {
+      "name": "fresh-sol",
+      "sessionId": "af0c807a-4275-499f-a806-85ba00f054c0",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-fresh-sol-3lfzzK",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:find-a-value",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:38:56.653Z",
+          "exitCode": 0,
+          "seconds": 18,
+          "correct": true,
+          "delta": {},
+          "credits": 0,
+          "answer": "A delivery is attempted **up to 7 times total**—the initial attempt plus **6 retries**. It waits **250 ms** between attempts. The retry logic is in **`retryDelivery()`**."
+        }
+      ],
+      "credits": 0
+    }
+  ]
+}

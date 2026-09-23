@@ -13,6 +13,11 @@ Start with targeted searches for known symbols, file paths, or text strings.
 Widen the search scope only when a targeted search fails.
 Run independent read-only searches in parallel when supported.
 Read only the files identified in search results.
+For large-file overviews, search declarations, exports and named topics first, then
+inspect representative implementations and exceptional functions in bounded ranges.
+Batch independent searches and reads. Do not sequentially page an entire file when
+a symbol search and a few ranges answer the question. Inspect additional ranges
+when the requested coverage requires them; state any coverage limits explicitly.
 
 Provide concise findings.
 Cite each claim with an exact file path and line number.

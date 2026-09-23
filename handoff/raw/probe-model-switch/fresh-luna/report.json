@@ -1,0 +1,36 @@
+{
+  "name": "fresh-luna",
+  "sessionId": "759015f9-122a-4b8f-b388-db07c90a28bc",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-fresh-luna-vrjCi7",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:find-a-value",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:24.724Z",
+      "exitCode": 0,
+      "seconds": 17,
+      "correct": true,
+      "delta": {},
+      "credits": 0,
+      "answer": "A delivery is attempted **7 times total** (the initial attempt plus up to 6 retries), with a **250 ms** wait between attempts. The retrying is handled by **`retryDelivery`** in `src/delivery-service.mjs`."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-luna",
+      "prompt": "scenario:mid-size-file",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:38:42.157Z",
+      "exitCode": 0,
+      "seconds": 14,
+      "correct": null,
+      "delta": {},
+      "credits": 0,
+      "answer": "The largest discount is **22%**, shared by **SKU-014, SKU-030, SKU-046, SKU-062, SKU-078, SKU-094, and SKU-110**.\n\nThe available tiers are **bronze, silver, gold, and platinum**."
+    }
+  ],
+  "credits": 0
+}

@@ -1,0 +1,472 @@
+{
+  "plan": "experiments/plans/cache-lifetime.json",
+  "started": "2026-09-22T06:40:49.749Z",
+  "finished": "2026-09-22T07:26:33.039Z",
+  "cliVersion": null,
+  "sessions": [
+    {
+      "name": "luna-gap-60",
+      "sessionId": "be54bcda-3363-4931-81f7-904d2ea08068",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-60-yk0wrO",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 252169c53762. Use the view tool once to read src/delivery-service.mjs lines 1 to 400, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:49.778Z",
+          "exitCode": 0,
+          "seconds": 31,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 2,
+              "input": 15006,
+              "output": 226,
+              "cacheRead": 5361,
+              "cacheWrite": 9639,
+              "reasoning": 134,
+              "credits": 0.278937,
+              "cacheExpiresAt": "2026-09-22T07:11:17.053Z"
+            }
+          },
+          "credits": 0.278937,
+          "answer": "25 event handlers are defined; the first is `handleInvoiceCreated`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 60,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:42:20.953Z",
+          "exitCode": 0,
+          "seconds": 4,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 1,
+              "input": 9679,
+              "output": 18,
+              "cacheRead": 5361,
+              "cacheWrite": 4315,
+              "reasoning": 0,
+              "credits": 0.120817,
+              "cacheExpiresAt": "2026-09-22T07:12:22.835Z"
+            }
+          },
+          "credits": 0.120817,
+          "answer": "25 event handlers are defined; the first is `handleInvoiceCreated`."
+        }
+      ],
+      "credits": 0.399754
+    },
+    {
+      "name": "luna-gap-600",
+      "sessionId": "1325a56f-2abe-4059-9a1a-5d232c64349e",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-600-AQMBQU",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 389104089592. Use the view tool once to read src/delivery-service.mjs lines 401 to 800, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:49.955Z",
+          "exitCode": 0,
+          "seconds": 33,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 2,
+              "input": 14990,
+              "output": 288,
+              "cacheRead": 5362,
+              "cacheWrite": 9622,
+              "reasoning": 197,
+              "credits": 0.285954,
+              "cacheExpiresAt": "2026-09-22T07:11:17.993Z"
+            }
+          },
+          "credits": 0.285954,
+          "answer": "22 event handlers are defined; the first is `handleCouponUpdated`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 600,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:51:22.789Z",
+          "exitCode": 0,
+          "seconds": 5,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 1,
+              "input": 9672,
+              "output": 18,
+              "cacheRead": 5362,
+              "cacheWrite": 4307,
+              "reasoning": 0,
+              "credits": 0.120619,
+              "cacheExpiresAt": "2026-09-22T07:21:24.906Z"
+            }
+          },
+          "credits": 0.120619,
+          "answer": "22 event handlers are defined; the first is `handleCouponUpdated`."
+        }
+      ],
+      "credits": 0.406573
+    },
+    {
+      "name": "luna-gap-1500",
+      "sessionId": "11699d43-dacb-4d9c-8734-d77a44fe74f2",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-1500-lMWNsB",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe ae783777d8a0. Use the view tool once to read src/delivery-service.mjs lines 801 to 1200, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:49.983Z",
+          "exitCode": 0,
+          "seconds": 29,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 2,
+              "input": 15012,
+              "output": 264,
+              "cacheRead": 5366,
+              "cacheWrite": 9640,
+              "reasoning": 173,
+              "credits": 0.283532,
+              "cacheExpiresAt": "2026-09-22T07:11:15.434Z"
+            }
+          },
+          "credits": 0.283532,
+          "answer": "24 event handlers; the first is `handleParcelCancelled`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 1500,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T07:06:19.343Z",
+          "exitCode": 0,
+          "seconds": 5,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 1,
+              "input": 9688,
+              "output": 35,
+              "cacheRead": 5366,
+              "cacheWrite": 4319,
+              "reasoning": 17,
+              "credits": 0.122967,
+              "cacheExpiresAt": "2026-09-22T07:36:21.749Z"
+            }
+          },
+          "credits": 0.122967,
+          "answer": "24 event handlers; the first is `handleParcelCancelled`."
+        }
+      ],
+      "credits": 0.406499
+    },
+    {
+      "name": "luna-gap-2100",
+      "sessionId": "70a64387-fc08-49c8-988d-3c289316a48d",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-2100-gtmnf5",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe 22c2246af154. Use the view tool once to read src/delivery-service.mjs lines 1201 to 1600, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:50.014Z",
+          "exitCode": 0,
+          "seconds": 32,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 2,
+              "input": 15015,
+              "output": 346,
+              "cacheRead": 5368,
+              "cacheWrite": 9641,
+              "reasoning": 251,
+              "credits": 0.293401,
+              "cacheExpiresAt": "2026-09-22T07:11:16.285Z"
+            }
+          },
+          "credits": 0.293401,
+          "answer": "22 event handlers are defined; the first is `handleReturnCancelled`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2100,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T07:16:21.982Z",
+          "exitCode": 0,
+          "seconds": 5,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 1,
+              "input": 9691,
+              "output": 33,
+              "cacheRead": 0,
+              "cacheWrite": 9688,
+              "reasoning": 13,
+              "credits": 0.24622,
+              "cacheExpiresAt": "2026-09-22T07:46:23.990Z"
+            }
+          },
+          "credits": 0.24622,
+          "answer": "22 event handlers are defined; the first is `handleReturnCancelled`."
+        }
+      ],
+      "credits": 0.539621
+    },
+    {
+      "name": "luna-gap-2700",
+      "sessionId": "cc3b7268-b85f-4a95-a044-4241a62cb943",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-luna-gap-2700-MmtiEZ",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-luna",
+          "prompt": "Probe bcab4ddc24d5. Use the view tool once to read src/delivery-service.mjs lines 301 to 700, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:50.045Z",
+          "exitCode": 0,
+          "seconds": 38,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 2,
+              "input": 15001,
+              "output": 1033,
+              "cacheRead": 5364,
+              "cacheWrite": 9631,
+              "reasoning": 941,
+              "credits": 0.375583,
+              "cacheExpiresAt": "2026-09-22T07:11:16.892Z"
+            }
+          },
+          "credits": 0.375583,
+          "answer": "27 event handlers are defined; the first is `handleSubscriptionUpdated`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-luna",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2700,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T07:26:28.469Z",
+          "exitCode": 0,
+          "seconds": 5,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-luna": {
+              "requests": 1,
+              "input": 9675,
+              "output": 33,
+              "cacheRead": 0,
+              "cacheWrite": 9672,
+              "reasoning": 13,
+              "credits": 0.24582,
+              "cacheExpiresAt": "2026-09-22T07:56:30.478Z"
+            }
+          },
+          "credits": 0.24582,
+          "answer": "27 event handlers are defined; the first is `handleSubscriptionUpdated`."
+        }
+      ],
+      "credits": 0.621403
+    },
+    {
+      "name": "sol-gap-600",
+      "sessionId": "1b4b41f4-90a0-4590-8504-0172f472e7f4",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-sol-gap-600-y6bhWT",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe dc54eaf90ceb. Use the view tool once to read src/delivery-service.mjs lines 601 to 1000, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:50.076Z",
+          "exitCode": 0,
+          "seconds": 31,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 2,
+              "input": 14994,
+              "output": 217,
+              "cacheRead": 5362,
+              "cacheWrite": 9626,
+              "reasoning": 128,
+              "credits": 5.46388,
+              "cacheExpiresAt": "2026-09-22T07:11:16.109Z"
+            }
+          },
+          "credits": 5.46388,
+          "answer": "26 event handlers; the first is `handleWarehouseCancelled`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 600,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:51:21.151Z",
+          "exitCode": 0,
+          "seconds": 8,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 1,
+              "input": 9675,
+              "output": 16,
+              "cacheRead": 0,
+              "cacheWrite": 9672,
+              "reasoning": 0,
+              "credits": 4.8692,
+              "cacheExpiresAt": "2026-09-22T07:21:23.258Z"
+            }
+          },
+          "credits": 4.8692,
+          "answer": "26 event handlers; the first is `handleWarehouseCancelled`."
+        }
+      ],
+      "credits": 10.33308
+    },
+    {
+      "name": "sol-gap-1500",
+      "sessionId": "f5a2feb8-c234-45ed-936d-da584799dcab",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-sol-gap-1500-orhujJ",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe 8bbf3b83c072. Use the view tool once to read src/delivery-service.mjs lines 1001 to 1400, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:50.269Z",
+          "exitCode": 0,
+          "seconds": 32,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 2,
+              "input": 15009,
+              "output": 218,
+              "cacheRead": 5360,
+              "cacheWrite": 9643,
+              "reasoning": 126,
+              "credits": 5.4743,
+              "cacheExpiresAt": "2026-09-22T07:11:17.701Z"
+            }
+          },
+          "credits": 5.4743,
+          "answer": "25 event handlers; the first is `handleCustomsCancelled`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 1500,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T07:06:22.238Z",
+          "exitCode": 0,
+          "seconds": 6,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 1,
+              "input": 9688,
+              "output": 17,
+              "cacheRead": 5360,
+              "cacheWrite": 4325,
+              "reasoning": 0,
+              "credits": 2.4121,
+              "cacheExpiresAt": "2026-09-22T07:36:24.239Z"
+            }
+          },
+          "credits": 2.4121,
+          "answer": "25 event handlers; the first is `handleCustomsCancelled`."
+        }
+      ],
+      "credits": 7.8864
+    },
+    {
+      "name": "sol-gap-2100",
+      "sessionId": "fa016cfe-ddf3-47b2-93c2-dce0215e8b15",
+      "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-sol-gap-2100-qS0VYb",
+      "turns": [
+        {
+          "turn": 1,
+          "model": "gpt-5.6-sol",
+          "prompt": "Probe 8622f1829a39. Use the view tool once to read src/delivery-service.mjs lines 201 to 600, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+          "gapSec": 0,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T06:40:50.312Z",
+          "exitCode": 0,
+          "seconds": 33,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 2,
+              "input": 14996,
+              "output": 175,
+              "cacheRead": 5365,
+              "cacheWrite": 9625,
+              "reasoning": 84,
+              "credits": 5.3795,
+              "cacheExpiresAt": "2026-09-22T07:11:16.682Z"
+            }
+          },
+          "credits": 5.3795,
+          "answer": "25 event handlers; the first is `handleRefundUpdated`."
+        },
+        {
+          "turn": 2,
+          "model": "gpt-5.6-sol",
+          "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+          "gapSec": 2100,
+          "reasoningEffort": null,
+          "sentAt": "2026-09-22T07:16:22.938Z",
+          "exitCode": 0,
+          "seconds": 6,
+          "correct": null,
+          "delta": {
+            "gpt-5.6-sol": {
+              "requests": 1,
+              "input": 9675,
+              "output": 16,
+              "cacheRead": 0,
+              "cacheWrite": 9672,
+              "reasoning": 0,
+              "credits": 4.8692,
+              "cacheExpiresAt": "2026-09-22T07:46:24.893Z"
+            }
+          },
+          "credits": 4.8692,
+          "answer": "25 event handlers; the first is `handleRefundUpdated`."
+        }
+      ],
+      "credits": 10.2487
+    }
+  ]
+}

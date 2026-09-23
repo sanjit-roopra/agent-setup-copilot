@@ -1,0 +1,50 @@
+{
+  "name": "stay-sol",
+  "sessionId": "bf48db2d-38f3-4be3-8332-a121763aa1f2",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-stay-sol-lLqoKw",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-sol",
+      "prompt": "scenario:cross-file-question",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:36:56.557Z",
+      "exitCode": 0,
+      "seconds": 35,
+      "correct": true,
+      "delta": {},
+      "credits": 0,
+      "answer": "`OrderService.submitOrder(id)` calls the delivery service’s `retryDelivery(order, this.send)` function. Before that call, `UserService.isActive(order.userId)` must return `true`; otherwise it throws `\"inactive user\"`."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-sol",
+      "prompt": "scenario:find-a-value",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:37:31.122Z",
+      "exitCode": 0,
+      "seconds": 7,
+      "correct": true,
+      "delta": {},
+      "credits": 0,
+      "answer": "`retryDelivery()` performs the retries: up to **7 attempts**, waiting **250 ms** between attempts."
+    },
+    {
+      "turn": 3,
+      "model": "gpt-5.6-sol",
+      "prompt": "scenario:mid-size-file",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:37:38.169Z",
+      "exitCode": 0,
+      "seconds": 9,
+      "correct": null,
+      "delta": {},
+      "credits": 0,
+      "answer": "**SKU-077** has the largest discount at **40% off**. The tiers are **bronze, silver, gold, and platinum**."
+    }
+  ],
+  "credits": 0
+}

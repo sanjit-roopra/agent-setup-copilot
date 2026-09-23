@@ -1,0 +1,58 @@
+{
+  "name": "sol-gap-600",
+  "sessionId": "1b4b41f4-90a0-4590-8504-0172f472e7f4",
+  "dir": "/var/folders/z2/l4b_8z3n51z328571f05k6g40000gn/T/probe-sol-gap-600-y6bhWT",
+  "turns": [
+    {
+      "turn": 1,
+      "model": "gpt-5.6-sol",
+      "prompt": "Probe dc54eaf90ceb. Use the view tool once to read src/delivery-service.mjs lines 601 to 1000, then answer in one line: how many event handlers are defined in that range, and what is the first one called? Use no other tool.",
+      "gapSec": 0,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:40:50.076Z",
+      "exitCode": 0,
+      "seconds": 31,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 2,
+          "input": 14994,
+          "output": 217,
+          "cacheRead": 5362,
+          "cacheWrite": 9626,
+          "reasoning": 128,
+          "credits": 5.46388,
+          "cacheExpiresAt": "2026-09-22T07:11:16.109Z"
+        }
+      },
+      "credits": 5.46388,
+      "answer": "26 event handlers; the first is `handleWarehouseCancelled`."
+    },
+    {
+      "turn": 2,
+      "model": "gpt-5.6-sol",
+      "prompt": "Repeat your previous answer in one line. Do not use any tool.",
+      "gapSec": 600,
+      "reasoningEffort": null,
+      "sentAt": "2026-09-22T06:51:21.151Z",
+      "exitCode": 0,
+      "seconds": 8,
+      "correct": null,
+      "delta": {
+        "gpt-5.6-sol": {
+          "requests": 1,
+          "input": 9675,
+          "output": 16,
+          "cacheRead": 0,
+          "cacheWrite": 9672,
+          "reasoning": 0,
+          "credits": 4.8692,
+          "cacheExpiresAt": "2026-09-22T07:21:23.258Z"
+        }
+      },
+      "credits": 4.8692,
+      "answer": "26 event handlers; the first is `handleWarehouseCancelled`."
+    }
+  ],
+  "credits": 10.33308
+}

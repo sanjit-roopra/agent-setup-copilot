@@ -1,0 +1,405 @@
+diff --git a/pong/__init__.py b/pong/__init__.py
+new file mode 100644
+index 0000000..5f77bfb
+--- /dev/null
++++ b/pong/__init__.py
+@@ -0,0 +1,3 @@
++"""A small terminal Pong game."""
++
++__version__ = "1.0"
+diff --git a/pong/__main__.py b/pong/__main__.py
+new file mode 100644
+index 0000000..5cf7035
+--- /dev/null
++++ b/pong/__main__.py
+@@ -0,0 +1,7 @@
++"""Command-line entry point for ``python3 -m pong``."""
++
++from .game import main
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/pong/game.py b/pong/game.py
+new file mode 100644
+index 0000000..75baaf0
+--- /dev/null
++++ b/pong/game.py
+@@ -0,0 +1,292 @@
++"""Game state, rendering, and terminal controls for Pong."""
++
++from __future__ import annotations
++
++import argparse
++from contextlib import contextmanager
++from dataclasses import dataclass
++import select
++import sys
++import termios
++import time
++import tty
++from typing import Callable, Iterator, TextIO
++
++
++@dataclass(frozen=True)
++class GameConfig:
++    """Dimensions and rules used by a game."""
++
++    width: int = 60
++    height: int = 20
++    paddle_height: int = 4
++    max_score: int = 5
++
++    def __post_init__(self) -> None:
++        if self.width < 12:
++            raise ValueError("width must be at least 12")
++        if self.height < 8:
++            raise ValueError("height must be at least 8")
++        if not 1 <= self.paddle_height < self.height:
++            raise ValueError("paddle_height must be between 1 and height - 1")
++        if self.max_score < 1:
++            raise ValueError("max_score must be positive")
++
++
++@dataclass
++class Paddle:
++    y: int
++    height: int
++
++    def contains(self, y: int) -> bool:
++        return self.y <= y < self.y + self.height
++
++
++@dataclass
++class Ball:
++    x: int
++    y: int
++    dx: int
++    dy: int
++
++
++class Game:
++    """Mutable Pong state with deterministic, cell-based physics."""
++
++    def __init__(self, config: GameConfig | None = None) -> None:
++        self.config = config or GameConfig()
++        self.left_score = 0
++        self.right_score = 0
++        self.left_paddle = Paddle(0, self.config.paddle_height)
++        self.right_paddle = Paddle(0, self.config.paddle_height)
++        self.ball = Ball(0, 0, 1, 0)
++        self.reset()
++
++    @property
++    def scores(self) -> tuple[int, int]:
++        return self.left_score, self.right_score
++
++    @property
++    def game_over(self) -> bool:
++        return self.winner is not None
++
++    @property
++    def winner(self) -> str | None:
++        if self.left_score >= self.config.max_score:
++            return "left"
++        if self.right_score >= self.config.max_score:
++            return "right"
++        return None
++
++    def reset(self) -> None:
++        """Start a new match with both paddles centered."""
++        paddle_y = (self.config.height - self.config.paddle_height) // 2
++        self.left_paddle.y = paddle_y
++        self.right_paddle.y = paddle_y
++        self.left_score = 0
++        self.right_score = 0
++        self._serve(1)
++
++    def move_paddle(self, player: str, delta: int) -> None:
++        """Move one paddle by ``delta`` cells while staying on the board."""
++        if player == "left":
++            paddle = self.left_paddle
++        elif player == "right":
++            paddle = self.right_paddle
++        else:
++            raise ValueError("player must be 'left' or 'right'")
++
++        maximum = self.config.height - paddle.height
++        paddle.y = max(0, min(maximum, paddle.y + delta))
++
++    def update(self) -> str | None:
++        """Advance the ball one cell and return the scoring player, if any."""
++        if self.game_over:
++            return None
++
++        ball = self.ball
++        next_x = ball.x + ball.dx
++        next_y = ball.y + ball.dy
++
++        if next_y < 0 or next_y >= self.config.height:
++            ball.dy *= -1
++            next_y = ball.y + ball.dy
++        ball.y = max(0, min(self.config.height - 1, next_y))
++
++        if ball.dx < 0 and next_x <= 1:
++            if self.left_paddle.contains(ball.y):
++                ball.x = 1
++                ball.dx = 1
++                ball.dy = self._paddle_bounce(ball.y, self.left_paddle)
++                return None
++            if next_x < 0:
++                self.right_score += 1
++                self._serve(1)
++                return "right"
++
++        if ball.dx > 0 and next_x >= self.config.width - 2:
++            if self.right_paddle.contains(ball.y):
++                ball.x = self.config.width - 2
++                ball.dx = -1
++                ball.dy = self._paddle_bounce(ball.y, self.right_paddle)
++                return None
++            if next_x >= self.config.width:
++                self.left_score += 1
++                self._serve(-1)
++                return "left"
++
++        ball.x = next_x
++        return None
++
++    def render(self) -> str:
++        """Return the current board as a terminal-friendly string."""
++        border = "+" + "-" * self.config.width + "+"
++        lines = [
++            f" Left: {self.left_score}    Right: {self.right_score}",
++            border,
++        ]
++
++        for y in range(self.config.height):
++            cells = [" "] * self.config.width
++            if self.left_paddle.contains(y):
++                cells[1] = "|"
++            if self.right_paddle.contains(y):
++                cells[-2] = "|"
++            if 0 <= self.ball.x < self.config.width and self.ball.y == y:
++                cells[self.ball.x] = "O"
++            lines.append("|" + "".join(cells) + "|")
++
++        lines.append(border)
++        lines.append("W/S: left paddle   I/K: right paddle   Q: quit")
++        return "\n".join(lines)
++
++    def _serve(self, direction: int) -> None:
++        self.ball = Ball(
++            self.config.width // 2,
++            self.config.height // 2,
++            direction,
++            -1,
++        )
++
++    @staticmethod
++    def _paddle_bounce(ball_y: int, paddle: Paddle) -> int:
++        center = paddle.y + (paddle.height - 1) / 2
++        if ball_y < center:
++            return -1
++        if ball_y > center:
++            return 1
++        return 0
++
++
++def read_key(input_stream: TextIO) -> str | None:
++    """Read one available key, translating terminal arrow sequences."""
++    readable, _, _ = select.select([input_stream], [], [], 0)
++    if not readable:
++        return None
++
++    key = input_stream.read(1)
++    if key == "\x1b":
++        sequence = ""
++        for _ in range(2):
++            readable, _, _ = select.select([input_stream], [], [], 0.01)
++            if not readable:
++                break
++            sequence += input_stream.read(1)
++        return {"[A": "up", "[B": "down"}.get(sequence)
++
++    return {
++        "w": "left_up",
++        "s": "left_down",
++        "i": "right_up",
++        "k": "right_down",
++        "q": "quit",
++    }.get(key.lower())
++
++
++@contextmanager
++def terminal_mode(
++    input_stream: TextIO,
++    output_stream: TextIO,
++) -> Iterator[None]:
++    """Put an interactive terminal into a mode suitable for single-key input."""
++    if not input_stream.isatty():
++        raise RuntimeError("Pong must be run from an interactive terminal")
++
++    file_descriptor = input_stream.fileno()
++    original_attributes = termios.tcgetattr(file_descriptor)
++    tty.setcbreak(file_descriptor)
++    output_stream.write("\033[?25l")
++    output_stream.flush()
++    try:
++        yield
++    finally:
++        termios.tcsetattr(file_descriptor, termios.TCSADRAIN, original_attributes)
++        output_stream.write("\033[?25h\n")
++        output_stream.flush()
++
++
++def run_game(
++    config: GameConfig | None = None,
++    *,
++    input_stream: TextIO | None = None,
++    output_stream: TextIO | None = None,
++    tick: float = 0.08,
++    sleeper: Callable[[float], None] = time.sleep,
++) -> bool:
++    """Run an interactive match and return false when the user quits."""
++    if tick <= 0:
++        raise ValueError("tick must be positive")
++
++    input_stream = input_stream or sys.stdin
++    output_stream = output_stream or sys.stdout
++    game = Game(config)
++
++    with terminal_mode(input_stream, output_stream):
++        while not game.game_over:
++            key = read_key(input_stream)
++            while key is not None:
++                if key == "quit":
++                    return False
++                if key in {"left_up", "up"}:
++                    game.move_paddle("left", -1)
++                elif key in {"left_down", "down"}:
++                    game.move_paddle("left", 1)
++                elif key == "right_up":
++                    game.move_paddle("right", -1)
++                elif key == "right_down":
++                    game.move_paddle("right", 1)
++                key = read_key(input_stream)
++
++            game.update()
++            output_stream.write("\033[H\033[2J" + game.render())
++            output_stream.flush()
++            sleeper(tick)
++
++        output_stream.write(f"\n{game.winner} player wins!\n")
++        output_stream.flush()
++    return True
++
++
++def main(argv: list[str] | None = None) -> int:
++    parser = argparse.ArgumentParser(description="Play two-player Pong in your terminal.")
++    parser.add_argument("--width", type=int, default=60)
++    parser.add_argument("--height", type=int, default=20)
++    parser.add_argument("--paddle-height", type=int, default=4)
++    parser.add_argument("--max-score", type=int, default=5)
++    args = parser.parse_args(argv)
++
++    try:
++        run_game(
++            GameConfig(
++                width=args.width,
++                height=args.height,
++                paddle_height=args.paddle_height,
++                max_score=args.max_score,
++            )
++        )
++    except (RuntimeError, ValueError) as error:
++        print(f"pong: {error}", file=sys.stderr)
++        return 2
++    except KeyboardInterrupt:
++        return 130
++    return 0
+diff --git a/tests/test_game.py b/tests/test_game.py
+new file mode 100644
+index 0000000..a992ec6
+--- /dev/null
++++ b/tests/test_game.py
+@@ -0,0 +1,79 @@
++import unittest
++
++from pong.game import Ball, Game, GameConfig
++
++
++class GameConfigTests(unittest.TestCase):
++    def test_rejects_unplayable_dimensions(self) -> None:
++        with self.assertRaises(ValueError):
++            GameConfig(width=10)
++        with self.assertRaises(ValueError):
++            GameConfig(height=7)
++        with self.assertRaises(ValueError):
++            GameConfig(paddle_height=0)
++
++
++class GameTests(unittest.TestCase):
++    def setUp(self) -> None:
++        self.game = Game(GameConfig(width=20, height=10, paddle_height=4, max_score=2))
++
++    def test_reset_centers_paddles_and_ball(self) -> None:
++        self.assertEqual(self.game.left_paddle.y, 3)
++        self.assertEqual(self.game.right_paddle.y, 3)
++        self.assertEqual(
++            self.game.ball,
++            Ball(x=10, y=5, dx=1, dy=-1),
++        )
++
++    def test_paddles_are_clamped_to_the_board(self) -> None:
++        self.game.move_paddle("left", -100)
++        self.assertEqual(self.game.left_paddle.y, 0)
++        self.game.move_paddle("right", 100)
++        self.assertEqual(self.game.right_paddle.y, 6)
++
++    def test_paddle_reverses_ball_direction(self) -> None:
++        self.game.ball = Ball(x=2, y=4, dx=-1, dy=0)
++        self.game.update()
++        self.assertEqual(self.game.ball.x, 1)
++        self.assertEqual(self.game.ball.dx, 1)
++
++    def test_ball_bounces_from_top_and_bottom(self) -> None:
++        self.game.ball = Ball(x=10, y=0, dx=1, dy=-1)
++        self.game.update()
++        self.assertEqual(self.game.ball.y, 1)
++        self.assertEqual(self.game.ball.dy, 1)
++
++        self.game.ball = Ball(x=10, y=9, dx=1, dy=1)
++        self.game.update()
++        self.assertEqual(self.game.ball.y, 8)
++        self.assertEqual(self.game.ball.dy, -1)
++
++    def test_missing_right_paddle_scores_for_left(self) -> None:
++        self.game.ball = Ball(x=18, y=0, dx=1, dy=0)
++        self.assertIsNone(self.game.update())
++        self.assertEqual(self.game.update(), "left")
++        self.assertEqual(self.game.left_score, 1)
++        self.assertEqual(self.game.ball.dx, -1)
++
++    def test_winning_score_ends_the_game(self) -> None:
++        self.game.ball = Ball(x=1, y=0, dx=-1, dy=0)
++        self.assertIsNone(self.game.update())
++        self.assertEqual(self.game.update(), "right")
++        self.game.ball = Ball(x=1, y=0, dx=-1, dy=0)
++        self.assertIsNone(self.game.update())
++        self.assertEqual(self.game.update(), "right")
++        self.assertTrue(self.game.game_over)
++        self.assertEqual(self.game.winner, "right")
++        self.assertIsNone(self.game.update())
++
++    def test_render_contains_board_score_and_controls(self) -> None:
++        rendered = self.game.render()
++        self.assertIn("Left: 0", rendered)
++        self.assertIn("Right: 0", rendered)
++        self.assertIn("O", rendered)
++        self.assertIn("W/S: left paddle", rendered)
++        self.assertEqual(len(rendered.splitlines()), self.game.config.height + 4)
++
++
++if __name__ == "__main__":
++    unittest.main()

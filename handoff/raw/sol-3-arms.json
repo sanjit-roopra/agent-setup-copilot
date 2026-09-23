@@ -1,0 +1,621 @@
+{
+  "model": "gpt-5.6-sol",
+  "worker": "gpt-5.6-luna",
+  "results": [
+    {
+      "scenario": "find-a-value",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 15835,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 1,
+      "main": {
+        "input": 24231,
+        "output": 251,
+        "cacheRead": 11776,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 5955040000,
+        "apiMs": 6183
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 24231,
+        "output": 251,
+        "cacheRead": 11776,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 5955040000,
+        "apiMs": 6183
+      }
+    },
+    {
+      "scenario": "find-a-value",
+      "arm": "shunt",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 15292,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 1,
+      "main": {
+        "input": 24389,
+        "output": 313,
+        "cacheRead": 17408,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4114720000,
+        "apiMs": 5402
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 24389,
+        "output": 313,
+        "cacheRead": 17408,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4114720000,
+        "apiMs": 5402
+      }
+    },
+    {
+      "scenario": "find-a-value",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 34668,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 5,
+      "main": {
+        "input": 16313,
+        "output": 260,
+        "cacheRead": 3584,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 5754960000,
+        "apiMs": 7571
+      },
+      "worker": {
+        "input": 35386,
+        "output": 1811,
+        "cacheRead": 22982,
+        "cacheWrite": 12389,
+        "modelCalls": 5,
+        "premiumRequests": 0,
+        "nanoAiu": 573309000,
+        "apiMs": 17230
+      },
+      "total": {
+        "input": 51699,
+        "output": 2071,
+        "cacheRead": 26566,
+        "cacheWrite": 12389,
+        "modelCalls": 7,
+        "premiumRequests": 0,
+        "nanoAiu": 6328269000,
+        "apiMs": 24801
+      }
+    },
+    {
+      "scenario": "mid-size-file",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 14044,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 1,
+      "main": {
+        "input": 26365,
+        "output": 176,
+        "cacheRead": 17408,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4631120000,
+        "apiMs": 4771
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 26365,
+        "output": 176,
+        "cacheRead": 17408,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4631120000,
+        "apiMs": 4771
+      }
+    },
+    {
+      "scenario": "mid-size-file",
+      "arm": "shunt",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 54987,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 1,
+      "toolCalls": 8,
+      "main": {
+        "input": 98093,
+        "output": 1248,
+        "cacheRead": 80896,
+        "cacheWrite": 0,
+        "modelCalls": 7,
+        "premiumRequests": 0,
+        "nanoAiu": 12610640000,
+        "apiMs": 28398
+      },
+      "worker": {
+        "input": 6260,
+        "output": 729,
+        "cacheRead": 0,
+        "cacheWrite": 6257,
+        "modelCalls": 1,
+        "premiumRequests": 1,
+        "nanoAiu": 243965000,
+        "apiMs": 7339
+      },
+      "total": {
+        "input": 104353,
+        "output": 1977,
+        "cacheRead": 80896,
+        "cacheWrite": 6257,
+        "modelCalls": 8,
+        "premiumRequests": 1,
+        "nanoAiu": 12854605000,
+        "apiMs": 35737
+      }
+    },
+    {
+      "scenario": "mid-size-file",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 32371,
+      "correct": false,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 5,
+      "main": {
+        "input": 16334,
+        "output": 380,
+        "cacheRead": 11264,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 3238560000,
+        "apiMs": 6656
+      },
+      "worker": {
+        "input": 19264,
+        "output": 1721,
+        "cacheRead": 14100,
+        "cacheWrite": 5149,
+        "modelCalls": 5,
+        "premiumRequests": 0,
+        "nanoAiu": 363745000,
+        "apiMs": 16063
+      },
+      "total": {
+        "input": 35598,
+        "output": 2101,
+        "cacheRead": 25364,
+        "cacheWrite": 5149,
+        "modelCalls": 7,
+        "premiumRequests": 0,
+        "nanoAiu": 3602305000,
+        "apiMs": 22719
+      }
+    },
+    {
+      "scenario": "summarise-big-file",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 27606,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 10,
+      "main": {
+        "input": 82000,
+        "output": 1469,
+        "cacheRead": 50176,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 17674640000,
+        "apiMs": 18165
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 82000,
+        "output": 1469,
+        "cacheRead": 50176,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 17674640000,
+        "apiMs": 18165
+      }
+    },
+    {
+      "scenario": "summarise-big-file",
+      "arm": "shunt",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 73791,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 2,
+      "main": {
+        "input": 39816,
+        "output": 786,
+        "cacheRead": 29696,
+        "cacheWrite": 0,
+        "modelCalls": 3,
+        "premiumRequests": 0,
+        "nanoAiu": 6807840000,
+        "apiMs": 13701
+      },
+      "worker": {
+        "input": 23730,
+        "output": 5822,
+        "cacheRead": 0,
+        "cacheWrite": 23727,
+        "modelCalls": 1,
+        "premiumRequests": 1,
+        "nanoAiu": 1291875000,
+        "apiMs": 41310
+      },
+      "total": {
+        "input": 63546,
+        "output": 6608,
+        "cacheRead": 29696,
+        "cacheWrite": 23727,
+        "modelCalls": 4,
+        "premiumRequests": 1,
+        "nanoAiu": 8099715000,
+        "apiMs": 55011
+      }
+    },
+    {
+      "scenario": "summarise-big-file",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 126433,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 26,
+      "main": {
+        "input": 17071,
+        "output": 801,
+        "cacheRead": 11264,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4375360000,
+        "apiMs": 13992
+      },
+      "worker": {
+        "input": 257852,
+        "output": 13076,
+        "cacheRead": 213260,
+        "cacheWrite": 44565,
+        "modelCalls": 9,
+        "premiumRequests": 0,
+        "nanoAiu": 3110305000,
+        "apiMs": 102384
+      },
+      "total": {
+        "input": 274923,
+        "output": 13877,
+        "cacheRead": 224524,
+        "cacheWrite": 44565,
+        "modelCalls": 11,
+        "premiumRequests": 0,
+        "nanoAiu": 7485665000,
+        "apiMs": 116376
+      }
+    },
+    {
+      "scenario": "cross-file-question",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 18532,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 4,
+      "main": {
+        "input": 39639,
+        "output": 533,
+        "cacheRead": 30720,
+        "cacheWrite": 0,
+        "modelCalls": 3,
+        "premiumRequests": 0,
+        "nanoAiu": 5862400000,
+        "apiMs": 8761
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 39639,
+        "output": 533,
+        "cacheRead": 30720,
+        "cacheWrite": 0,
+        "modelCalls": 3,
+        "premiumRequests": 0,
+        "nanoAiu": 5862400000,
+        "apiMs": 8761
+      }
+    },
+    {
+      "scenario": "cross-file-question",
+      "arm": "shunt",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 43972,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 2,
+      "main": {
+        "input": 37565,
+        "output": 372,
+        "cacheRead": 29696,
+        "cacheWrite": 0,
+        "modelCalls": 3,
+        "premiumRequests": 0,
+        "nanoAiu": 5079440000,
+        "apiMs": 11130
+      },
+      "worker": {
+        "input": 25191,
+        "output": 1753,
+        "cacheRead": 0,
+        "cacheWrite": 25188,
+        "modelCalls": 1,
+        "premiumRequests": 1,
+        "nanoAiu": 840120000,
+        "apiMs": 13379
+      },
+      "total": {
+        "input": 62756,
+        "output": 2125,
+        "cacheRead": 29696,
+        "cacheWrite": 25188,
+        "modelCalls": 4,
+        "premiumRequests": 1,
+        "nanoAiu": 5919560000,
+        "apiMs": 24509
+      }
+    },
+    {
+      "scenario": "cross-file-question",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 261497,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 20,
+      "main": {
+        "input": 16475,
+        "output": 402,
+        "cacheRead": 7168,
+        "cacheWrite": 0,
+        "modelCalls": 2,
+        "premiumRequests": 0,
+        "nanoAiu": 4813520000,
+        "apiMs": 6449
+      },
+      "worker": {
+        "input": 164871,
+        "output": 5160,
+        "cacheRead": 139710,
+        "cacheWrite": 25134,
+        "modelCalls": 9,
+        "premiumRequests": 0,
+        "nanoAiu": 1527510000,
+        "apiMs": 245014
+      },
+      "total": {
+        "input": 181346,
+        "output": 5562,
+        "cacheRead": 146878,
+        "cacheWrite": 25134,
+        "modelCalls": 11,
+        "premiumRequests": 0,
+        "nanoAiu": 6341030000,
+        "apiMs": 251463
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "baseline",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 29606,
+      "correct": true,
+      "delegations": 0,
+      "redirects": 0,
+      "toolCalls": 5,
+      "main": {
+        "input": 56711,
+        "output": 1099,
+        "cacheRead": 36864,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 11611360000,
+        "apiMs": 18511
+      },
+      "worker": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "modelCalls": 0,
+        "premiumRequests": 0,
+        "nanoAiu": 0,
+        "apiMs": 0
+      },
+      "total": {
+        "input": 56711,
+        "output": 1099,
+        "cacheRead": 36864,
+        "cacheWrite": 0,
+        "modelCalls": 4,
+        "premiumRequests": 0,
+        "nanoAiu": 11611360000,
+        "apiMs": 18511
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "shunt",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 60504,
+      "correct": true,
+      "delegations": 1,
+      "redirects": 0,
+      "toolCalls": 15,
+      "main": {
+        "input": 134861,
+        "output": 2440,
+        "cacheRead": 108544,
+        "cacheWrite": 0,
+        "modelCalls": 9,
+        "premiumRequests": 0,
+        "nanoAiu": 19748560000,
+        "apiMs": 31010
+      },
+      "worker": {
+        "input": 5405,
+        "output": 1533,
+        "cacheRead": 0,
+        "cacheWrite": 5402,
+        "modelCalls": 1,
+        "premiumRequests": 1,
+        "nanoAiu": 319070000,
+        "apiMs": 10204
+      },
+      "total": {
+        "input": 140266,
+        "output": 3973,
+        "cacheRead": 108544,
+        "cacheWrite": 5402,
+        "modelCalls": 10,
+        "premiumRequests": 1,
+        "nanoAiu": 20067630000,
+        "apiMs": 41214
+      }
+    },
+    {
+      "scenario": "generate-tests",
+      "arm": "fleet",
+      "run": 1,
+      "exitCode": 0,
+      "wallMs": 307510,
+      "correct": true,
+      "delegations": 5,
+      "redirects": 0,
+      "toolCalls": 49,
+      "main": {
+        "input": 49688,
+        "output": 1941,
+        "cacheRead": 40960,
+        "cacheWrite": 0,
+        "modelCalls": 5,
+        "premiumRequests": 0,
+        "nanoAiu": 9011600000,
+        "apiMs": 28450
+      },
+      "worker": {
+        "input": 477854,
+        "output": 9278,
+        "cacheRead": 362088,
+        "cacheWrite": 17737,
+        "modelCalls": 31,
+        "premiumRequests": 0,
+        "nanoAiu": 15120459000,
+        "apiMs": 283618
+      },
+      "total": {
+        "input": 527542,
+        "output": 11219,
+        "cacheRead": 403048,
+        "cacheWrite": 17737,
+        "modelCalls": 36,
+        "premiumRequests": 0,
+        "nanoAiu": 24132059000,
+        "apiMs": 312068
+      }
+    }
+  ]
+}

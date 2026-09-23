@@ -68,8 +68,11 @@ test('all shell and alternate tools are blocked for premium bounded readers', ()
 test('dispatch guard does not block cheap-worker reads or writes', () => {
   for (const tool of ['Read', 'read_file', 'bash', 'edit']) assert.equal(check(tool, {filePath: 'large.txt'}, 'dispatch'), null);
 });
-test('coordinator cannot read, execute, search or edit', () => {
-  for (const tool of ['Read', 'bash', 'edit', 'search']) assert.ok(check(tool, {}, 'coordinator'));
+test('coordinator can work directly without granting host permission', () => {
+  for (const tool of ['Read', 'bash', 'edit', 'search']) {
+    assert.equal(check(tool, {}, 'coordinator'), null);
+    assert.deepEqual(response(check(tool, {}, 'coordinator')), {});
+  }
 });
 test('only named fleet delegation passes; builtin and recursive agents fail', () => {
   for (const agent of Object.values(policy.agents)) {
@@ -87,8 +90,10 @@ test('CLI camelCase envelope and JSON-string args are supported', () => {
   assert.equal(response('blocked').hookSpecificOutput.permissionDecision, 'deny');
 });
 test('expensive, auto and unknown model overrides are rejected', () => {
-  for (const model of ['GPT-6 Astra (copilot)', 'auto', '', null]) {
-    assert.ok(check('runSubagent', {agentName: 'Fleet Explore', model}, 'dispatch'));
+  for (const role of ['dispatch', 'coordinator']) {
+    for (const model of ['GPT-6 Astra (copilot)', 'auto', '', null]) {
+      assert.ok(check('runSubagent', {agentName: 'Fleet Explore', model}, role));
+    }
   }
   assert.equal(check('runSubagent', {agentName: 'Fleet Explore', model: 'GPT-5.6 Luna (copilot)'}, 'dispatch'), null);
   assert.ok(check('runSubagent', {agentName: 'Fleet Explore', modelId: 'gpt-6-astra'}, 'dispatch'));
@@ -117,6 +122,10 @@ test('generated CLI install pins models and preserves unrelated files', () => {
   const installed = install();
   assert.equal(installed.status, 0, installed.stderr);
   assert.equal(fs.readFileSync(path.join(dest, 'AGENTS.md'), 'utf8'), 'existing instructions');
+  const economy = fs.readFileSync(path.join(dest, '.github/agents/economy.agent.md'), 'utf8');
+  assert.match(economy, /model: "gpt-5.6-luna"\nmodelPolicy: required/);
+  assert.match(economy, /tools: \["read", "search", "edit", "execute"\]/);
+  assert.ok(!economy.includes('"agent"'));
   for (const [id, agent] of Object.entries(policy.agents)) {
     const profile = fs.readFileSync(path.join(dest, `.github/agents/${id}.agent.md`), 'utf8');
     assert.ok(profile.includes(`model: "${agent.cliModel}"`));
@@ -280,7 +289,7 @@ test('bounded search tools pass for reviewers with capped results and contained 
   assert.match(check('grep_search', {query: 'foo', maxResults: 1, includeIgnoredFiles: true}), /ignored files/);
   assert.ok(check('list_dir', {path: path.dirname(root)}));
   assert.ok(check('list_dir', {}));
-  assert.ok(check('grep_search', {query: 'foo'}, 'coordinator'));
+  assert.equal(check('grep_search', {query: 'foo'}, 'coordinator'), null);
 });
 
 test('text and file searches cannot fall back to host result limits', () => {
@@ -338,6 +347,8 @@ test('every profile model pin matches policy.json and every fleet profile has a 
   assert.deepEqual(profiles.sort(), Object.keys(policy.agents).sort());
   // scripts/install.mjs hard-codes the coordinator's CLI id as gpt-5.6-sol.
   assert.equal(pin('subagent-fleet'), 'GPT-5.6 Sol (copilot)');
+  const coordinator = fs.readFileSync(path.join(agentsDir, 'subagent-fleet.agent.md'), 'utf8');
+  assert.match(coordinator, /tools: \["read", "search", "edit", "execute", "agent"\]/);
 });
 
 test('review packet merge-base and path-scoped modes', () => {

@@ -1,0 +1,40 @@
+[
+  {
+    "name": "generate-tests-baseline-1",
+    "caught": 7,
+    "total": 7,
+    "missed": []
+  },
+  {
+    "name": "generate-tests-baseline-2",
+    "caught": 7,
+    "total": 7,
+    "missed": []
+  },
+  {
+    "name": "generate-tests-baseline-3",
+    "caught": 7,
+    "total": 7,
+    "missed": []
+  },
+  {
+    "name": "generate-tests-economy-1",
+    "caught": 6,
+    "total": 7,
+    "missed": [
+      "active always false"
+    ]
+  },
+  {
+    "name": "generate-tests-economy-2",
+    "caught": 7,
+    "total": 7,
+    "missed": []
+  },
+  {
+    "name": "generate-tests-economy-3",
+    "caught": 7,
+    "total": 7,
+    "missed": []
+  }
+]

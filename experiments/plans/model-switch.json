@@ -1,0 +1,60 @@
+{
+  "sessions": [
+    {
+      "name": "stay-sol",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:cross-file-question"
+        },
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:find-a-value"
+        },
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:mid-size-file"
+        }
+      ]
+    },
+    {
+      "name": "switch-to-luna",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:cross-file-question"
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:find-a-value"
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:mid-size-file"
+        }
+      ]
+    },
+    {
+      "name": "fresh-luna",
+      "turns": [
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:find-a-value"
+        },
+        {
+          "model": "gpt-5.6-luna",
+          "prompt": "scenario:mid-size-file"
+        }
+      ]
+    },
+    {
+      "name": "fresh-sol",
+      "turns": [
+        {
+          "model": "gpt-5.6-sol",
+          "prompt": "scenario:find-a-value"
+        }
+      ]
+    }
+  ]
+}

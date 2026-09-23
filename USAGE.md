@@ -71,17 +71,10 @@ Follow these role boundaries:
 
 ## VS Code workflow
 
-### Configure VS Code tools
-In VS Code, custom agent profiles use tool aliases such as `read`, `search`, `web`, `execute`, and `agent`.
-VS Code selectable tool IDs can be more specific, such as `agent/runSubagent`, `search/codebase`, and `web/fetch`.
+### Subagent tool in VS Code
+The coordinator profile already lists `agent` in its `tools` frontmatter and names the specialists in `agents`. No extra setup step is normally needed to delegate work. `agent/runSubagent` is VS Code's specific tool ID; `agent` is the tool group used in the profile.
 
-To enable delegation in VS Code:
-1. Open GitHub Copilot Chat.
-2. Open Chat customizations.
-3. Enable the `agent/runSubagent` tool for the coordinator.
-
-Note: `agent/runSubagent` is a VS Code tool setting to enable in the editor interface.
-The coordinator profile YAML frontmatter uses the `agent` alias.
+If delegation is unavailable, select **Subagent Fleet** in Chat and type `#agent` to check whether the tool is available in that session. You can also open **Configure Chat** (gear icon) > **Tools** to inspect tool availability. Available tools depend on the selected session target and VS Code version. See [VS Code's subagent guide](https://code.visualstudio.com/docs/agents/run/subagents#_invoke-a-subagent) and [tools reference](https://code.visualstudio.com/docs/agents/reference/tools-reference#_delegate-and-track-work).
 
 ### Profile tool configurations
 The tool lists in the fleet profiles are intentional:

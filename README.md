@@ -19,7 +19,7 @@ Follow these steps to use the fleet in VS Code:
 2. Open your repository in VS Code.
 3. Open GitHub Copilot Chat.
 4. Select **Subagent Fleet** in the agent picker.
-5. In Chat customizations, enable the `agent/runSubagent` tool for the coordinator.
+5. Ask the coordinator to delegate a task. Its profile already includes the `agent` tool.
 
 For a simple task, select a specialist profile directly in Chat.
 
@@ -59,7 +59,7 @@ A prompt and a `tools` list do not form a security sandbox.
 
 | Host | Support level | Usage notes |
 | --- | --- | --- |
-| VS Code | Supported | Select **Subagent Fleet** as the parent agent. Enable the `agent/runSubagent` tool. Set thinking effort in the model picker. Subagents are stateless and cannot invoke nested subagents. |
+| VS Code | Supported | Select **Subagent Fleet** as the parent agent. Its profile includes the `agent` tool. Set thinking effort in the model picker. Subagents are stateless and cannot invoke nested subagents. |
 | Copilot CLI | Supported | Select profiles with `/agent` or `--agent`. CLI `/subagents` model settings do not export to other hosts. |
 | GitHub Copilot Desktop | Supported | Select profiles in the agent picker or use `/agent`. Check the app's model and reasoning-effort pickers; profile model preferences may not be honored. |
 | GitHub.com Cloud Agent | Supported | Select custom agents for cloud tasks. Tool aliases include `read`, `search`, `edit`, `execute`, and `agent`. The `web` alias is not applicable to cloud agent. The VS Code `agents` list is not an authorization boundary. |

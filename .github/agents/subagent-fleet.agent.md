@@ -1,5 +1,6 @@
 ---
 name: Subagent Fleet
+reasoning-effort: high
 description: Coordinate the specialist fleet roles for complex work, and delegate each part to the right specialist.
 tools: ["agent", "read", "search"]
 agents:

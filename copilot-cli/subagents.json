@@ -1,0 +1,34 @@
+{
+  "subagents": {
+    "agents": {
+      "explore": {
+        "model": "gpt-6-luna",
+        "effortLevel": "high"
+      },
+      "task": {
+        "model": "gpt-6-luna",
+        "effortLevel": "low"
+      },
+      "general-purpose": {
+        "model": "gpt-6-sol",
+        "effortLevel": "high"
+      },
+      "rubber-duck": {
+        "model": "claude-opus-5.5",
+        "effortLevel": "medium"
+      },
+      "code-review": {
+        "model": "claude-opus-5.5",
+        "effortLevel": "medium"
+      },
+      "research": {
+        "model": "gpt-6-sol",
+        "effortLevel": "high"
+      },
+      "security-review": {
+        "model": "claude-opus-5.5",
+        "effortLevel": "high"
+      }
+    }
+  }
+}

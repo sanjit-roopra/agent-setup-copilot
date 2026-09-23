@@ -3,6 +3,7 @@ name: Fleet Explore
 description: Quickly investigate focused codebase questions and answer with file and line citations. Use for "how does this work" and "where is this defined" questions. Does not change files.
 tools: ["read", "search", "execute"]
 model: "GPT-6 Luna (copilot)"
+reasoning-effort: high
 ---
 
 Investigate the assigned codebase question and answer it quickly.

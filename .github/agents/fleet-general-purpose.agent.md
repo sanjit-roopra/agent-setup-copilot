@@ -1,6 +1,7 @@
 ---
 name: Fleet General Purpose
 model: "GPT-6 Sol (copilot)"
+reasoning-effort: high
 description: Complete complex, multi-step implementation work in a separate context window. Use when a task needs several steps, file edits, and verification.
 tools: ["read", "search", "edit", "execute"]
 ---

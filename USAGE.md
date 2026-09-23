@@ -135,9 +135,9 @@ The agent ID is the filename without `.agent.md`. Use `/agent` to switch profile
 
 ## Model assignments
 
-**Check the model in your client.** The files set preferred models, but the effort levels below are targets, not settings enforced by the files.
+**Check the model and effort in your client.** The files set preferred models and `reasoning-effort` defaults. VS Code 1.136+ supports these defaults; other clients may handle them differently.
 
-| Role | Profile file | Preferred model (`model`) | Target effort |
+| Role | Profile file | Preferred model (`model`) | Reasoning effort (`reasoning-effort`) |
 | --- | --- | --- | --- |
 | Subagent Fleet | `subagent-fleet.agent.md` | Host session: GPT-6 Sol (not set in profile) | high |
 | Fleet Explore | `fleet-explore.agent.md` | GPT-6 Luna (copilot) | high |
@@ -145,7 +145,7 @@ The agent ID is the filename without `.agent.md`. Use `/agent` to switch profile
 | Fleet General Purpose | `fleet-general-purpose.agent.md` | GPT-6 Sol (copilot) | high |
 | Fleet Research | `fleet-research.agent.md` | GPT-6 Sol (copilot) | high |
 
-| Review role | Profile file | Preferred model (`model`) | Target effort |
+| Review role | Profile file | Preferred model (`model`) | Reasoning effort (`reasoning-effort`) |
 | --- | --- | --- | --- |
 | Fleet Rubber Duck | `fleet-rubber-duck.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
@@ -155,7 +155,7 @@ The agent ID is the filename without `.agent.md`. Use `/agent` to switch profile
 
 The agent files use the [supported `model` field](https://code.visualstudio.com/docs/agent-customization/custom-agents#_custom-agent-file-structure). [All three models are listed for VS Code](https://docs.github.com/en/copilot/reference/ai-models/supported-models#supported-ai-models-per-client).
 
-Choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker. Without a manual choice, VS Code uses the model/provider's recommended level (adaptive when supported). It remembers the last choice for that model in new conversations. Subagent effort inheritance is not documented.
+VS Code 1.136+ reads [`reasoning-effort` from custom-agent frontmatter](https://github.com/microsoft/vscode/pull/329263) as a per-agent default. The supported values are `low`, `medium`, `high`, `xhigh`, and `max`; the selected model must support the configured level. The coordinator does not set a model, so it uses the session's selected model with `high` effort when supported. The profile does not set effort on individual subagent calls. In older VS Code versions, choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker.
 
 ### Copilot app
 
@@ -165,7 +165,7 @@ Select the agent, then check the [session model and reasoning-effort pickers](ht
 
 No shared agent-profile field sets it. The window depends on the model and variant. [Extended context](https://docs.github.com/en/copilot/reference/ai-models/supported-models#models-with-extended-capabilities) is documented for supported models in VS Code and CLI, not the desktop app. The app does not document a context-tier picker or default.
 
-For the main session, select GPT-6 Sol and high effort if your client offers them. Default context is a target, not a shared profile setting.
+For the main session, select GPT-6 Sol if your client offers it. The coordinator profile requests high effort; check the active setting in clients that might not honor it. Default context is a target, not a shared profile setting.
 
 ## Check your setup
 
@@ -201,7 +201,7 @@ Use a disposable repository with the needed client tools. These checks test what
 
 </details>
 
-For repository maintenance, parse all eight YAML profiles, check the seven preferred models against the table, and confirm that the coordinator names existing specialists. Run `git diff --check`.
+For repository maintenance, parse all eight YAML profiles, check the seven preferred models and eight reasoning efforts against the table, and confirm that the coordinator names existing specialists. Run `git diff --check`.
 
 There is no automated test runner for client behavior. Record those results separately.
 

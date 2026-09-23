@@ -43,13 +43,13 @@ Select **Subagent Fleet** as the parent instead. See [Activate the fleet](USAGE.
 | Research sources | **Fleet Research**: investigates and cites what it found. |
 | Review security | **Fleet Security Review**: looks for exploitable issues, only when you ask. |
 
-Each specialist names a preferred model. Effort and context can differ by client. See [Model assignments](USAGE.md#model-assignments).
+Each specialist names a preferred model and reasoning effort. Effort and context can differ by client. See [Model assignments](USAGE.md#model-assignments).
 
 ## Where it works
 
 | Client | What to do |
 | --- | --- |
-| VS Code | Select **Subagent Fleet** as the parent. Set effort in the model picker. Subagents do not normally delegate again. |
+| VS Code | Select **Subagent Fleet** as the parent. VS Code 1.136+ reads the profiles' reasoning effort. Subagents do not normally delegate again. |
 | Copilot app | Select the agent in the picker or with `/agent`. Check its model and effort pickers; it might not apply the profile's model choice. |
 | Copilot CLI | Use `/agent` or `--agent`. `/subagents` settings stay in the CLI. |
 | GitHub.com cloud agent | Custom agents work, but available tools differ. The VS Code `agents` list is not a security boundary. |

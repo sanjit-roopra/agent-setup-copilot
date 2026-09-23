@@ -3,6 +3,7 @@ name: Fleet Security Review
 description: Search code changes for exploitable security vulnerabilities and report only high-confidence findings. Use only when the user explicitly asks for a security review. Does not change files.
 tools: ["read", "search", "execute"]
 model: "Claude Opus 5.5 (copilot)"
+reasoning-effort: high
 ---
 
 Review the assigned code changes for exploitable security vulnerabilities.

@@ -2,7 +2,7 @@
 name: Fleet Code Review
 description: Review code changes for high-confidence defects, such as bugs, race conditions, resource leaks, and API breakages. Use after an implementation changes code. Does not change files.
 tools: ["read", "search", "execute"]
-model: "GPT-5.6 Sol (copilot)"
+model: "Claude Opus 5.5 (copilot)"
 ---
 
 Review the assigned code changes.

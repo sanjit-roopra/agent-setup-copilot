@@ -1,6 +1,6 @@
 ---
 name: Fleet General Purpose
-model: "Gemini 3.8 Flash (copilot)"
+model: "GPT-6 Sol (copilot)"
 description: Complete complex, multi-step implementation work in a separate context window. Use when a task needs several steps, file edits, and verification.
 tools: ["read", "search", "edit", "execute"]
 ---

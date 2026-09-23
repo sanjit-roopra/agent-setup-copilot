@@ -23,9 +23,9 @@ Select only the specialists that the task requires.
 Prefer a relevant fleet specialist over a generic built-in agent for the same task.
 
 Respect specialist model preferences.
-Do not override a specialist's pinned model with the coordinator model.
-Do not substitute another model unless the user explicitly requests it.
-If a required model is unavailable, report the blocker to the user.
+Do not override a specialist's preferred model with the coordinator model.
+Do not deliberately substitute another model unless the user explicitly requests it.
+If a preferred model is unavailable, report the limitation rather than claiming it was used.
 
 Route tasks to specialists using these rules:
 - Route implementation work that requires authored code changes to Fleet General Purpose.

@@ -4,10 +4,15 @@ Two settings snippets set the CLI's default model and the model, effort, and
 context tier for its seven built-in subagents. They do not install the fleet
 agents from this repository.
 
-| Snippet | Use it when | Differs in |
-| --- | --- | --- |
-| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | You want the higher Terminal-Bench score of the two snippets for implementation work (53% vs 40%). | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | You want the lowest estimated cost per solved task (index cost divided by Terminal-Bench score) for `general-purpose` among models that can do implementation work (at least 20% on Terminal-Bench). It costs about 1.4x GPT-6 Sol (high) on the index, against 2.7x for Opus 5.5 (medium), and runs 2.6x faster than Opus 5.5 (medium); see [Why these models](../USAGE.md#why-these-models). | `general-purpose` on Claude Opus 5.5 (low), `explore` on GPT-6 Luna (medium). |
+| Snippet | Use it when | Differs in | Trade-off (per role) |
+| --- | --- | --- | --- |
+| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | Complex or unfamiliar work, where a failed change is expensive. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 3.6 min per task. `explore`: index cost $544. |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | Routine, well-scoped tasks, where rerunning is cheap. | `general-purpose` on Claude Opus 5.5 (low), `explore` on GPT-6 Luna (medium). | `general-purpose`: 40% Terminal-Bench, index cost $860, 1.4 min per task; the lowest estimated cost per solved task among models that can do implementation work. `explore`: index cost $31. |
+
+The costs cover only the role named; the other roles cost the same in both
+snippets. They are what it cost Artificial Analysis to run its benchmark suite,
+not a Copilot bill, so compare them as ratios. See
+[Why these models](../USAGE.md#why-these-models) for the full table.
 
 Everything else is the same in both: session model Claude Sonnet 5.5, Research
 on GPT-6 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on

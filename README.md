@@ -13,7 +13,12 @@ The profiles work in VS Code and other Copilot clients, but each client controls
 
 For one small task, select the relevant specialist instead. The coordinator already has the `agent` tool; there is no extra switch to enable.
 
-For a lower-cost fleet, also copy the two profiles in [`budget/agents/`](budget/README.md) over the recommended ones. See [Recommended or budget](USAGE.md#recommended-or-budget) for when to pick which.
+The fleet comes in two variants:
+
+- **Recommended:** complex or unfamiliar work, where a failed change is expensive.
+- **Budget:** routine, well-scoped tasks, where rerunning is cheap. Also copy the two profiles in [`budget/agents/`](budget/README.md) over the recommended ones.
+
+See [Recommended or budget](USAGE.md#recommended-or-budget) for the trade-offs.
 
 See [USAGE.md](USAGE.md#install-the-fleet-profiles) for install commands and setup in other clients.
 

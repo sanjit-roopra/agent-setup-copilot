@@ -1,5 +1,8 @@
 # Budget fleet profiles
 
+- **Recommended:** complex or unfamiliar work, where a failed change is expensive.
+- **Budget:** routine, well-scoped tasks, where rerunning is cheap.
+
 These two profiles replace their recommended counterparts in `.github/agents/` to run the
 fleet at lower cost. They keep the same names, descriptions, tools, and
 instructions; only the model and reasoning effort change.

@@ -24,17 +24,27 @@ For GitHub.com, commit and push the profiles to your default branch. If they do 
 
 ## Recommended or budget
 
+- **Recommended:** complex or unfamiliar work, where a failed change is expensive.
+- **Budget:** routine, well-scoped tasks, where rerunning is cheap.
+
 The fleet comes in two variants, for both the agent profiles and the Copilot CLI. They differ only in the implementation and exploration roles; the coordinator, Task, Research, and the review roles are the same.
 
 | | Recommended | Budget |
 | --- | --- | --- |
 | Implementation (Fleet General Purpose / `general-purpose`) | Claude Opus 5.5, medium | Claude Opus 5.5, low |
+| Implementation: Terminal-Bench 4.0 | 53% | 40% |
+| Implementation: index cost | $1,627 (2.7x GPT-6 Sol (high)) | $860 (1.4x GPT-6 Sol (high)) |
+| Implementation: time per task | 3.6 min | 1.4 min |
 | Exploration (Fleet Explore / `explore`) | Claude Sonnet 5.5, low | GPT-6 Luna, medium |
-| Terminal-Bench 4.0 for implementation | 53% | 40% |
-| Index cost for implementation | $1,627 (2.7x GPT-6 Sol (high)) | $860 (1.4x GPT-6 Sol (high)) |
-| Time per task for implementation | 3.6 min | 1.4 min |
+| Exploration: Terminal-Bench 4.0 | 21% | 3% |
+| Exploration: index cost | $544 | $31 |
 
-Pick **recommended** when:
+How to read the costs:
+
+- Each cost row covers one role only. The other six roles cost the same in both variants, so your overall saving depends on how much of your work goes to implementation and exploration.
+- The figures are what it cost Artificial Analysis to run its benchmark suite, not a Copilot bill. Compare them as ratios between the variants, not as amounts you will pay.
+
+In more detail, pick **recommended** when:
 
 - changes span several files or modules, or the codebase is unfamiliar to you;
 - a failed or half-finished change is expensive, for example because CI is slow or the change is hard to review;

@@ -178,6 +178,17 @@ export function toolArgs(tools: string[] | undefined): string[] {
 	return tools.length > 0 ? ["--tools", tools.join(",")] : ["--no-tools"];
 }
 
+/**
+ * The pi CLI flag that lets a child load the parent project's packages and
+ * agents. A child pi process does not inherit trust granted for one run
+ * (`pi -a`), so without this a project-installed fleet would start its
+ * specialists without the fleet's web tools. Trust is only passed on when the
+ * child runs in the same directory the parent trusts, never another project.
+ */
+export function trustArgs(parentTrusted: boolean, parentCwd: string, childCwd: string): string[] {
+	return parentTrusted && path.resolve(childCwd) === path.resolve(parentCwd) ? ["--approve"] : [];
+}
+
 function readProfiles(dir: string, warnings: string[]): Map<string, RawProfile> {
 	const profilesByDisplayName = new Map<string, RawProfile>();
 	let entries: string[];

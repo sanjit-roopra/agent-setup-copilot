@@ -16,6 +16,7 @@ import {
 	toAgentName,
 	toolArgs,
 	toPiModel,
+	trustArgs,
 	toPiTools,
 	variantFromEnv,
 } from "./copilot-profiles.ts";
@@ -85,6 +86,21 @@ describe("toolArgs", () => {
 
 	test("passes --no-tools when none of the declared tools has a pi equivalent", () => {
 		assert.deepEqual(toolArgs([]), ["--no-tools"]);
+	});
+});
+
+describe("trustArgs", () => {
+	test("passes the parent's trust to a child in the same project", () => {
+		assert.deepEqual(trustArgs(true, "/work/repo", "/work/repo/"), ["--approve"]);
+	});
+
+	test("never passes trust to a child in another directory", () => {
+		assert.deepEqual(trustArgs(true, "/work/repo", "/work/other"), []);
+		assert.deepEqual(trustArgs(true, "/work/repo", "/work/repo/sub"), []);
+	});
+
+	test("passes nothing when the parent does not trust the project", () => {
+		assert.deepEqual(trustArgs(false, "/work/repo", "/work/repo"), []);
 	});
 });
 

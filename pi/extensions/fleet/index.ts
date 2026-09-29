@@ -15,7 +15,9 @@
  * (MIT, Copyright (c) 2025 Mario Zechner). Changes: the tool is named `fleet`
  * so it can coexist with other subagent packages, its description lists the
  * fleet specialists, an agent whose declared tools have no pi equivalent runs
- * with no tools, and the `/fleet` command from coordinator.ts is registered.
+ * with no tools, a child in the parent's trusted project is started with
+ * `--approve` so it loads the same project packages, and the `/fleet` command
+ * from coordinator.ts is registered.
  */
 
 import { spawn } from "node:child_process";
@@ -37,7 +39,7 @@ import { Type } from "typebox";
 import { FLEET_TOOL } from "../tool-names.ts";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { registerFleetCommand } from "./coordinator.ts";
-import { loadRepoFleet, toolArgs } from "./copilot-profiles.ts";
+import { loadRepoFleet, toolArgs, trustArgs } from "./copilot-profiles.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -276,6 +278,8 @@ type OnUpdateCallback = (partial: AgentToolResult<SubagentDetails>) => void;
 interface DispatchDefaults {
 	model?: string;
 	thinkingLevel?: ThinkingLevel;
+	/** Whether the dispatching session trusts its project, so children in the same project may load its packages. */
+	projectTrusted: boolean;
 }
 
 async function runSingleAgent(
@@ -314,6 +318,7 @@ async function runSingleAgent(
 		args.push("--thinking", dispatchDefaults.thinkingLevel);
 	}
 	args.push(...toolArgs(agent.tools));
+	args.push(...trustArgs(dispatchDefaults.projectTrusted, defaultCwd, cwd ?? defaultCwd));
 
 	let tmpPromptDir: string | null = null;
 	let tmpPromptPath: string | null = null;
@@ -502,6 +507,7 @@ export default function (pi: ExtensionAPI) {
 			const dispatchDefaults: DispatchDefaults = {
 				model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined,
 				thinkingLevel: ctx.thinkingLevel,
+				projectTrusted: ctx.isProjectTrusted(),
 			};
 			const discovery = discoverAgents(ctx.cwd, agentScope);
 			const agents = discovery.agents;

@@ -65,24 +65,13 @@ describe("htmlToMarkdown", () => {
 		);
 	});
 
-	test("drops a nested navigation block completely", () => {
-		assert.equal(htmlToMarkdown(page("<nav><nav>inner</nav>outer</nav>Body")), "Body");
+	test("ends a skipped element at its first closing tag, without counting nesting", () => {
+		// A known limit: text after a nested block inside a skipped element leaks through.
+		assert.equal(htmlToMarkdown(page("<nav><nav>inner</nav>outer</nav>Body")), "outerBody");
 	});
 
-	test("does not count a self-closing nested element as open", () => {
-		assert.equal(htmlToMarkdown(page('<svg><svg x="1"/></svg>After')), "After");
-	});
-
-	test("falls back to the first closing tag when nesting never balances", () => {
-		assert.equal(htmlToMarkdown(page("<nav><!-- <nav> --></nav>After")), "After");
-	});
-
-	test("does not count tags inside a script as nested elements", () => {
+	test("ends a script at its first closing tag even if its code mentions <script>", () => {
 		assert.equal(htmlToMarkdown(page("<script>var s = '<script>';</script>Body")), "Body");
-	});
-
-	test("keeps nested code blocks together", () => {
-		assert.equal(htmlToMarkdown(page("<pre>a<pre>b</pre>c</pre>After")), "```\nabc\n```\n\nAfter");
 	});
 
 	test("drops a self-closing svg without swallowing the rest", () => {
@@ -121,6 +110,8 @@ describe("htmlToMarkdown on malformed input stays fast", () => {
 		"nested links": `${'<a href="x">y'.repeat(100_000)}${"</a>".repeat(100_000)}`,
 		"unclosed scripts": "<script>".repeat(200_000),
 		"nested navigation": `${"<nav>".repeat(100_000)}${"</nav>".repeat(100_000)}`,
+		"unbalanced nested navigation": "<nav><nav></nav>".repeat(100_000),
+		"unbalanced nested code blocks": "<pre><pre></pre>".repeat(100_000),
 		"unterminated tag": `<p>${"<".repeat(1_000_000)}`,
 		"unclosed quote in href": `<a ${"href='".repeat(200_000)}>`,
 	};

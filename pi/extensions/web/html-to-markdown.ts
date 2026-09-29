@@ -35,8 +35,6 @@ const MAX_CODE_POINT = 0x10ffff;
 
 /** Elements whose whole content is dropped. */
 const SKIPPED_ELEMENTS = new Set(["script", "style", "noscript", "svg", "iframe", "template", "head", "title", "nav", "footer"]);
-/** Skipped elements whose content is raw text, so a nested opening tag inside them is not a real element. */
-const RAW_TEXT_ELEMENTS = new Set(["script", "style", "noscript", "iframe", "title"]);
 const BLOCK_ELEMENTS = new Set([
 	"p", "div", "section", "article", "main", "header", "aside", "ul", "ol", "table", "tr", "blockquote", "dl", "dt", "dd", "figure", "form",
 ]);
@@ -81,40 +79,16 @@ function lowerAscii(text: string): string {
 
 /**
  * Find the end of the element whose content starts at `from`: where its content
- * ends and the index after its closing tag's `>`. Nested elements of the same
- * name are counted, except self-closing ones and inside raw-text elements. If
- * the nesting never balances (for example a tag inside a comment), the first
- * closing tag ends the element instead of the rest of the page being dropped.
- * Each search resumes where the previous one stopped, so the scan stays linear.
+ * ends and the index after its closing tag's `>`. The first closing tag of the
+ * same name ends the element. Nesting is not counted: counting it correctly on
+ * unbalanced markup costs a rescan per element, which is quadratic on hostile
+ * pages, while stopping early at worst leaks some skipped text.
  */
 function findElementEnd(html: string, lower: string, name: string, from: number, end: number): { contentEnd: number; next: number } {
-	const openTag = `<${name}`;
-	const closeTag = `</${name}`;
-	let depth = 1;
-	// The next opening and closing tag; each is searched for again only after it has been consumed.
-	let nextOpen = RAW_TEXT_ELEMENTS.has(name) ? -1 : lower.indexOf(openTag, from);
-	let nextClose = lower.indexOf(closeTag, from);
-	const firstClose = nextClose;
-	// The `>` after the latest nested opening tag; reused while later opening tags come before it.
-	let openTagEnd = -1;
-	const elementEndingAt = (close: number) => {
-		const tagEnd = html.indexOf(">", close);
-		return { contentEnd: close, next: tagEnd < 0 || tagEnd >= end ? end : tagEnd + 1 };
-	};
-	for (;;) {
-		if (nextClose < 0 || nextClose >= end) {
-			return firstClose >= 0 && firstClose < end ? elementEndingAt(firstClose) : { contentEnd: end, next: end };
-		}
-		if (nextOpen >= 0 && nextOpen < nextClose) {
-			if (openTagEnd < nextOpen) openTagEnd = html.indexOf(">", nextOpen);
-			if (openTagEnd < 0) openTagEnd = end;
-			if (html[openTagEnd - 1] !== "/") depth++;
-			nextOpen = lower.indexOf(openTag, nextOpen + 1);
-			continue;
-		}
-		if (--depth === 0) return elementEndingAt(nextClose);
-		nextClose = lower.indexOf(closeTag, nextClose + 1);
-	}
+	const close = lower.indexOf(`</${name}`, from);
+	if (close < 0 || close >= end) return { contentEnd: end, next: end };
+	const tagEnd = html.indexOf(">", close);
+	return { contentEnd: close, next: tagEnd < 0 || tagEnd >= end ? end : tagEnd + 1 };
 }
 
 export function extractTitle(html: string): string | undefined {

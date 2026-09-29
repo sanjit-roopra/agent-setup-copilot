@@ -47,7 +47,7 @@ export interface TokenCandidate {
 export async function findGitHubTokens(
 	authFile: string,
 	env: Record<string, string | undefined> = process.env,
-	readGhToken: () => Promise<string | undefined> = readGhCliToken,
+	readGhCliTokenFn: () => Promise<string | undefined> = readGhCliToken,
 ): Promise<TokenCandidate[]> {
 	const candidates: TokenCandidate[] = [];
 	try {
@@ -57,7 +57,7 @@ export async function findGitHubTokens(
 	} catch {
 		// No pi login yet; fall through to the other sources.
 	}
-	const ghCliToken = await readGhToken();
+	const ghCliToken = await readGhCliTokenFn();
 	if (ghCliToken) candidates.push({ source: "gh auth token", token: ghCliToken });
 	for (const envVar of TOKEN_ENV_VARS) {
 		const value = env[envVar]?.trim();

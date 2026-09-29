@@ -1,6 +1,6 @@
 # Use the agent fleet
 
-**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [Copilot CLI settings snippets](copilot-cli/README.md) instead; see [Copilot CLI](#copilot-cli).
+**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [Copilot CLI settings snippets](copilot-cli/README.md) instead; see [Copilot CLI](#copilot-cli). For pi, install the [pi package](pi/README.md).
 
 ## Install the fleet profiles
 
@@ -298,6 +298,8 @@ echo "exit $rc"; (exit $rc)
 ```
 
 Run `git diff --check`.
+
+Run `npm test` (Node.js 22.18 or later). It loads the profiles the way the [pi package](pi/README.md) does and checks each specialist's model, tools, and budget overlay.
 
 There is no automated test runner for client behavior. Record those results separately.
 

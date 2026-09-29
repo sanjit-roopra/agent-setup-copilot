@@ -2,16 +2,19 @@ import assert from "node:assert/strict";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { describe, test, type TestContext } from "node:test";
+import { before, describe, test, type TestContext } from "node:test";
 import { FLEET_TOOL, WEB_FETCH_TOOL, WEB_SEARCH_TOOL } from "../tool-names.ts";
 import {
 	buildCoordinatorMessage,
 	coordinatorRoster,
 	type FleetCoordinator,
+	type FleetDefinition,
 	loadFleet,
 	parseProfileFrontmatter,
+	planFleetRun,
 	REPO_ROOT,
 	toAgentName,
+	toolArgs,
 	toPiModel,
 	toPiTools,
 	variantFromEnv,
@@ -68,6 +71,20 @@ describe("toPiTools", () => {
 
 	test("returns undefined tools only when the profile declares none", () => {
 		assert.deepEqual(toPiTools(undefined), { tools: undefined, unknown: [] });
+	});
+});
+
+describe("toolArgs", () => {
+	test("passes no flag when the profile declares no tools, so pi's defaults apply", () => {
+		assert.deepEqual(toolArgs(undefined), []);
+	});
+
+	test("passes an allowlist for declared tools", () => {
+		assert.deepEqual(toolArgs(["read", "grep"]), ["--tools", "read,grep"]);
+	});
+
+	test("passes --no-tools when none of the declared tools has a pi equivalent", () => {
+		assert.deepEqual(toolArgs([]), ["--no-tools"]);
 	});
 });
 
@@ -146,7 +163,21 @@ describe("loadFleet", () => {
 			fleet.specialists.map((s) => s.name),
 			["fleet-good"],
 		);
-		assert.equal(fleet.warnings.length, 3, fleet.warnings.join("\n"));
+		const warnings = fleet.warnings.join("\n");
+		assert.match(warnings, /dir\.agent\.md: .*skipped/);
+		assert.match(warnings, /noname\.agent\.md: no name in frontmatter/);
+		assert.match(warnings, /nodesc\.agent\.md: no description in frontmatter/);
+		assert.equal(fleet.warnings.length, 3, warnings);
+	});
+
+	test("warns when a second profile claims to be the coordinator", (t) => {
+		const root = makeRepo(t, {
+			".github/agents/a.agent.md": profile("name: First\nagents:\n  - X"),
+			".github/agents/b.agent.md": profile("name: Second\nagents:\n  - X"),
+		});
+		const fleet = loadFleet(root);
+		assert.equal(fleet.coordinator?.displayName, "Second");
+		assert.match(fleet.warnings.join("\n"), /another coordinator profile \(First\)/);
 	});
 
 	test("warns when there are no profiles", (t) => {
@@ -168,14 +199,18 @@ describe("coordinator message", () => {
 	];
 
 	test("the roster follows the coordinator's list and skips agents it does not name", () => {
-		assert.deepEqual(coordinatorRoster(coordinator, agents), [
+		assert.deepEqual(coordinatorRoster(coordinator, agents).roster, [
 			{ name: "fleet-b", displayName: "Fleet B", description: "B." },
 			{ name: "fleet-a", displayName: "Fleet A", description: "Overridden A." },
 		]);
 	});
 
+	test("the roster reports listed names that match no agent", () => {
+		assert.deepEqual(coordinatorRoster(coordinator, agents).missing, ["Fleet Missing"]);
+	});
+
 	test("the message holds the instructions, the roster, and the task last", () => {
-		const message = buildCoordinatorMessage(coordinator, coordinatorRoster(coordinator, agents), "Fix the bug.");
+		const message = buildCoordinatorMessage(coordinator, coordinatorRoster(coordinator, agents).roster, "Fix the bug.");
 		assert.equal(
 			message,
 			[
@@ -190,6 +225,26 @@ describe("coordinator message", () => {
 				"Task: Fix the bug.",
 			].join("\n"),
 		);
+	});
+});
+
+describe("planFleetRun", () => {
+	const coordinator: FleetCoordinator = { displayName: "C", allowedSpecialists: [], tools: [FLEET_TOOL], systemPrompt: "" };
+	const fleetWith = (value?: FleetCoordinator): FleetDefinition => ({ specialists: [], coordinator: value, warnings: [] });
+
+	test("refuses without a coordinator", () => {
+		assert.deepEqual(planFleetRun(fleetWith(undefined)), { ok: false, reason: "No Subagent Fleet coordinator profile found." });
+	});
+
+	test("refuses when the coordinator's tools are missing or untranslatable", () => {
+		for (const tools of [undefined, []]) {
+			const plan = planFleetRun(fleetWith({ ...coordinator, tools }));
+			assert.equal(plan.ok, false, JSON.stringify(tools));
+		}
+	});
+
+	test("runs with exactly the coordinator's tools", () => {
+		assert.deepEqual(planFleetRun(fleetWith(coordinator)), { ok: true, coordinator, tools: [FLEET_TOOL] });
 	});
 });
 
@@ -208,9 +263,14 @@ describe("variantFromEnv", () => {
  * tables in USAGE.md (Model assignments) and budget/README.md.
  */
 describe("repository profiles", () => {
-	const recommended = loadFleet(REPO_ROOT, "recommended");
-	const budget = loadFleet(REPO_ROOT, "budget");
-	const find = (fleet: typeof recommended, name: string) => {
+	let recommended: FleetDefinition;
+	let budget: FleetDefinition;
+	// Loaded in a hook, not at collection time, so a load failure is reported as a test failure.
+	before(() => {
+		recommended = loadFleet(REPO_ROOT, "recommended");
+		budget = loadFleet(REPO_ROOT, "budget");
+	});
+	const find = (fleet: FleetDefinition, name: string) => {
 		const found = fleet.specialists.find((s) => s.name === name);
 		assert.ok(found, `${name} missing`);
 		return found;

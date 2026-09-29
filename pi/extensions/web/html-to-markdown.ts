@@ -35,6 +35,8 @@ const MAX_CODE_POINT = 0x10ffff;
 
 /** Elements whose whole content is dropped. */
 const SKIPPED_ELEMENTS = new Set(["script", "style", "noscript", "svg", "iframe", "template", "head", "title", "nav", "footer"]);
+/** Skipped elements whose content is raw text, so a nested opening tag inside them is not a real element. */
+const RAW_TEXT_ELEMENTS = new Set(["script", "style", "noscript", "iframe", "title"]);
 const BLOCK_ELEMENTS = new Set([
 	"p", "div", "section", "article", "main", "header", "aside", "ul", "ol", "table", "tr", "blockquote", "dl", "dt", "dd", "figure", "form",
 ]);
@@ -68,34 +70,68 @@ function stripTags(html: string): string {
 	return text;
 }
 
-/** End of the element whose content starts at `from`: the index after its closing tag's `>`. */
-function skipPast(html: string, lower: string, name: string, from: number, end: number): { contentEnd: number; next: number } {
-	const close = lower.indexOf(`</${name}`, from);
-	if (close < 0 || close >= end) return { contentEnd: end, next: end };
-	const gt = html.indexOf(">", close);
-	return { contentEnd: close, next: gt < 0 || gt >= end ? end : gt + 1 };
+/**
+ * Lowercase ASCII letters only. Unlike `toLowerCase`, this never changes the
+ * string's length (`İ` lowercases to two characters), so indexes found in the
+ * lowered copy stay valid in the original.
+ */
+function lowerAscii(text: string): string {
+	return text.replace(/[A-Z]+/g, (letters) => letters.toLowerCase());
+}
+
+/**
+ * Find the end of the element whose content starts at `from`: where its content
+ * ends and the index after its closing tag's `>`. Nested elements of the same
+ * name are counted unless the element holds raw text. Each search resumes where
+ * the previous one stopped, so the scan stays linear.
+ */
+function findElementEnd(html: string, lower: string, name: string, from: number, end: number): { contentEnd: number; next: number } {
+	const openTag = `<${name}`;
+	const closeTag = `</${name}`;
+	let depth = 1;
+	// The next opening and closing tag; each is searched for again only after it has been consumed.
+	let nextOpen = RAW_TEXT_ELEMENTS.has(name) ? -1 : lower.indexOf(openTag, from);
+	let nextClose = lower.indexOf(closeTag, from);
+	for (;;) {
+		if (nextClose < 0 || nextClose >= end) return { contentEnd: end, next: end };
+		if (nextOpen >= 0 && nextOpen < nextClose) {
+			depth++;
+			nextOpen = lower.indexOf(openTag, nextOpen + 1);
+			continue;
+		}
+		if (--depth === 0) {
+			const tagEnd = html.indexOf(">", nextClose);
+			return { contentEnd: nextClose, next: tagEnd < 0 || tagEnd >= end ? end : tagEnd + 1 };
+		}
+		nextClose = lower.indexOf(closeTag, nextClose + 1);
+	}
 }
 
 export function extractTitle(html: string): string | undefined {
-	const lower = html.toLowerCase();
+	const lower = lowerAscii(html);
 	const start = lower.indexOf("<title");
 	if (start < 0) return undefined;
 	const openEnd = html.indexOf(">", start);
 	if (openEnd < 0) return undefined;
-	const { contentEnd } = skipPast(html, lower, "title", openEnd + 1, html.length);
+	const { contentEnd } = findElementEnd(html, lower, "title", openEnd + 1, html.length);
 	const title = decodeEntities(stripTags(html.slice(openEnd + 1, contentEnd))).replace(/\s+/g, " ").trim();
 	return title || undefined;
 }
 
 function tagName(tag: string): string {
-	return /^\/?\s*([a-z][a-z0-9-]*)/i.exec(tag)?.[1]?.toLowerCase() ?? "";
+	return /^\/?([a-z][a-z0-9-]*)/i.exec(tag)?.[1]?.toLowerCase() ?? "";
+}
+
+/** A `<` starts markup only when a letter, `/`, `!`, or `?` follows; otherwise it is text, as in `a < b`. */
+function startsMarkup(html: string, open: number): boolean {
+	return /[a-z/!?]/i.test(html[open + 1] ?? "");
 }
 
 /** Only the start of a tag is searched, so a huge malformed tag cannot make the regex slow. */
 const MAX_TAG_ATTRIBUTE_CHARS = 2048;
 
 function hrefOf(tag: string): string | undefined {
-	return /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i
+	return /(?:^|\s)href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i
 		.exec(tag.slice(0, MAX_TAG_ATTRIBUTE_CHARS))
 		?.slice(1)
 		.find((value) => value !== undefined);
@@ -111,13 +147,13 @@ function resolveUrl(href: string, baseUrl: string | undefined): string {
 }
 
 export function htmlToMarkdown(html: string, baseUrl?: string): string {
-	const lower = html.toLowerCase();
+	const lower = lowerAscii(html);
 	let position = 0;
 	let end = html.length;
 	const bodyStart = lower.indexOf("<body");
 	if (bodyStart >= 0) {
-		const gt = html.indexOf(">", bodyStart);
-		position = gt < 0 ? end : gt + 1;
+		const bodyTagEnd = html.indexOf(">", bodyStart);
+		position = bodyTagEnd < 0 ? end : bodyTagEnd + 1;
 		const bodyEnd = lower.lastIndexOf("</body");
 		if (bodyEnd >= position) end = bodyEnd;
 	}
@@ -140,6 +176,11 @@ export function htmlToMarkdown(html: string, baseUrl?: string): string {
 			pushText(html.slice(position, end));
 			break;
 		}
+		if (!startsMarkup(html, open)) {
+			pushText(html.slice(position, open + 1));
+			position = open + 1;
+			continue;
+		}
 		if (open > position) pushText(html.slice(position, open));
 
 		if (html.startsWith("<!--", open)) {
@@ -147,19 +188,19 @@ export function htmlToMarkdown(html: string, baseUrl?: string): string {
 			position = close < 0 || close >= end ? end : close + 3;
 			continue;
 		}
-		const gt = html.indexOf(">", open);
-		if (gt < 0 || gt >= end) break;
-		const tag = html.slice(open + 1, gt);
+		const tagEnd = html.indexOf(">", open);
+		if (tagEnd < 0 || tagEnd >= end) break;
+		const tag = html.slice(open + 1, tagEnd);
 		const closing = tag.startsWith("/");
 		const name = tagName(tag);
-		position = gt + 1;
+		position = tagEnd + 1;
 
 		if (!closing && SKIPPED_ELEMENTS.has(name)) {
-			if (!tag.endsWith("/")) position = skipPast(html, lower, name, position, end).next;
+			if (!tag.endsWith("/")) position = findElementEnd(html, lower, name, position, end).next;
 			continue;
 		}
 		if (!closing && name === "pre") {
-			const { contentEnd, next } = skipPast(html, lower, "pre", position, end);
+			const { contentEnd, next } = findElementEnd(html, lower, "pre", position, end);
 			const code = decodeEntities(stripTags(html.slice(position, contentEnd).replace(/<br\s*\/?>/gi, "\n"))).replace(/\n+$/, "");
 			codeBlocks.push(code);
 			out.push(`\n\n${codePlaceholder(codeBlocks.length - 1)}\n\n`);

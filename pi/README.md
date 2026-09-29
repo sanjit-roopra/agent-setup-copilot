@@ -115,7 +115,9 @@ addresses, such as `localhost`, `192.168.1.1`, and `169.254.169.254`. It checks
 the first URL and every redirect, and it connects to the exact IP address it
 checked, so a hostname cannot switch to a private address between the check
 and the connection. It returns the page marked as untrusted content, because
-text on a page can try to give the model instructions.
+text on a page can try to give the model instructions. It connects directly and
+ignores proxy settings, so it does not work on networks that require an HTTP
+proxy.
 
 The tool names start with `fleet_` so they do not clash with other packages,
 such as pi-web-access.
@@ -153,6 +155,7 @@ with only its own tools.
 - Tool lists limit what each specialist can call. As in the Copilot clients, they are not a security sandbox; `bash` can still change files.
 - `fleet-research` can read local files and fetch any public URL. A web page that tricks it could make it send file contents to another site in a URL. Do not point it at untrusted pages in a repository that holds secrets.
 - A specialist cannot delegate again, because the `fleet` tool is not in its tool list.
+- The coordinator profile's `agents:` list decides which specialists `/fleet` offers the model, but pi does not enforce it: the `fleet` tool can run any agent it finds, including your own agents in `~/.pi/agent/agents/`.
 
 ## Maintain
 

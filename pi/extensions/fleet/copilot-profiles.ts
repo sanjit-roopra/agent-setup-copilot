@@ -168,6 +168,16 @@ export function toPiTools(copilotTools: string[] | undefined): { tools?: string[
 	return { tools: [...new Set(tools)], unknown };
 }
 
+/**
+ * The pi CLI flags for an agent's tools: none for `undefined` (pi's defaults),
+ * an allowlist for a non-empty list, and `--no-tools` for an empty list, so an
+ * agent whose tools have no pi equivalent never falls back to the defaults.
+ */
+export function toolArgs(tools: string[] | undefined): string[] {
+	if (!tools) return [];
+	return tools.length > 0 ? ["--tools", tools.join(",")] : ["--no-tools"];
+}
+
 function readProfiles(dir: string, warnings: string[]): Map<string, RawProfile> {
 	const profilesByDisplayName = new Map<string, RawProfile>();
 	let entries: string[];
@@ -220,6 +230,9 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 		// The coordinator lists the specialists it may call; it is not one itself.
 		const allowedSpecialists = listField(frontmatter, "agents");
 		if (allowedSpecialists) {
+			if (fleet.coordinator) {
+				warnings.push(`${filePath}: another coordinator profile (${fleet.coordinator.displayName}) was already loaded; this one replaces it.`);
+			}
 			fleet.coordinator = {
 				displayName,
 				allowedSpecialists,
@@ -263,18 +276,36 @@ export interface RosterEntry {
 }
 
 /**
- * The agents the coordinator may call, in the order its profile lists them.
- * `agents` are the agents that will actually run, so a user override's
- * description wins over the packaged one.
+ * The agents the coordinator may call, in the order its profile lists them,
+ * and the listed names that match no agent. `agents` are the agents that will
+ * actually run, so a user override's description wins over the packaged one.
  */
 export function coordinatorRoster(
 	coordinator: FleetCoordinator,
 	agents: { name: string; description: string }[],
-): RosterEntry[] {
-	return coordinator.allowedSpecialists.flatMap((displayName) => {
+): { roster: RosterEntry[]; missing: string[] } {
+	const roster: RosterEntry[] = [];
+	const missing: string[] = [];
+	for (const displayName of coordinator.allowedSpecialists) {
 		const agent = agents.find((candidate) => candidate.name === toAgentName(displayName));
-		return agent ? [{ name: agent.name, displayName, description: agent.description }] : [];
-	});
+		if (agent) roster.push({ name: agent.name, displayName, description: agent.description });
+		else missing.push(displayName);
+	}
+	return { roster, missing };
+}
+
+export type FleetRunPlan =
+	| { ok: true; coordinator: FleetCoordinator; tools: string[] }
+	| { ok: false; reason: string };
+
+/** Whether /fleet may run: it needs a coordinator whose tools pi can use, and never runs with pi's defaults. */
+export function planFleetRun(fleet: FleetDefinition): FleetRunPlan {
+	const { coordinator } = fleet;
+	if (!coordinator) return { ok: false, reason: "No Subagent Fleet coordinator profile found." };
+	if (!coordinator.tools || coordinator.tools.length === 0) {
+		return { ok: false, reason: "The coordinator profile declares no tools pi can use; /fleet will not run." };
+	}
+	return { ok: true, coordinator, tools: coordinator.tools };
 }
 
 /** The user message that turns the current session into the fleet coordinator. */

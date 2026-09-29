@@ -7,7 +7,9 @@
  * the IP that is connected to, so a hostname cannot pass the check and then
  * resolve to a private address (DNS rebinding). Loopback, private, link-local,
  * and cloud metadata addresses are refused, on the first request and on every
- * redirect.
+ * redirect. Requests use their own connection agents, so no environment proxy
+ * (`NODE_USE_ENV_PROXY`) or pooled socket can bypass the check; as a result
+ * the tool does not work behind a mandatory HTTP proxy.
  *
  * This module has no pi imports so `node --test` can exercise it directly.
  */
@@ -18,9 +20,11 @@ import * as https from "node:https";
 import { BlockList, isIP } from "node:net";
 import { pipeline, type Readable } from "node:stream";
 import * as zlib from "node:zlib";
+import { WEB_SEARCH_TOOL } from "../tool-names.ts";
 import { extractTitle, htmlToMarkdown } from "./html-to-markdown.ts";
 
-export const MAX_DOWNLOAD_BYTES = 5 * 1024 * 1024;
+const BYTES_PER_MB = 1024 * 1024;
+export const MAX_DOWNLOAD_BYTES = 5 * BYTES_PER_MB;
 export const FETCH_TIMEOUT_MS = 30_000;
 const MAX_REDIRECTS = 5;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
@@ -40,11 +44,16 @@ const BLOCKED_RANGES: [string, number, "ipv4" | "ipv6"][] = [
 	["198.18.0.0", 15, "ipv4"], // benchmarking
 	["224.0.0.0", 4, "ipv4"], // multicast
 	["240.0.0.0", 4, "ipv4"], // reserved and broadcast
-	["::", 128, "ipv6"], // unspecified
-	["::1", 128, "ipv6"], // loopback
-	["::ffff:0:0", 96, "ipv6"], // IPv4-mapped, which would bypass the IPv4 ranges
+	// IPv6 forms that embed an IPv4 address would bypass the IPv4 ranges, so they are blocked whole.
+	["::", 96, "ipv6"], // unspecified, loopback ::1, and IPv4-compatible
+	["::ffff:0:0", 96, "ipv6"], // IPv4-mapped
+	["64:ff9b::", 96, "ipv6"], // NAT64
+	["64:ff9b:1::", 48, "ipv6"], // local-use NAT64
+	["2001::", 32, "ipv6"], // Teredo
+	["2002::", 16, "ipv6"], // 6to4
 	["fc00::", 7, "ipv6"], // unique local, including fd00:ec2::254 metadata
 	["fe80::", 10, "ipv6"], // link-local
+	["fec0::", 10, "ipv6"], // site-local (deprecated)
 	["ff00::", 8, "ipv6"], // multicast
 ];
 
@@ -93,7 +102,7 @@ export interface FetchOptions {
 	signal?: AbortSignal;
 	isBlocked?: AddressPolicy;
 	/** Replaces DNS resolution in tests. */
-	resolve?: Resolver;
+	resolveDns?: Resolver;
 	maxBytes?: number;
 }
 
@@ -106,11 +115,19 @@ export interface FetchedPage {
 	bytesTruncated: boolean;
 }
 
-function request(url: URL, lookup: ReturnType<typeof createSafeLookup>, signal: AbortSignal): Promise<http.IncomingMessage> {
-	const client = url.protocol === "https:" ? https : http;
+const DECOMPRESSORS: Record<string, () => Readable & NodeJS.WritableStream> = {
+	gzip: zlib.createGunzip,
+	deflate: zlib.createInflate,
+	br: zlib.createBrotliDecompress,
+};
+
+function getResponse(url: URL, lookup: ReturnType<typeof createSafeLookup>, signal: AbortSignal): Promise<http.IncomingMessage> {
+	const isHttps = url.protocol === "https:";
 	return new Promise((resolve, reject) => {
-		const req = client.get(url, {
-			headers: { "User-Agent": USER_AGENT, Accept: ACCEPT, "Accept-Encoding": "gzip, deflate, br" },
+		const req = (isHttps ? https : http).get(url, {
+			headers: { "User-Agent": USER_AGENT, Accept: ACCEPT, "Accept-Encoding": Object.keys(DECOMPRESSORS).join(", ") },
+			// A fresh agent per request: never the global agent, which may use an environment proxy or reuse a socket.
+			agent: isHttps ? new https.Agent({ keepAlive: false }) : new http.Agent({ keepAlive: false }),
 			lookup,
 			signal,
 		});
@@ -118,12 +135,6 @@ function request(url: URL, lookup: ReturnType<typeof createSafeLookup>, signal: 
 		req.on("error", reject);
 	});
 }
-
-const DECOMPRESSORS: Record<string, () => Readable & NodeJS.WritableStream> = {
-	gzip: zlib.createGunzip,
-	deflate: zlib.createInflate,
-	br: zlib.createBrotliDecompress,
-};
 
 /** The response body, decompressed. `pipeline` passes errors and aborts through to the reader. */
 function decodedBody(response: http.IncomingMessage): Readable {
@@ -141,8 +152,8 @@ async function readBodyBytes(response: http.IncomingMessage, maxBytes: number): 
 		for await (const chunk of body) {
 			chunks.push(chunk as Buffer);
 			totalBytes += (chunk as Buffer).byteLength;
-			if (totalBytes >= maxBytes) {
-				truncated = totalBytes > maxBytes;
+			if (totalBytes > maxBytes) {
+				truncated = true;
 				break;
 			}
 		}
@@ -164,14 +175,14 @@ function decodeText(bytes: Buffer, contentType: string): string {
 
 export async function fetchPage(input: string, options: FetchOptions = {}): Promise<FetchedPage> {
 	const isBlocked = options.isBlocked ?? isBlockedAddress;
-	const lookup = createSafeLookup(isBlocked, options.resolve);
+	const lookup = createSafeLookup(isBlocked, options.resolveDns);
 	const timeoutSignal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
 	const signal = options.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal;
 
 	let url = new URL(input);
 	for (let hop = 0; ; hop++) {
 		assertFetchableUrl(url, isBlocked);
-		const response = await request(url, lookup, signal);
+		const response = await getResponse(url, lookup, signal);
 		const status = response.statusCode ?? 0;
 		const location = response.headers.location;
 
@@ -183,7 +194,7 @@ export async function fetchPage(input: string, options: FetchOptions = {}): Prom
 		}
 		if (response.headers["cf-mitigated"] === "challenge") {
 			response.resume();
-			throw new Error(`${url.host} blocks automated requests (Cloudflare challenge). Use fleet_web_search or another source, such as the site's API.`);
+			throw new Error(`${url.host} blocks automated requests (Cloudflare challenge). Use ${WEB_SEARCH_TOOL} or another source, such as the site's API.`);
 		}
 		if (status >= 400) {
 			response.resume();
@@ -220,7 +231,7 @@ export function formatFetchedPage(page: FetchedPage, maxChars: number): string {
 		text = text.slice(0, maxChars);
 	}
 	if (page.bytesTruncated) {
-		notes.push(`The page is larger than ${MAX_DOWNLOAD_BYTES / (1024 * 1024)} MB; only the first part was downloaded.`);
+		notes.push(`The page is larger than ${MAX_DOWNLOAD_BYTES / BYTES_PER_MB} MB; only the first part was downloaded.`);
 	}
 	return [
 		`URL: ${page.url}`,

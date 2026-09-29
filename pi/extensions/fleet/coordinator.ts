@@ -11,7 +11,7 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { discoverAgents } from "./agents.ts";
-import { buildCoordinatorMessage, coordinatorRoster, loadRepoFleet } from "./copilot-profiles.ts";
+import { buildCoordinatorMessage, coordinatorRoster, loadRepoFleet, planFleetRun } from "./copilot-profiles.ts";
 
 export function registerFleetCommand(pi: ExtensionAPI): void {
 	// Tools that were active before /fleet narrowed them; restored when the run settles.
@@ -37,21 +37,19 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 
 			const fleet = loadRepoFleet();
 			for (const warning of fleet.warnings) ctx.ui.notify(warning, "warning");
-			const { coordinator } = fleet;
-			if (!coordinator) {
-				ctx.ui.notify("No Subagent Fleet coordinator profile found.", "error");
-				return;
-			}
-			if (!coordinator.tools || coordinator.tools.length === 0) {
-				ctx.ui.notify("The coordinator profile declares no tools pi can use; /fleet will not run.", "error");
+			const plan = planFleetRun(fleet);
+			if (!plan.ok) {
+				ctx.ui.notify(plan.reason, "error");
 				return;
 			}
 
-			// Describe the specialists that will actually run, including user overrides.
-			const roster = coordinatorRoster(coordinator, discoverAgents(ctx.cwd, "user").agents);
+			// Describe the specialists that will actually run, including user overrides. "user" matches
+			// the fleet tool's default agent scope (fleet/index.ts), so the roster names what it resolves.
+			const { roster, missing } = coordinatorRoster(plan.coordinator, discoverAgents(ctx.cwd, "user").agents);
+			for (const name of missing) ctx.ui.notify(`The coordinator lists ${name}, but no such specialist was found.`, "warning");
 			toolsBeforeFleet ??= pi.getActiveTools();
-			pi.setActiveTools(coordinator.tools);
-			pi.sendUserMessage(buildCoordinatorMessage(coordinator, roster, task));
+			pi.setActiveTools(plan.tools);
+			pi.sendUserMessage(buildCoordinatorMessage(plan.coordinator, roster, task));
 		},
 	});
 }

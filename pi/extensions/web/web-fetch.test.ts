@@ -13,28 +13,41 @@ import {
 } from "./web-fetch.ts";
 
 describe("isBlockedAddress", () => {
-	test("blocks loopback, private, link-local, metadata, and mapped addresses", () => {
+	test("blocks the first and last address of every blocked range", () => {
 		for (const address of [
-			"127.0.0.1",
-			"10.1.2.3",
-			"172.16.0.1",
-			"192.168.1.1",
-			"169.254.169.254",
-			"100.64.0.1",
-			"0.0.0.0",
-			"::1",
-			"::",
-			"fe80::1",
-			"fd00:ec2::254",
-			"::ffff:127.0.0.1",
-			"::ffff:7f00:1",
+			"0.0.0.0", "0.255.255.255",
+			"10.0.0.0", "10.255.255.255",
+			"100.64.0.0", "100.127.255.255",
+			"127.0.0.0", "127.255.255.255",
+			"169.254.0.0", "169.254.169.254", "169.254.255.255",
+			"172.16.0.0", "172.31.255.255",
+			"192.0.0.0", "192.0.0.255",
+			"192.168.0.0", "192.168.255.255",
+			"198.18.0.0", "198.19.255.255",
+			"224.0.0.0", "255.255.255.255",
+			"::", "::1", "::7f00:1",
+			"::ffff:127.0.0.1", "::ffff:7f00:1",
+			"64:ff9b::a9fe:a9fe", "64:ff9b:1::1",
+			"2001::1", "2002:7f00:1::",
+			"fc00::", "fd00:ec2::254", "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			"fe80::1", "fec0::1", "ff02::1",
 		]) {
 			assert.equal(isBlockedAddress(address), true, address);
 		}
 	});
 
-	test("allows public addresses", () => {
-		for (const address of ["8.8.8.8", "140.82.112.3", "2606:4700:4700::1111"]) {
+	test("allows the public neighbours of the blocked ranges", () => {
+		for (const address of [
+			"1.0.0.0", "9.255.255.255", "11.0.0.0",
+			"100.63.255.255", "100.128.0.0",
+			"126.255.255.255", "128.0.0.0",
+			"169.253.255.255", "169.255.0.0",
+			"172.15.255.255", "172.32.0.0",
+			"192.0.1.0", "192.167.255.255", "192.169.0.0",
+			"198.17.255.255", "198.20.0.0",
+			"223.255.255.255",
+			"8.8.8.8", "140.82.112.3", "2606:4700:4700::1111", "2001:4860:4860::8888",
+		]) {
 			assert.equal(isBlockedAddress(address), false, address);
 		}
 	});
@@ -51,7 +64,15 @@ describe("assertFetchableUrl", () => {
 	});
 
 	test("rejects blocked IP literals, however they are written", () => {
-		for (const url of ["http://127.0.0.1/", "http://0x7f000001/", "http://2130706433/", "http://[::1]/", "http://169.254.169.254/"]) {
+		for (const url of [
+			"http://127.0.0.1/",
+			"http://0x7f000001/",
+			"http://2130706433/",
+			"http://[::1]/",
+			"http://[::127.0.0.1]/",
+			"http://[64:ff9b::7f00:1]/",
+			"http://169.254.169.254/",
+		]) {
 			assert.throws(() => assertFetchableUrl(new URL(url)), BlockedAddressError, url);
 		}
 	});
@@ -62,36 +83,38 @@ describe("assertFetchableUrl", () => {
 });
 
 describe("createSafeLookup", () => {
-	const lookupWith = (addresses: { address: string; family: number }[]) =>
-		createSafeLookup(isBlockedAddress, (_hostname, _options, callback) => callback(null, addresses));
+	/** Runs the lookup against fixed DNS answers and resolves with what it passed to its callback. */
+	function lookUp(addresses: { address: string; family: number }[], hostname: string, options: { all?: boolean } = {}) {
+		const lookup = createSafeLookup(isBlockedAddress, (_hostname, _options, callback) => callback(null, addresses));
+		return new Promise<{ error: Error | null; address?: unknown; family?: number }>((resolve) =>
+			lookup(hostname, options, (error, address, family) => resolve({ error, address, family })),
+		);
+	}
 
-	test("returns the resolved public address", (_t, done) => {
-		lookupWith([{ address: "93.184.216.34", family: 4 }])("example.com", {}, (error, address, family) => {
-			assert.equal(error, null);
-			assert.equal(address, "93.184.216.34");
-			assert.equal(family, 4);
-			done();
+	test("returns the resolved public address", async () => {
+		assert.deepEqual(await lookUp([{ address: "93.184.216.34", family: 4 }], "example.com"), {
+			error: null,
+			address: "93.184.216.34",
+			family: 4,
 		});
 	});
 
-	test("returns all addresses when asked for all", (_t, done) => {
+	test("returns all addresses when asked for all", async () => {
 		const addresses = [{ address: "93.184.216.34", family: 4 }];
-		lookupWith(addresses)("example.com", { all: true }, (error, result) => {
-			assert.equal(error, null);
-			assert.deepEqual(result, addresses);
-			done();
-		});
+		const result = await lookUp(addresses, "example.com", { all: true });
+		assert.deepEqual({ error: result.error, address: result.address }, { error: null, address: addresses });
 	});
 
-	test("refuses a hostname if any of its addresses is blocked", (_t, done) => {
-		lookupWith([
-			{ address: "93.184.216.34", family: 4 },
-			{ address: "10.0.0.1", family: 4 },
-		])("rebind.example", {}, (error) => {
-			assert.ok(error instanceof BlockedAddressError);
-			assert.match(error.message, /rebind\.example resolves to 10\.0\.0\.1/);
-			done();
-		});
+	test("refuses a hostname if any of its addresses is blocked", async () => {
+		const { error } = await lookUp(
+			[
+				{ address: "93.184.216.34", family: 4 },
+				{ address: "10.0.0.1", family: 4 },
+			],
+			"rebind.example",
+		);
+		assert.ok(error instanceof BlockedAddressError);
+		assert.match(error.message, /rebind\.example resolves to 10\.0\.0\.1/);
 	});
 });
 
@@ -105,9 +128,23 @@ async function serve(t: TestContext, handler: http.RequestListener): Promise<str
 
 const allowLoopback = (address: string) => address !== "127.0.0.1" && isBlockedAddress(address);
 
+/** DNS that answers every hostname with 127.0.0.1, whatever the system resolver would say. */
+const resolveToLoopback = (_hostname: string, _options: unknown, callback: (error: Error | null, addresses: { address: string; family: number }[]) => void) =>
+	callback(null, [{ address: "127.0.0.1", family: 4 }]);
+
 describe("fetchPage", () => {
 	test("refuses a hostname that resolves to loopback", async () => {
-		await assert.rejects(fetchPage("http://localhost:9/"), BlockedAddressError);
+		await assert.rejects(fetchPage("http://rebind.example:9/", { resolveDns: resolveToLoopback }), BlockedAddressError);
+	});
+
+	test("connects to the address the checked lookup returned", async (t) => {
+		const base = await serve(t, (_req, res) => {
+			res.writeHead(200, { "content-type": "text/plain" });
+			res.end("reached");
+		});
+		const port = new URL(base).port;
+		const page = await fetchPage(`http://public.example:${port}/`, { isBlocked: allowLoopback, resolveDns: resolveToLoopback });
+		assert.equal(page.text, "reached");
 	});
 
 	test("converts an HTML page to Markdown and reads its title", async (t) => {
@@ -152,12 +189,43 @@ describe("fetchPage", () => {
 		await assert.rejects(fetchPage(`${base}/`, { isBlocked: allowLoopback }), /Too many redirects/);
 	});
 
-	test("decompresses a gzip body", async (t) => {
+	for (const [encoding, compress] of [
+		["gzip", zlib.gzipSync],
+		["deflate", zlib.deflateSync],
+		["br", zlib.brotliCompressSync],
+	] as const) {
+		test(`decompresses a ${encoding} body`, async (t) => {
+			const base = await serve(t, (_req, res) => {
+				res.writeHead(200, { "content-type": "text/plain", "content-encoding": encoding });
+				res.end(compress("compressed text"));
+			});
+			assert.equal((await fetchPage(`${base}/`, { isBlocked: allowLoopback })).text, "compressed text");
+		});
+	}
+
+	test("applies the byte limit after decompression", async (t) => {
 		const base = await serve(t, (_req, res) => {
 			res.writeHead(200, { "content-type": "text/plain", "content-encoding": "gzip" });
-			res.end(zlib.gzipSync("compressed text"));
+			res.end(zlib.gzipSync(Buffer.alloc(5 * 1024 * 1024, 0x61)));
 		});
-		assert.equal((await fetchPage(`${base}/`, { isBlocked: allowLoopback })).text, "compressed text");
+		const page = await fetchPage(`${base}/`, { isBlocked: allowLoopback, maxBytes: 1_000 });
+		assert.deepEqual({ length: page.text.length, bytesTruncated: page.bytesTruncated }, { length: 1_000, bytesTruncated: true });
+	});
+
+	test("rejects a corrupt compressed body", async (t) => {
+		const base = await serve(t, (_req, res) => {
+			res.writeHead(200, { "content-type": "text/plain", "content-encoding": "gzip" });
+			res.end("not gzip at all");
+		});
+		await assert.rejects(fetchPage(`${base}/`, { isBlocked: allowLoopback }));
+	});
+
+	test("stops when the caller aborts", async (t) => {
+		const base = await serve(t, (_req, res) => {
+			res.writeHead(200, { "content-type": "text/plain" });
+			res.end("late");
+		});
+		await assert.rejects(fetchPage(`${base}/`, { isBlocked: allowLoopback, signal: AbortSignal.abort() }), /abort/i);
 	});
 
 	test("decodes the declared charset", async (t) => {
@@ -166,6 +234,25 @@ describe("fetchPage", () => {
 			res.end(Buffer.from([0x63, 0x61, 0x66, 0xe9]));
 		});
 		assert.equal((await fetchPage(`${base}/`, { isBlocked: allowLoopback })).text, "café");
+	});
+
+	test("flags truncation when a chunk ends exactly at the limit and more follows", async (t) => {
+		const base = await serve(t, (_req, res) => {
+			res.writeHead(200, { "content-type": "text/plain" });
+			res.write("x".repeat(1_000));
+			setTimeout(() => res.end("more"), 20);
+		});
+		const page = await fetchPage(`${base}/`, { isBlocked: allowLoopback, maxBytes: 1_000 });
+		assert.deepEqual({ length: page.text.length, bytesTruncated: page.bytesTruncated }, { length: 1_000, bytesTruncated: true });
+	});
+
+	test("does not flag a body exactly at the limit", async (t) => {
+		const base = await serve(t, (_req, res) => {
+			res.writeHead(200, { "content-type": "text/plain" });
+			res.end("x".repeat(1_000));
+		});
+		const page = await fetchPage(`${base}/`, { isBlocked: allowLoopback, maxBytes: 1_000 });
+		assert.deepEqual({ length: page.text.length, bytesTruncated: page.bytesTruncated }, { length: 1_000, bytesTruncated: false });
 	});
 
 	test("stops at the byte limit and says so", async (t) => {

@@ -10,6 +10,7 @@ import {
 	HttpError,
 	isLoginRejected,
 	parseRpcBody,
+	readGhCliToken,
 	searchResultToText,
 	searchWithFallback,
 	type TokenCandidate,
@@ -52,13 +53,43 @@ describe("findGitHubTokens", () => {
 		assert.deepEqual(await findGitHubTokens(authFile, {}, noGhToken), []);
 	});
 
-	test("tolerates a missing or malformed auth file", async (t) => {
+	test("tolerates a missing auth file", async () => {
 		assert.deepEqual(await findGitHubTokens("/nonexistent/auth.json", {}, noGhToken), []);
+	});
+
+	test("tolerates a malformed auth file", async (t) => {
 		assert.deepEqual(await findGitHubTokens(writeAuthFile(t, "{not json"), {}, noGhToken), []);
+	});
+
+	test("ignores a refresh value that is not a string", async (t) => {
+		const authFile = writeAuthFile(t, JSON.stringify({ "github-copilot": { refresh: 42 } }));
+		assert.deepEqual(await findGitHubTokens(authFile, {}, noGhToken), []);
 	});
 
 	test("ignores blank environment values", async () => {
 		assert.deepEqual(await findGitHubTokens("/nonexistent/auth.json", { GH_TOKEN: "  " }, noGhToken), []);
+	});
+});
+
+describe("readGhCliToken", () => {
+	type Call = { file: string; args: string[] };
+	// double-waiver: B1 — stands in for execFile, which would spawn the real `gh`.
+	const runFile =
+		(calls: Call[], error: Error | null, stdout: string) =>
+		(file: string, args: string[], _options: unknown, callback: (error: Error | null, stdout: string) => void) => {
+			calls.push({ file, args });
+			callback(error, stdout);
+		};
+
+	test("asks gh for the github.com token only", async () => {
+		const calls: Call[] = [];
+		assert.equal(await readGhCliToken(runFile(calls, null, "gho_x\n")), "gho_x");
+		assert.deepEqual(calls, [{ file: "gh", args: ["auth", "token", "--hostname", "github.com"] }]);
+	});
+
+	test("returns undefined when gh fails or prints nothing", async () => {
+		assert.equal(await readGhCliToken(runFile([], new Error("not logged in"), "")), undefined);
+		assert.equal(await readGhCliToken(runFile([], null, "  \n")), undefined);
 	});
 });
 
@@ -73,6 +104,10 @@ describe("parseRpcBody", () => {
 
 	test("joins an event's data lines", () => {
 		assert.deepEqual(parseRpcBody('event: message\ndata: {"id":1,\ndata: "result":{"ok":true}}\n\n').result, { ok: true });
+	});
+
+	test("reads CRLF line endings and data lines without a space", () => {
+		assert.deepEqual(parseRpcBody('event: message\r\ndata:{"result":{"ok":true}}\r\n\r\n').result, { ok: true });
 	});
 
 	test("uses the last event", () => {
@@ -134,11 +169,22 @@ describe("callWebSearch", () => {
 
 		const [{ url, init }] = calls;
 		const headers = init.headers as Record<string, string>;
-		assert.equal(url, GITHUB_MCP_URL);
-		assert.equal(headers.Authorization, "Bearer tok");
-		assert.equal(headers["X-MCP-Toolsets"], "web_search");
-		assert.equal(init.redirect, "error");
-		assert.deepEqual(JSON.parse(String(init.body)).params, { name: "web_search", arguments: { query: "q?" } });
+		assert.deepEqual(
+			{
+				url,
+				authorization: headers.Authorization,
+				toolsets: headers["X-MCP-Toolsets"],
+				redirect: init.redirect,
+				params: JSON.parse(String(init.body)).params,
+			},
+			{
+				url: GITHUB_MCP_URL,
+				authorization: "Bearer tok",
+				toolsets: "web_search",
+				redirect: "error",
+				params: { name: "web_search", arguments: { query: "q?" } },
+			},
+		);
 	});
 
 	test("raises an HttpError with the status for a rejected token", async () => {
@@ -151,6 +197,10 @@ describe("callWebSearch", () => {
 
 	test("raises a JSON-RPC error", async () => {
 		await assert.rejects(callWebSearch("q", "t", undefined, fakeFetch(200, '{"error":{"message":"boom"}}')), /MCP error: boom/);
+	});
+
+	test("raises an error when the search returns no content", async () => {
+		await assert.rejects(callWebSearch("q", "t", undefined, fakeFetch(200, '{"result":{"content":[]}}')), /returned no content/);
 	});
 
 	test("raises a tool error with its text", async () => {

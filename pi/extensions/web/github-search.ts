@@ -19,6 +19,15 @@ const GH_TOKEN_TIMEOUT_MS = 5_000;
 const SEARCH_TIMEOUT_MS = 90_000;
 const ERROR_SNIPPET_CHARS = 300;
 const SSE_DATA_PREFIX = "data:";
+const MCP_TOOL = "web_search";
+const PI_AUTH_PROVIDER = "github-copilot";
+const TOKEN_ENV_VARS = ["GH_TOKEN", "GITHUB_TOKEN"];
+/**
+ * Statuses that mean the endpoint rejected the token itself. Probed on
+ * 2026-09-29 against GITHUB_MCP_URL: an unusable token (pi's short-lived
+ * Copilot token) got 400 "Authorization header is badly formatted".
+ */
+const LOGIN_REJECTED_STATUSES = [400, 401, 403];
 
 export interface TokenCandidate {
 	source: string;
@@ -30,9 +39,10 @@ export interface TokenCandidate {
  * then `GH_TOKEN` / `GITHUB_TOKEN`.
  *
  * pi keeps its GitHub OAuth token in `auth.json` under
- * `github-copilot.refresh` (pi 0.87.1). The short-lived Copilot token in
- * `access` is not accepted by the MCP endpoint. This is pi's internal storage
- * format, so it is read here and nowhere else.
+ * `github-copilot.refresh` (pi 0.87.1, observed 2026-09-29; the token has the
+ * `ghu_` prefix). The short-lived Copilot token in `access` is rejected by the
+ * MCP endpoint with 400. This is pi's internal storage format, so it is read
+ * here and nowhere else.
  */
 export async function findGitHubTokens(
 	authFile: string,
@@ -42,16 +52,16 @@ export async function findGitHubTokens(
 	const candidates: TokenCandidate[] = [];
 	try {
 		const auth = JSON.parse(fs.readFileSync(authFile, "utf-8")) as Record<string, { refresh?: unknown }>;
-		const refresh = auth["github-copilot"]?.refresh;
+		const refresh = auth[PI_AUTH_PROVIDER]?.refresh;
 		if (typeof refresh === "string" && refresh) candidates.push({ source: "pi GitHub Copilot login", token: refresh });
 	} catch {
 		// No pi login yet; fall through to the other sources.
 	}
 	const ghCliToken = await readGhToken();
 	if (ghCliToken) candidates.push({ source: "gh auth token", token: ghCliToken });
-	for (const name of ["GH_TOKEN", "GITHUB_TOKEN"]) {
-		const value = env[name]?.trim();
-		if (value) candidates.push({ source: name, token: value });
+	for (const envVar of TOKEN_ENV_VARS) {
+		const value = env[envVar]?.trim();
+		if (value) candidates.push({ source: envVar, token: value });
 	}
 	return uniqueByToken(candidates);
 }
@@ -64,14 +74,21 @@ function uniqueByToken(candidates: TokenCandidate[]): TokenCandidate[] {
 	return unique;
 }
 
+type RunFile = (
+	file: string,
+	args: string[],
+	options: { timeout: number; windowsHide: boolean },
+	callback: (error: Error | null, stdout: string) => void,
+) => void;
+
 /** The github.com token only; a GitHub Enterprise default host must not be sent to api.githubcopilot.com. */
-function readGhCliToken(): Promise<string | undefined> {
+export function readGhCliToken(runFile: RunFile = execFile as unknown as RunFile): Promise<string | undefined> {
 	return new Promise((resolve) => {
-		execFile(
+		runFile(
 			"gh",
 			["auth", "token", "--hostname", GITHUB_HOST],
 			{ timeout: GH_TOKEN_TIMEOUT_MS, windowsHide: true },
-			(error, stdout) => resolve(error ? undefined : stdout.trim() || undefined),
+			(error, stdout) => resolve(error ? undefined : String(stdout).trim() || undefined),
 		);
 	});
 }
@@ -85,12 +102,9 @@ export class HttpError extends Error {
 	}
 }
 
-/**
- * Whether the endpoint rejected the token itself, so the next login is worth
- * trying. GitHub answers an unusable token with 400 as well as 401/403.
- */
+/** Whether the endpoint rejected the token itself, so the next login is worth trying. */
 export function isLoginRejected(error: unknown): boolean {
-	return error instanceof HttpError && [400, 401, 403].includes(error.status);
+	return error instanceof HttpError && LOGIN_REJECTED_STATUSES.includes(error.status);
 }
 
 /**
@@ -159,13 +173,13 @@ export async function callWebSearch(
 			Authorization: `Bearer ${token}`,
 			"Content-Type": "application/json",
 			Accept: "application/json, text/event-stream",
-			"X-MCP-Toolsets": "web_search",
+			"X-MCP-Toolsets": MCP_TOOL,
 		},
 		body: JSON.stringify({
 			jsonrpc: "2.0",
 			id: 1,
 			method: "tools/call",
-			params: { name: "web_search", arguments: { query } },
+			params: { name: MCP_TOOL, arguments: { query } },
 		}),
 		// The token goes to this one URL only; never follow a redirect with it.
 		redirect: "error",
@@ -177,8 +191,10 @@ export async function callWebSearch(
 	}
 	const rpc = parseRpcBody(body);
 	if (rpc.error) throw new Error(`MCP error: ${rpc.error.message ?? JSON.stringify(rpc.error)}`);
-	if (rpc.result?.isError) throw new Error(resultText(rpc.result) || "web_search returned an error");
-	return searchResultToText(rpc.result);
+	if (rpc.result?.isError) throw new Error(resultText(rpc.result) || `${MCP_TOOL} returned an error`);
+	const text = searchResultToText(rpc.result);
+	if (!text.trim()) throw new Error(`${MCP_TOOL} returned no content`);
+	return text;
 }
 
 type SearchFn = (query: string, token: string, signal?: AbortSignal) => Promise<string>;

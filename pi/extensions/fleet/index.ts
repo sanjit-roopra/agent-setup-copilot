@@ -37,7 +37,7 @@ import { Type } from "typebox";
 import { FLEET_TOOL } from "../tool-names.ts";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { registerFleetCommand } from "./coordinator.ts";
-import { loadRepoFleet } from "./copilot-profiles.ts";
+import { loadRepoFleet, toolArgs } from "./copilot-profiles.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -313,8 +313,7 @@ async function runSingleAgent(
 	if (inheritsDispatchConfig && dispatchDefaults.thinkingLevel) {
 		args.push("--thinking", dispatchDefaults.thinkingLevel);
 	}
-	// An empty list means the profile's tools have no pi equivalent: run with none, not pi's defaults.
-	if (agent.tools) args.push(...(agent.tools.length > 0 ? ["--tools", agent.tools.join(",")] : ["--no-tools"]));
+	args.push(...toolArgs(agent.tools));
 
 	let tmpPromptDir: string | null = null;
 	let tmpPromptPath: string | null = null;

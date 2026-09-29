@@ -56,7 +56,7 @@ Pick **budget** when:
 - you want faster turnaround and review every change anyway;
 - cost matters more than first-attempt success, and rerunning a task is cheap.
 
-The budget variant runs implementation on Claude Sonnet 5.5 (medium), the same model and effort as the coordinator profile. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
+The budget variant runs implementation on Claude Sonnet 5.5 (medium), the model recommended for the session and the effort set in the coordinator profile. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
 
 How to install each variant:
 
@@ -223,7 +223,7 @@ For a coding fleet, Terminal-Bench 4.0 (agentic coding and terminal use) separat
 What follows from this:
 
 - **Fleet General Purpose** does the implementation work, the closest match to Terminal-Bench. GPT-6 Sol (high) scores 26% there. Claude Opus 5.5 (medium) scores 53% for 2.7x the cost, and failed implementation runs are the expensive part. Claude Sonnet 5.5 (medium) is the budget option: 30% for 1.15x the cost of Sol (high) at 2.1 min per task, at the price of 41 instead of 51 on the Intelligence Index.
-  - Dividing index cost by Terminal-Bench score, Sonnet 5.5 (medium) has the lowest cost per solved task among models that score at least 20% on Terminal-Bench: $2,337, against $2,346 for Sol (high), $2,590 for Sonnet 5.5 (low), $2,673 for Sonnet 5.5 (high), $2,774 for Opus 5.5 (low), and $3,070 for Opus 5.5 (medium). GPT-6 Luna (0-13%) and GPT-6 Sol (medium) (19%, $2,189) come out lower on this ratio but fall below the 20% floor.
+  - Dividing index cost by Terminal-Bench score, Sonnet 5.5 (medium) has the lowest cost per solved task among models that score at least 20% on Terminal-Bench: $2,337, against $2,346 for Sol (high), $2,590 for Sonnet 5.5 (low), $2,673 for Sonnet 5.5 (high), $2,774 for Opus 5.5 (low), and $3,070 for Opus 5.5 (medium). GPT-6 Luna from medium to max effort (3-13%) and GPT-6 Sol (medium) (19%, $2,189) come out lower on this ratio but fall below the 20% floor; GPT-6 Luna (low) solves no tasks.
   - Sol (high) is almost level on this ratio, but Sonnet 5.5 (medium) scores 30% to 26%, is faster (2.1 against 2.3 min per task), and has no long-context price step. Opus 5.5 (low) is the fastest option (1.4 min) but costs more per solved task. Sonnet 5.5 (high) scores 44% for 1.7x the cost of Sonnet 5.5 (medium).
 - Above Sonnet 5.5 (high), use Opus instead. Sonnet 5.5 (xhigh) costs more than Opus 5.5 (high) for the same Terminal-Bench score, with lower intelligence and slower tasks, because Sonnet writes many more reasoning tokens at high efforts.
 - **Fleet Explore** needs reliable tool use, not deep reasoning. GPT-6 Luna (high) spends 1.6x the output tokens of Luna (medium) (47M vs 29M) for +3 intelligence and 5% instead of 3% Terminal-Bench. Claude Sonnet 5.5 (low) is a real agentic model at 1.6 min per task. GPT-6 Luna (medium) is the budget option.

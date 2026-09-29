@@ -139,10 +139,10 @@ The agent ID is the filename without `.agent.md`. Use `/agent` to switch profile
 
 | Role | Profile file | Preferred model (`model`) | Reasoning effort (`reasoning-effort`) |
 | --- | --- | --- | --- |
-| Subagent Fleet | `subagent-fleet.agent.md` | Host session: GPT-6 Sol (not set in profile) | high |
-| Fleet Explore | `fleet-explore.agent.md` | GPT-6 Luna (copilot) | high |
+| Subagent Fleet | `subagent-fleet.agent.md` | Host session: Claude Sonnet 5.5 (not set in profile) | medium |
+| Fleet Explore | `fleet-explore.agent.md` | Claude Sonnet 5.5 (copilot) | low |
 | Fleet Task | `fleet-task.agent.md` | GPT-6 Luna (copilot) | low |
-| Fleet General Purpose | `fleet-general-purpose.agent.md` | GPT-6 Sol (copilot) | high |
+| Fleet General Purpose | `fleet-general-purpose.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Research | `fleet-research.agent.md` | GPT-6 Sol (copilot) | high |
 
 | Review role | Profile file | Preferred model (`model`) | Reasoning effort (`reasoning-effort`) |
@@ -151,11 +151,47 @@ The agent ID is the filename without `.agent.md`. Use `/agent` to switch profile
 | Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Security Review | `fleet-security-review.agent.md` | Claude Opus 5.5 (copilot) | high |
 
+The same assignments are available for the Copilot CLI's built-in subagents as a [settings snippet](copilot-cli/README.md), together with a budget variant.
+
+### Why these models
+
+The assignments follow the [Artificial Analysis](https://artificialanalysis.ai/models) benchmarks of 29 September 2026 and the [Copilot model prices](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing) of the same date. Copilot bills per token at the vendors' API prices (per 1M tokens: GPT-6 Sol $2 input / $0.20 cached / $10 output; Claude Sonnet 5.5 $2 / $0.20 / $10 plus $2.50 cache write; Claude Opus 5.5 $4 / $0.20 / $20 plus $5 cache write; GPT-6 Luna $0.10 / $0.01 / $0.50), so the Artificial Analysis "cost to run the index" figures apply to Copilot as they are.
+
+For a coding fleet, Terminal-Bench 4.0 (agentic coding and terminal use) separates the models far more than the overall Intelligence Index does:
+
+| Model and effort | Intelligence Index | Terminal-Bench 4.0 | Cost to run the index | Time per task |
+| --- | --- | --- | --- | --- |
+| GPT-6 Luna (low) | 21 | 0% | $11 | 0.2 min |
+| GPT-6 Luna (medium) | 29 | 3% | $31 | – |
+| GPT-6 Luna (high) | 32 | 5% | $48 | 2.3 min |
+| GPT-6 Sol (high) | 43 | 26% | $610 | 2.3 min |
+| GPT-6 Sol (xhigh) | 44 | 31% | $860 | 3.5 min |
+| GPT-6 Sol (max) | 48 | 44% | $1,546 | 6.5 min |
+| Claude Sonnet 5.5 (low) | 36 | 21% | $544 | 1.6 min |
+| Claude Sonnet 5.5 (medium) | 41 | 30% | $701 | 2.1 min |
+| Claude Sonnet 5.5 (high) | 47 | 44% | $1,176 | 3.6 min |
+| Claude Sonnet 5.5 (xhigh) | 52 | 57% | $2,738 | 7.0 min |
+| Claude Opus 5.5 (low) | 42 | 40% | $860 | 1.4 min |
+| Claude Opus 5.5 (medium) | 51 | 53% | $1,627 | 3.6 min |
+| Claude Opus 5.5 (high) | 54 | 57% | $2,172 | 4.8 min |
+| Claude Opus 5.5 (xhigh) | 56 | 60% | $4,057 | 8.4 min |
+
+What follows from this:
+
+- **Fleet General Purpose** does the implementation work, the closest match to Terminal-Bench. GPT-6 Sol (high) scores 26% there. Claude Opus 5.5 (medium) scores 53% for 2.7x the cost, and failed implementation runs are the expensive part. Claude Sonnet 5.5 (high) is the budget option: 44% for 1.9x the cost of Sol (high), the same score as Sol (max) at lower cost and half the time.
+- Above Sonnet 5.5 (high), use Opus instead. Sonnet 5.5 (xhigh) costs more than Opus 5.5 (high) for the same Terminal-Bench score, with lower intelligence and slower tasks, because Sonnet writes many more reasoning tokens at high efforts.
+- **Fleet Explore** needs reliable tool use, not deep reasoning. GPT-6 Luna (high) spends 1.6x the output tokens of Luna (medium) (47M vs 29M) for +3 intelligence and 5% instead of 3% Terminal-Bench. Claude Sonnet 5.5 (low) is a real agentic model at 1.6 min per task. GPT-6 Luna (medium) is the budget option.
+- **Fleet Task** runs one command and reports. GPT-6 Luna (low) is enough.
+- **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. GPT-6 Sol (high) is the cheapest model in the 43-point band.
+- **Reviews** stay on Claude Opus 5.5. Reviews are input-heavy and cache-friendly, and Opus reads cached input at the same $0.20 as Sonnet and Sol, so its premium is smaller in practice than in the table above; the remaining premium is on uncached input ($4 vs $2), output ($20 vs $10), and its $5 cache write, which Sol does not charge. Copilot charges Claude models one rate at any context length, while GPT-6 and GPT-5.6 models switch to a long-context rate above 272K tokens (for GPT-6 Sol: input and cached input double, output rises 1.5x). That makes long context free on Opus and costly on Sol.
+- **The session model** (the coordinator) is the context that grows longest, and every subagent waits on it. Claude Sonnet 5.5 costs the same per token as GPT-6 Sol and has no long-context price step. Effort labels are not comparable across vendors: per task, Sonnet thinks longer at the same label. The coordinator therefore runs at medium effort. Sonnet 5.5 (medium) is faster than GPT-6 Sol (high) (2.1 min per task against 2.3), scores 30% to 26% on Terminal-Bench for 41 to 43 intelligence, and costs 15% more on the index, which the long-context step on Sol offsets once a session passes 272K tokens. Its $2.50 cache write, which Sol does not charge, adds about 25% on new input. Sonnet 5.5 (high) adds 6 intelligence points for 1.7x the cost and 1.7x the time; use it only when delegation quality falls short.
+- GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. Opus 5.5 beats Astra on cost at every level; GPT-6 Sol beats GPT-5.6 Sol; Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
+
 ### VS Code
 
-The agent files use the [supported `model` field](https://code.visualstudio.com/docs/agent-customization/custom-agents#_custom-agent-file-structure). [All three models are listed for VS Code](https://docs.github.com/en/copilot/reference/ai-models/supported-models#supported-ai-models-per-client).
+The agent files use the [supported `model` field](https://code.visualstudio.com/docs/agent-customization/custom-agents#_custom-agent-file-structure). [All four models are listed for VS Code](https://docs.github.com/en/copilot/reference/ai-models/supported-models#supported-ai-models-per-client).
 
-VS Code 1.136+ reads [`reasoning-effort` from custom-agent frontmatter](https://github.com/microsoft/vscode/pull/329263) as a per-agent default. The supported values are `low`, `medium`, `high`, `xhigh`, and `max`; the selected model must support the configured level. The coordinator does not set a model, so it uses the session's selected model with `high` effort when supported. The profile does not set effort on individual subagent calls. In older VS Code versions, choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker.
+VS Code 1.136+ reads [`reasoning-effort` from custom-agent frontmatter](https://github.com/microsoft/vscode/pull/329263) as a per-agent default. The supported values are `low`, `medium`, `high`, `xhigh`, and `max`; the selected model must support the configured level. The coordinator does not set a model, so it uses the session's selected model with `medium` effort when supported. The profile does not set effort on individual subagent calls. In older VS Code versions, choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker.
 
 ### Copilot app
 
@@ -165,7 +201,7 @@ Select the agent, then check the [session model and reasoning-effort pickers](ht
 
 No shared agent-profile field sets it. The window depends on the model and variant. [Extended context](https://docs.github.com/en/copilot/reference/ai-models/supported-models#models-with-extended-capabilities) is documented for supported models in VS Code and CLI, not the desktop app. The app does not document a context-tier picker or default.
 
-For the main session, select GPT-6 Sol if your client offers it. The coordinator profile requests high effort; check the active setting in clients that might not honor it. Default context is a target, not a shared profile setting.
+For the main session, select Claude Sonnet 5.5 if your client offers it. The coordinator profile requests medium effort; check the active setting in clients that might not honor it. Default context is a target, not a shared profile setting.
 
 ## Check your setup
 

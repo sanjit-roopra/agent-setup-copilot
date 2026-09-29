@@ -14,6 +14,11 @@ import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 
 export const GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
+const GITHUB_HOST = "github.com";
+const GH_TOKEN_TIMEOUT_MS = 5_000;
+const SEARCH_TIMEOUT_MS = 90_000;
+const ERROR_SNIPPET_CHARS = 300;
+const SSE_DATA_PREFIX = "data:";
 
 export interface TokenCandidate {
 	source: string;
@@ -22,14 +27,17 @@ export interface TokenCandidate {
 
 /**
  * GitHub tokens to try, in order: pi's GitHub Copilot login, the GitHub CLI,
- * then `GH_TOKEN` / `GITHUB_TOKEN`. pi stores its GitHub OAuth token in the
- * `refresh` field; the short-lived Copilot token in `access` is not accepted
- * by the MCP endpoint.
+ * then `GH_TOKEN` / `GITHUB_TOKEN`.
+ *
+ * pi keeps its GitHub OAuth token in `auth.json` under
+ * `github-copilot.refresh` (pi 0.87.1). The short-lived Copilot token in
+ * `access` is not accepted by the MCP endpoint. This is pi's internal storage
+ * format, so it is read here and nowhere else.
  */
 export async function findGitHubTokens(
 	authFile: string,
 	env: Record<string, string | undefined> = process.env,
-	ghToken: () => Promise<string | undefined> = readGhToken,
+	readGhToken: () => Promise<string | undefined> = readGhCliToken,
 ): Promise<TokenCandidate[]> {
 	const candidates: TokenCandidate[] = [];
 	try {
@@ -39,21 +47,32 @@ export async function findGitHubTokens(
 	} catch {
 		// No pi login yet; fall through to the other sources.
 	}
-	const gh = await ghToken();
-	if (gh) candidates.push({ source: "gh auth token", token: gh });
+	const ghCliToken = await readGhToken();
+	if (ghCliToken) candidates.push({ source: "gh auth token", token: ghCliToken });
 	for (const name of ["GH_TOKEN", "GITHUB_TOKEN"]) {
 		const value = env[name]?.trim();
 		if (value) candidates.push({ source: name, token: value });
 	}
-	const seen = new Set<string>();
-	return candidates.filter((c) => !seen.has(c.token) && seen.add(c.token));
+	return uniqueByToken(candidates);
 }
 
-function readGhToken(): Promise<string | undefined> {
+function uniqueByToken(candidates: TokenCandidate[]): TokenCandidate[] {
+	const unique: TokenCandidate[] = [];
+	for (const candidate of candidates) {
+		if (!unique.some((existing) => existing.token === candidate.token)) unique.push(candidate);
+	}
+	return unique;
+}
+
+/** The github.com token only; a GitHub Enterprise default host must not be sent to api.githubcopilot.com. */
+function readGhCliToken(): Promise<string | undefined> {
 	return new Promise((resolve) => {
-		execFile("gh", ["auth", "token"], { timeout: 5000, windowsHide: true }, (error, stdout) => {
-			resolve(error ? undefined : stdout.trim() || undefined);
-		});
+		execFile(
+			"gh",
+			["auth", "token", "--hostname", GITHUB_HOST],
+			{ timeout: GH_TOKEN_TIMEOUT_MS, windowsHide: true },
+			(error, stdout) => resolve(error ? undefined : stdout.trim() || undefined),
+		);
 	});
 }
 
@@ -66,29 +85,48 @@ export class HttpError extends Error {
 	}
 }
 
-/** Parse a JSON-RPC response that may arrive as plain JSON or as SSE `data:` lines. */
-export function parseRpcBody(body: string): { result?: any; error?: { message?: string } } {
-	const trimmed = body.trim();
-	if (trimmed.startsWith("{")) return JSON.parse(trimmed);
-	const dataLines = trimmed
-		.split(/\r?\n/)
-		.filter((line) => line.startsWith("data:"))
-		.map((line) => line.slice(5).trim());
-	if (dataLines.length === 0) throw new Error(`Unexpected response: ${trimmed.slice(0, 200)}`);
-	return JSON.parse(dataLines[dataLines.length - 1]);
+/**
+ * Whether the endpoint rejected the token itself, so the next login is worth
+ * trying. GitHub answers an unusable token with 400 as well as 401/403.
+ */
+export function isLoginRejected(error: unknown): boolean {
+	return error instanceof HttpError && [400, 401, 403].includes(error.status);
 }
 
 /**
- * Turn the tool result into text for the model: the answer without the
- * `【3:0†source】` markers, followed by a deduplicated source list.
+ * Parse a JSON-RPC response that arrives as plain JSON or as SSE. For SSE, the
+ * `data:` lines of each event are joined, and the last event is used.
  */
-export function formatSearchResult(result: any): string {
-	const text = (result?.content ?? [])
+export function parseRpcBody(body: string): { result?: any; error?: { message?: string } } {
+	const trimmed = body.trim();
+	if (trimmed.startsWith("{")) return JSON.parse(trimmed);
+	const events = trimmed
+		.split(/\r?\n\r?\n/)
+		.map((event) =>
+			event
+				.split(/\r?\n/)
+				.filter((line) => line.startsWith(SSE_DATA_PREFIX))
+				.map((line) => line.slice(SSE_DATA_PREFIX.length).replace(/^ /, ""))
+				.join("\n"),
+		)
+		.filter((data) => data !== "");
+	if (events.length === 0) throw new Error(`Unexpected response: ${trimmed.slice(0, ERROR_SNIPPET_CHARS)}`);
+	return JSON.parse(events[events.length - 1]);
+}
+
+function resultText(result: any): string {
+	return (result?.content ?? [])
 		.filter((c: any) => c?.type === "text")
 		.map((c: any) => String(c.text))
 		.join("\n");
-	if (result?.isError) throw new Error(text || "web_search returned an error");
+}
 
+/**
+ * Turn a successful tool result into text for the model: the answer without
+ * the `【3:0†source】` markers, followed by a deduplicated source list.
+ */
+export function searchResultToText(result: any): string {
+	const text = resultText(result);
 	let payload: any;
 	try {
 		payload = JSON.parse(text);
@@ -108,8 +146,14 @@ export function formatSearchResult(result: any): string {
 	return `${answer}\n\nSources:\n${list}`;
 }
 
-export async function callWebSearch(query: string, token: string, signal?: AbortSignal): Promise<string> {
-	const response = await fetch(GITHUB_MCP_URL, {
+export async function callWebSearch(
+	query: string,
+	token: string,
+	signal?: AbortSignal,
+	fetchImpl: typeof fetch = fetch,
+): Promise<string> {
+	const timeoutSignal = AbortSignal.timeout(SEARCH_TIMEOUT_MS);
+	const response = await fetchImpl(GITHUB_MCP_URL, {
 		method: "POST",
 		headers: {
 			Authorization: `Bearer ${token}`,
@@ -123,11 +167,40 @@ export async function callWebSearch(query: string, token: string, signal?: Abort
 			method: "tools/call",
 			params: { name: "web_search", arguments: { query } },
 		}),
-		signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(90_000)]) : AbortSignal.timeout(90_000),
+		// The token goes to this one URL only; never follow a redirect with it.
+		redirect: "error",
+		signal: signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal,
 	});
 	const body = await response.text();
-	if (!response.ok) throw new HttpError(response.status, `HTTP ${response.status}: ${body.slice(0, 300)}`);
+	if (!response.ok) {
+		throw new HttpError(response.status, `HTTP ${response.status}: ${body.slice(0, ERROR_SNIPPET_CHARS)}`);
+	}
 	const rpc = parseRpcBody(body);
 	if (rpc.error) throw new Error(`MCP error: ${rpc.error.message ?? JSON.stringify(rpc.error)}`);
-	return formatSearchResult(rpc.result);
+	if (rpc.result?.isError) throw new Error(resultText(rpc.result) || "web_search returned an error");
+	return searchResultToText(rpc.result);
+}
+
+type SearchFn = (query: string, token: string, signal?: AbortSignal) => Promise<string>;
+
+/** Try each login in order, moving on only when the endpoint rejected the token. */
+export async function searchWithFallback(
+	query: string,
+	candidates: TokenCandidate[],
+	signal?: AbortSignal,
+	search: SearchFn = callWebSearch,
+): Promise<{ text: string; tokenSource: string }> {
+	if (candidates.length === 0) {
+		throw new Error("No GitHub login found. Run /login in pi and choose GitHub Copilot, or run `gh auth login`.");
+	}
+	const failures: string[] = [];
+	for (const candidate of candidates) {
+		try {
+			return { text: await search(query, candidate.token, signal), tokenSource: candidate.source };
+		} catch (error) {
+			if (!isLoginRejected(error)) throw error;
+			failures.push(`${candidate.source}: ${(error as Error).message}`);
+		}
+	}
+	throw new Error(`Every GitHub login was rejected:\n${failures.join("\n")}`);
 }

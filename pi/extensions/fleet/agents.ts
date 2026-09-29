@@ -9,12 +9,8 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
 import { CONFIG_DIR_NAME, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
-import { loadFleet, variantFromEnv } from "./copilot-profiles.ts";
-
-/** Repository root: this file lives at `pi/extensions/fleet/agents.ts`. */
-export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+import { loadRepoFleet } from "./copilot-profiles.ts";
 
 export type AgentScope = "user" | "project" | "both";
 
@@ -135,15 +131,16 @@ function findNearestProjectAgentsDir(cwd: string): string | null {
 	}
 }
 
+// Read on every discovery, like the user and project agents, so profile edits apply mid-session.
 function loadPackageAgents(): AgentConfig[] {
-	return loadFleet(REPO_ROOT, variantFromEnv()).specialists.map((profile) => ({
-		name: profile.name,
-		description: profile.description,
-		tools: profile.tools,
-		model: profile.model,
-		systemPrompt: profile.systemPrompt,
+	return loadRepoFleet().specialists.map((specialist) => ({
+		name: specialist.name,
+		description: specialist.description,
+		tools: specialist.tools,
+		model: specialist.model,
+		systemPrompt: specialist.systemPrompt,
 		source: "package",
-		filePath: profile.filePath,
+		filePath: specialist.filePath,
 	}));
 }
 

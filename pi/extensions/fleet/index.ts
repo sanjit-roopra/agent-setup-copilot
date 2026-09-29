@@ -14,9 +14,8 @@
  * Adapted from pi's examples/extensions/subagent/index.ts
  * (MIT, Copyright (c) 2025 Mario Zechner). Changes: the tool is named `fleet`
  * so it can coexist with other subagent packages, its description lists the
- * fleet specialists, and a `/fleet` command starts a coordinated run using the
- * `Subagent Fleet` profile from `.github/agents/`, limited to that profile's
- * tools until the run settles.
+ * fleet specialists, an agent whose declared tools have no pi equivalent runs
+ * with no tools, and the `/fleet` command from coordinator.ts is registered.
  */
 
 import { spawn } from "node:child_process";
@@ -35,8 +34,10 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
-import { type AgentConfig, type AgentScope, discoverAgents, REPO_ROOT } from "./agents.ts";
-import { loadFleet, variantFromEnv } from "./copilot-profiles.ts";
+import { FLEET_TOOL } from "../tool-names.ts";
+import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
+import { registerFleetCommand } from "./coordinator.ts";
+import { loadRepoFleet } from "./copilot-profiles.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -312,7 +313,8 @@ async function runSingleAgent(
 	if (inheritsDispatchConfig && dispatchDefaults.thinkingLevel) {
 		args.push("--thinking", dispatchDefaults.thinkingLevel);
 	}
-	if (agent.tools && agent.tools.length > 0) args.push("--tools", agent.tools.join(","));
+	// An empty list means the profile's tools have no pi equivalent: run with none, not pi's defaults.
+	if (agent.tools) args.push(...(agent.tools.length > 0 ? ["--tools", agent.tools.join(",")] : ["--no-tools"]));
 
 	let tmpPromptDir: string | null = null;
 	let tmpPromptPath: string | null = null;
@@ -476,67 +478,16 @@ const SubagentParams = Type.Object({
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process (single mode)" })),
 });
 
-/** Build the user message that turns the current session into the fleet coordinator. */
-function buildCoordinatorMessage(fleet: ReturnType<typeof loadFleet>, task: string): string | undefined {
-	if (!fleet.coordinator) return undefined;
-	const roster = fleet.specialists
-		.map((s) => `- \`${s.name}\` (${s.displayName}): ${s.description}`)
-		.join("\n");
-	return [
-		`Act as the ${fleet.coordinator.displayName} coordinator for this task.`,
-		"",
-		fleet.coordinator.systemPrompt,
-		"",
-		"Delegate with the `fleet` tool. Specialists (use the name in backticks):",
-		roster,
-		"",
-		`Task: ${task}`,
-	].join("\n");
-}
-
 export default function (pi: ExtensionAPI) {
-	// Tools active before /fleet narrowed them to the coordinator's; restored when the run settles.
-	let toolsBeforeFleet: string[] | undefined;
-	pi.on("agent_settled", () => {
-		if (!toolsBeforeFleet) return;
-		pi.setActiveTools(toolsBeforeFleet);
-		toolsBeforeFleet = undefined;
-	});
+	registerFleetCommand(pi);
 
-	pi.registerCommand("fleet", {
-		description: "Coordinate the subagent fleet on a task: /fleet <task>",
-		handler: async (args, ctx) => {
-			const task = args.trim();
-			if (!task) {
-				ctx.ui.notify("Usage: /fleet <task>", "warning");
-				return;
-			}
-			if (!ctx.isIdle()) {
-				ctx.ui.notify("Agent is busy. Wait for it to finish, then run /fleet again.", "warning");
-				return;
-			}
-			const fleet = loadFleet(REPO_ROOT, variantFromEnv());
-			const message = buildCoordinatorMessage(fleet, task);
-			if (!message) {
-				ctx.ui.notify(`No coordinator profile found in ${path.join(REPO_ROOT, ".github", "agents")}`, "error");
-				return;
-			}
-			// Like the Copilot coordinator: delegate, read, and search, but never edit or run commands itself.
-			const coordinatorTools = fleet.coordinator?.tools;
-			if (coordinatorTools) {
-				toolsBeforeFleet ??= pi.getActiveTools();
-				pi.setActiveTools(coordinatorTools);
-			}
-			pi.sendUserMessage(message);
-		},
-	});
-
-	const fleetNames = loadFleet(REPO_ROOT, variantFromEnv())
+	// The description is fixed when the tool registers; delegation itself re-reads the profiles.
+	const fleetNames = loadRepoFleet()
 		.specialists.map((s) => s.name)
 		.join(", ");
 
 	pi.registerTool({
-		name: "fleet",
+		name: FLEET_TOOL,
 		label: "Fleet",
 		description: [
 			"Delegate tasks to specialized subagents with isolated context.",

@@ -61,8 +61,13 @@ previous step's output.
 
 The models come from the profiles' `model` and `reasoning-effort` lines. For
 example, `Claude Opus 5.5 (copilot)` with `medium` becomes
-`github-copilot/claude-opus-5.5:medium`. The coordinator session uses whatever
-model you picked in pi.
+`github-copilot/claude-opus-5.5:medium`. The coordinator session uses the
+model and thinking level you picked in pi; the coordinator profile's
+`reasoning-effort` is not applied.
+
+If a profile lists a Copilot tool that pi has no equivalent for, that tool is
+left out and `/fleet` shows a warning. A specialist whose tools all lack an
+equivalent runs with no tools, never with pi's defaults.
 
 ### Use the budget fleet
 
@@ -97,13 +102,20 @@ The package adds two tools. Every session can use them, and only
 
 | Tool | How it works | Login | Limits |
 | --- | --- | --- | --- |
-| `fleet_web_search` | Sends one question to GitHub's hosted MCP server (`api.githubcopilot.com/mcp/`), the same web search Copilot CLI uses. It returns an answer with source URLs. | Your pi GitHub Copilot login, then `gh auth token`, then `GH_TOKEN` or `GITHUB_TOKEN` | Your Copilot plan's |
-| `fleet_web_fetch` | Downloads the page on your machine and converts HTML to Markdown. | None | Up to 5 MB per page and 30 seconds; sites behind a Cloudflare challenge, such as npmjs.com, refuse it |
+| `fleet_web_search` | Sends one question to GitHub's hosted MCP server (`api.githubcopilot.com/mcp/`), the same web search Copilot CLI uses. It returns an answer with source URLs. | Your pi GitHub Copilot login, then `gh auth token --hostname github.com`, then `GH_TOKEN` or `GITHUB_TOKEN` | Set by your Copilot plan |
+| `fleet_web_fetch` | Downloads the page on your machine and converts HTML to Markdown. | None | Up to 5 MB per page and 30 seconds; public addresses only; sites behind a Cloudflare challenge, such as npmjs.com, refuse it |
 
 The search toolset is not in GitHub's public MCP documentation. The package
 requests it the way Copilot CLI does, with the `X-MCP-Toolsets: web_search`
 header. If GitHub changes this, `fleet_web_search` fails with the HTTP error
 and the rest of the fleet keeps working.
+
+`fleet_web_fetch` refuses loopback, private, link-local, and cloud metadata
+addresses, such as `localhost`, `192.168.1.1`, and `169.254.169.254`. It checks
+the first URL and every redirect, and it connects to the exact IP address it
+checked, so a hostname cannot switch to a private address between the check
+and the connection. It returns the page marked as untrusted content, because
+text on a page can try to give the model instructions.
 
 The tool names start with `fleet_` so they do not clash with other packages,
 such as pi-web-access.
@@ -136,9 +148,10 @@ with only its own tools.
 
 ## Differences from the Copilot clients
 
-- There is no agent picker. `/fleet` takes the place of selecting **Subagent Fleet**.
+- There is no agent picker. `/fleet` takes the place of selecting **Subagent Fleet**. It is not Copilot CLI's `/fleet` command, which runs the CLI's built-in subagents.
 - `fleet-research` has web tools but no GitHub MCP tools such as `github/get_me`.
 - Tool lists limit what each specialist can call. As in the Copilot clients, they are not a security sandbox; `bash` can still change files.
+- `fleet-research` can read local files and fetch any public URL. A web page that tricks it could make it send file contents to another site in a URL. Do not point it at untrusted pages in a repository that holds secrets.
 - A specialist cannot delegate again, because the `fleet` tool is not in its tool list.
 
 ## Maintain

@@ -10,6 +10,13 @@
  *   - Chain: { chain: [{ agent: "name", task: "... {previous} ..." }, ...] }
  *
  * Uses JSON mode to capture structured output from subagents.
+ *
+ * Adapted from pi's examples/extensions/subagent/index.ts
+ * (MIT, Copyright (c) 2025 Mario Zechner). Changes: the tool is named `fleet`
+ * so it can coexist with other subagent packages, its description lists the
+ * fleet specialists, and a `/fleet` command starts a coordinated run using the
+ * `Subagent Fleet` profile from `.github/agents/`, limited to that profile's
+ * tools until the run settles.
  */
 
 import { spawn } from "node:child_process";
@@ -28,7 +35,8 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Container, Markdown, Spacer, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
-import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
+import { type AgentConfig, type AgentScope, discoverAgents, REPO_ROOT } from "./agents.ts";
+import { loadFleet, variantFromEnv } from "./copilot-profiles.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -148,7 +156,7 @@ interface UsageStats {
 
 interface SingleResult {
 	agent: string;
-	agentSource: "user" | "project" | "unknown";
+	agentSource: "package" | "user" | "project" | "unknown";
 	task: string;
 	exitCode: number;
 	messages: Message[];
@@ -468,12 +476,71 @@ const SubagentParams = Type.Object({
 	cwd: Type.Optional(Type.String({ description: "Working directory for the agent process (single mode)" })),
 });
 
+/** Build the user message that turns the current session into the fleet coordinator. */
+function buildCoordinatorMessage(fleet: ReturnType<typeof loadFleet>, task: string): string | undefined {
+	if (!fleet.coordinator) return undefined;
+	const roster = fleet.specialists
+		.map((s) => `- \`${s.name}\` (${s.displayName}): ${s.description}`)
+		.join("\n");
+	return [
+		`Act as the ${fleet.coordinator.displayName} coordinator for this task.`,
+		"",
+		fleet.coordinator.systemPrompt,
+		"",
+		"Delegate with the `fleet` tool. Specialists (use the name in backticks):",
+		roster,
+		"",
+		`Task: ${task}`,
+	].join("\n");
+}
+
 export default function (pi: ExtensionAPI) {
+	// Tools active before /fleet narrowed them to the coordinator's; restored when the run settles.
+	let toolsBeforeFleet: string[] | undefined;
+	pi.on("agent_settled", () => {
+		if (!toolsBeforeFleet) return;
+		pi.setActiveTools(toolsBeforeFleet);
+		toolsBeforeFleet = undefined;
+	});
+
+	pi.registerCommand("fleet", {
+		description: "Coordinate the subagent fleet on a task: /fleet <task>",
+		handler: async (args, ctx) => {
+			const task = args.trim();
+			if (!task) {
+				ctx.ui.notify("Usage: /fleet <task>", "warning");
+				return;
+			}
+			if (!ctx.isIdle()) {
+				ctx.ui.notify("Agent is busy. Wait for it to finish, then run /fleet again.", "warning");
+				return;
+			}
+			const fleet = loadFleet(REPO_ROOT, variantFromEnv());
+			const message = buildCoordinatorMessage(fleet, task);
+			if (!message) {
+				ctx.ui.notify(`No coordinator profile found in ${path.join(REPO_ROOT, ".github", "agents")}`, "error");
+				return;
+			}
+			// Like the Copilot coordinator: delegate, read, and search, but never edit or run commands itself.
+			const coordinatorTools = fleet.coordinator?.tools;
+			if (coordinatorTools) {
+				toolsBeforeFleet ??= pi.getActiveTools();
+				pi.setActiveTools(coordinatorTools);
+			}
+			pi.sendUserMessage(message);
+		},
+	});
+
+	const fleetNames = loadFleet(REPO_ROOT, variantFromEnv())
+		.specialists.map((s) => s.name)
+		.join(", ");
+
 	pi.registerTool({
-		name: "subagent",
-		label: "Subagent",
+		name: "fleet",
+		label: "Fleet",
 		description: [
 			"Delegate tasks to specialized subagents with isolated context.",
+			`Fleet specialists: ${fleetNames}.`,
 			"Modes: single (agent + task), parallel (tasks array), chain (sequential with {previous} placeholder).",
 			`Default agent scope is "user" (from ${path.join(getAgentDir(), "agents")}).`,
 			`To enable project-local agents in ${CONFIG_DIR_NAME}/agents, set agentScope: "both" (or "project").`,
@@ -724,7 +791,7 @@ export default function (pi: ExtensionAPI) {
 			const scope: AgentScope = args.agentScope ?? "user";
 			if (args.chain && args.chain.length > 0) {
 				let text =
-					theme.fg("toolTitle", theme.bold("subagent ")) +
+					theme.fg("toolTitle", theme.bold("fleet ")) +
 					theme.fg("accent", `chain (${args.chain.length} steps)`) +
 					theme.fg("muted", ` [${scope}]`);
 				for (let i = 0; i < Math.min(args.chain.length, 3); i++) {
@@ -744,7 +811,7 @@ export default function (pi: ExtensionAPI) {
 			}
 			if (args.tasks && args.tasks.length > 0) {
 				let text =
-					theme.fg("toolTitle", theme.bold("subagent ")) +
+					theme.fg("toolTitle", theme.bold("fleet ")) +
 					theme.fg("accent", `parallel (${args.tasks.length} tasks)`) +
 					theme.fg("muted", ` [${scope}]`);
 				for (const t of args.tasks.slice(0, 3)) {
@@ -757,7 +824,7 @@ export default function (pi: ExtensionAPI) {
 			const agentName = args.agent || "...";
 			const preview = args.task ? (args.task.length > 60 ? `${args.task.slice(0, 60)}...` : args.task) : "...";
 			let text =
-				theme.fg("toolTitle", theme.bold("subagent ")) +
+				theme.fg("toolTitle", theme.bold("fleet ")) +
 				theme.fg("accent", agentName) +
 				theme.fg("muted", ` [${scope}]`);
 			text += `\n  ${theme.fg("dim", preview)}`;

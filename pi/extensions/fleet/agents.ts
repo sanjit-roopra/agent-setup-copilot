@@ -1,10 +1,20 @@
 /**
  * Agent discovery and configuration
+ *
+ * Adapted from pi's examples/extensions/subagent/agents.ts
+ * (MIT, Copyright (c) 2025 Mario Zechner). Changes: the fleet profiles in this
+ * repository's `.github/agents/` load as a base "package" layer that user and
+ * project agents can override by name.
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { CONFIG_DIR_NAME, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
+import { loadFleet, variantFromEnv } from "./copilot-profiles.ts";
+
+/** Repository root: this file lives at `pi/extensions/fleet/agents.ts`. */
+export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
 export type AgentScope = "user" | "project" | "both";
 
@@ -14,7 +24,7 @@ export interface AgentConfig {
 	tools?: string[];
 	model?: string;
 	systemPrompt: string;
-	source: "user" | "project";
+	source: "package" | "user" | "project";
 	filePath: string;
 }
 
@@ -125,6 +135,18 @@ function findNearestProjectAgentsDir(cwd: string): string | null {
 	}
 }
 
+function loadPackageAgents(): AgentConfig[] {
+	return loadFleet(REPO_ROOT, variantFromEnv()).specialists.map((profile) => ({
+		name: profile.name,
+		description: profile.description,
+		tools: profile.tools,
+		model: profile.model,
+		systemPrompt: profile.systemPrompt,
+		source: "package",
+		filePath: profile.filePath,
+	}));
+}
+
 export function discoverAgents(cwd: string, scope: AgentScope): AgentDiscoveryResult {
 	const userDir = path.join(getAgentDir(), "agents");
 	const projectAgentsDir = findNearestProjectAgentsDir(cwd);
@@ -132,7 +154,9 @@ export function discoverAgents(cwd: string, scope: AgentScope): AgentDiscoveryRe
 	const userAgents = scope === "project" ? [] : loadAgentsFromDir(userDir, "user");
 	const projectAgents = scope === "user" || !projectAgentsDir ? [] : loadAgentsFromDir(projectAgentsDir, "project");
 
+	// Fleet profiles are the base layer; same-name user or project agents override them.
 	const agentMap = new Map<string, AgentConfig>();
+	for (const agent of loadPackageAgents()) agentMap.set(agent.name, agent);
 
 	if (scope === "both") {
 		for (const agent of userAgents) agentMap.set(agent.name, agent);

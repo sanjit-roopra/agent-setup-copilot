@@ -1,6 +1,6 @@
 # Use the agent fleet
 
-**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [`copilot-cli/subagents.json`](copilot-cli/README.md) settings snippet instead; see [Copilot CLI](#copilot-cli).
+**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [Copilot CLI settings snippets](copilot-cli/README.md) instead; see [Copilot CLI](#copilot-cli).
 
 ## Install the fleet profiles
 
@@ -121,12 +121,12 @@ Permissions, models, and available tools still depend on the host. A `tools` lis
 
 ## Copilot CLI
 
-Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task, security-review, code-review, and general-purpose), so it does not need the profiles in `.github/agents/`. Instead, merge one of the settings snippets in [`copilot-cli/`](copilot-cli/README.md) into `~/.copilot/settings.json`:
+Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task, security-review, code-review, and general-purpose), so the settings snippets, not the profiles in `.github/agents/`, are the supported CLI setup. Merge one of the settings snippets in [`copilot-cli/`](copilot-cli/README.md) into `~/.copilot/settings.json`:
 
-- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) (recommended) sets the session model and gives each built-in subagent the fleet's model, effort, and context tier.
+- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) (recommended) sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
 - [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json) is the lower-cost variant.
 
-Check the result with `/model` and `/subagents`. `/fleet` enables the CLI's own parallel subagents. These settings stay in the CLI; they do not carry over to VS Code or the app.
+Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium, or low with the budget snippet). `/fleet` enables the CLI's own parallel subagents. These settings stay in the CLI; they do not carry over to VS Code or the app.
 
 ## Model assignments
 
@@ -173,7 +173,9 @@ For a coding fleet, Terminal-Bench 4.0 (agentic coding and terminal use) separat
 
 What follows from this:
 
-- **Fleet General Purpose** does the implementation work, the closest match to Terminal-Bench. GPT-6 Sol (high) scores 26% there. Claude Opus 5.5 (medium) scores 53% for 2.7x the cost, and failed implementation runs are the expensive part. Claude Opus 5.5 (low) is the budget option: 40% for 1.4x the cost of Sol (high) at 1.4 min per task. Dividing index cost by Terminal-Bench score, it has the lowest cost per solved task in the table ($2,150, against $2,346 for Sol (high), $2,673 for Sonnet 5.5 (high), and $3,070 for Opus 5.5 (medium)). It is the same model as the recommended option, so a task that needs more only needs a higher effort, not a different model. Sonnet 5.5 (high) scores 44% but costs 1.4x as much as Opus 5.5 (low) and takes 2.6x as long.
+- **Fleet General Purpose** does the implementation work, the closest match to Terminal-Bench. GPT-6 Sol (high) scores 26% there. Claude Opus 5.5 (medium) scores 53% for 2.7x the cost, and failed implementation runs are the expensive part. Claude Opus 5.5 (low) is the budget option: 40% for 1.4x the cost of Sol (high) at 1.4 min per task, at the price of 42 instead of 51 on the Intelligence Index.
+  - Dividing index cost by Terminal-Bench score, Opus 5.5 (low) has the lowest cost per solved task among models that score at least 20% on Terminal-Bench: $2,150, against $2,337 for Sonnet 5.5 (medium), $2,346 for Sol (high), $2,673 for Sonnet 5.5 (high), and $3,070 for Opus 5.5 (medium). GPT-6 Luna comes out lower on this ratio, but at 0-5% it is not a viable implementer.
+  - It is the same model as the recommended option, so a task that needs more only needs a higher effort, not a different model. Sonnet 5.5 (high) scores 44% but costs 1.4x as much as Opus 5.5 (low) and takes 2.6x as long.
 - Above Sonnet 5.5 (high), use Opus instead. Sonnet 5.5 (xhigh) costs more than Opus 5.5 (high) for the same Terminal-Bench score, with lower intelligence and slower tasks, because Sonnet writes many more reasoning tokens at high efforts.
 - **Fleet Explore** needs reliable tool use, not deep reasoning. GPT-6 Luna (high) spends 1.6x the output tokens of Luna (medium) (47M vs 29M) for +3 intelligence and 5% instead of 3% Terminal-Bench. Claude Sonnet 5.5 (low) is a real agentic model at 1.6 min per task. GPT-6 Luna (medium) is the budget option.
 - **Fleet Task** runs one command and reports. GPT-6 Luna (low) is enough.
@@ -199,6 +201,8 @@ No shared agent-profile field sets it. The window depends on the model and varia
 For the main session, select Claude Sonnet 5.5 if your client offers it. The coordinator profile requests medium effort; check the active setting in clients that might not honor it. Default context is a target, not a shared profile setting.
 
 ## Check your setup
+
+These steps cover the profiles in VS Code and the Copilot app. For Copilot CLI, see [Copilot CLI](#copilot-cli).
 
 On a test branch:
 

@@ -7,7 +7,7 @@ agents from this repository.
 | Snippet | Use it when | Differs in |
 | --- | --- | --- |
 | [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | You want the best result per credit for implementation work. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | You want to stay near the cost of the previous GPT-6 Sol setup. | `general-purpose` on Claude Sonnet 5.5 (high), `explore` on GPT-6 Luna (medium). |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | You want most of the Terminal-Bench gain for less than the recommended snippet. `general-purpose` costs about 1.9x the previous GPT-6 Sol (high) setup, against 2.7x for Opus 5.5 (medium). | `general-purpose` on Claude Sonnet 5.5 (high), `explore` on GPT-6 Luna (medium). |
 
 Everything else is the same in both: session model Claude Sonnet 5.5, Research
 on GPT-6 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
@@ -29,5 +29,6 @@ other settings.
 
 `contextTier: "long_context"` is only used on Claude models. Copilot bills
 Claude models at one rate regardless of context length, while GPT-6 and GPT-5.6
-models switch to a higher "long context" rate above 272K tokens. Putting a GPT-6
+models switch to a higher "long context" rate above 272K tokens (for GPT-6 Sol,
+input and cached input double and output rises 1.5x). Putting a GPT-6
 model on `long_context` would make that subagent noticeably more expensive.

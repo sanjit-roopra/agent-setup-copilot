@@ -486,7 +486,8 @@ export default function (pi: ExtensionAPI) {
 	registerFleetCommand(pi);
 
 	// pi calls a project with no trust-requiring files "trusted" without asking; only a project that had
-	// them at startup was trusted by the user, so only then may children inherit that trust.
+	// them when this extension loaded was trusted by the user, so only then may children inherit that trust.
+	// After /reload this follows pi's own rule, which trusts files added since the session started.
 	const startCwd = process.cwd();
 	const projectResourcesAtStart = hasProjectResources(startCwd);
 

@@ -56,7 +56,7 @@ Pick **budget** when:
 - you want faster turnaround and review every change anyway;
 - cost matters more than first-attempt success, and rerunning a task is cheap.
 
-The budget variant runs implementation on the same model and effort as the coordinator, Claude Sonnet 5.5 (medium). If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
+The budget variant runs implementation on Claude Sonnet 5.5 (medium), the same model and effort as the coordinator profile. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
 
 How to install each variant:
 
@@ -175,7 +175,7 @@ Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task
 - [`copilot-cli/subagents.json`](copilot-cli/subagents.json) (recommended) sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
 - [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json) is the lower-cost variant.
 
-Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium, or low with the budget snippet). `/fleet` enables the CLI's own parallel subagents. These settings stay in the CLI; they do not carry over to VS Code or the app.
+Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or Claude Sonnet 5.5 (medium) with the budget snippet. `/fleet` enables the CLI's own parallel subagents. These settings stay in the CLI; they do not carry over to VS Code or the app.
 
 ## Model assignments
 
@@ -223,7 +223,7 @@ For a coding fleet, Terminal-Bench 4.0 (agentic coding and terminal use) separat
 What follows from this:
 
 - **Fleet General Purpose** does the implementation work, the closest match to Terminal-Bench. GPT-6 Sol (high) scores 26% there. Claude Opus 5.5 (medium) scores 53% for 2.7x the cost, and failed implementation runs are the expensive part. Claude Sonnet 5.5 (medium) is the budget option: 30% for 1.15x the cost of Sol (high) at 2.1 min per task, at the price of 41 instead of 51 on the Intelligence Index.
-  - Dividing index cost by Terminal-Bench score, Sonnet 5.5 (medium) has the lowest cost per solved task among models that score at least 20% on Terminal-Bench: $2,337, against $2,346 for Sol (high), $2,590 for Sonnet 5.5 (low), $2,673 for Sonnet 5.5 (high), $2,774 for Opus 5.5 (low), and $3,070 for Opus 5.5 (medium). GPT-6 Luna comes out lower on this ratio, but at 0-5% it is not a viable implementer.
+  - Dividing index cost by Terminal-Bench score, Sonnet 5.5 (medium) has the lowest cost per solved task among models that score at least 20% on Terminal-Bench: $2,337, against $2,346 for Sol (high), $2,590 for Sonnet 5.5 (low), $2,673 for Sonnet 5.5 (high), $2,774 for Opus 5.5 (low), and $3,070 for Opus 5.5 (medium). GPT-6 Luna (0-13%) and GPT-6 Sol (medium) (19%, $2,189) come out lower on this ratio but fall below the 20% floor.
   - Sol (high) is almost level on this ratio, but Sonnet 5.5 (medium) scores 30% to 26%, is faster (2.1 against 2.3 min per task), and has no long-context price step. Opus 5.5 (low) is the fastest option (1.4 min) but costs more per solved task. Sonnet 5.5 (high) scores 44% for 1.7x the cost of Sonnet 5.5 (medium).
 - Above Sonnet 5.5 (high), use Opus instead. Sonnet 5.5 (xhigh) costs more than Opus 5.5 (high) for the same Terminal-Bench score, with lower intelligence and slower tasks, because Sonnet writes many more reasoning tokens at high efforts.
 - **Fleet Explore** needs reliable tool use, not deep reasoning. GPT-6 Luna (high) spends 1.6x the output tokens of Luna (medium) (47M vs 29M) for +3 intelligence and 5% instead of 3% Terminal-Bench. Claude Sonnet 5.5 (low) is a real agentic model at 1.6 min per task. GPT-6 Luna (medium) is the budget option.
@@ -231,7 +231,7 @@ What follows from this:
 - **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. GPT-6 Sol (high) is the cheapest model in the 43-point band.
 - **Reviews** stay on Claude Opus 5.5. Reviews are input-heavy and cache-friendly, and Opus reads cached input at the same $0.20 as Sonnet and Sol, so its premium is smaller in practice than in the table above; the remaining premium is on uncached input ($4 vs $2), cache writes ($5 vs $2.50), and output ($20 vs $10). Copilot charges Claude models one rate at any context length, while GPT-6 Sol switches to a long-context rate above 272K input tokens: input, cached input, and cache writes double, and output rises 1.5x. That makes long context free on Opus and costly on Sol.
 - **The session model** (the coordinator) is the context that grows longest, and every subagent waits on it. Up to 272K tokens, Claude Sonnet 5.5 costs the same per token as GPT-6 Sol, including cache writes, and it has no long-context price step. Effort labels are not comparable across vendors: per task, Sonnet thinks longer at the same label. The coordinator therefore runs at medium effort. Sonnet 5.5 (medium) is faster than GPT-6 Sol (high) (2.1 min per task against 2.3), scores 30% to 26% on Terminal-Bench for 41 to 43 intelligence, and costs 15% more on the index, which the long-context step on Sol offsets once a session passes 272K tokens. Sonnet 5.5 (high) adds 6 intelligence points for 1.7x the cost and 1.7x the time; use it only when delegation quality falls short.
-- GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. At medium and high effort, Opus 5.5 scores higher than GPT-6 Astra for less ($1,627 against $2,434, and $2,172 against $2,925); GPT-6 Sol beats GPT-5.6 Sol; Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
+- GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. At medium and high effort, Opus 5.5 scores higher than GPT-6 Astra on both the Intelligence Index and Terminal-Bench for a lower index cost ($1,627 against $2,434, and $2,172 against $2,925); GPT-6 Sol beats GPT-5.6 Sol; Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
 
 ### VS Code
 

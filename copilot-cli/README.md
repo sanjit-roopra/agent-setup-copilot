@@ -7,7 +7,7 @@ agents from this repository.
 | Snippet | Use it when | Differs in | Trade-off (per role) |
 | --- | --- | --- | --- |
 | [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | Complex or unfamiliar work, where a failed change is expensive. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 3.6 min per task. `explore`: index cost $544. |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | Routine, well-scoped tasks, where rerunning is cheap. | `general-purpose` on Claude Sonnet 5.5 (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 30% Terminal-Bench, index cost $701, 2.1 min per task; the lowest estimated cost per solved task among models that can do implementation work. `explore`: index cost $31. |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | Routine, well-scoped tasks, where rerunning is cheap. | `general-purpose` on Claude Sonnet 5.5 (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 30% Terminal-Bench, index cost $701, 2.1 min per task; the lowest estimated cost per solved task among models scoring at least 20% on Terminal-Bench. `explore`: index cost $31. |
 
 The costs cover only the role named; the other roles cost the same in both
 snippets. They are what it cost Artificial Analysis to run its benchmark suite,

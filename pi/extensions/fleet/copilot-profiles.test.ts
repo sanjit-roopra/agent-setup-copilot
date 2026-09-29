@@ -237,9 +237,9 @@ describe("planFleetRun", () => {
 	});
 
 	test("refuses when the coordinator's tools are missing or untranslatable", () => {
+		const reason = "The coordinator profile declares no tools pi can use; /fleet will not run.";
 		for (const tools of [undefined, []]) {
-			const plan = planFleetRun(fleetWith({ ...coordinator, tools }));
-			assert.equal(plan.ok, false, JSON.stringify(tools));
+			assert.deepEqual(planFleetRun(fleetWith({ ...coordinator, tools })), { ok: false, reason }, JSON.stringify(tools));
 		}
 	});
 

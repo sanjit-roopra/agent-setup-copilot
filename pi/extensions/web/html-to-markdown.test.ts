@@ -69,6 +69,22 @@ describe("htmlToMarkdown", () => {
 		assert.equal(htmlToMarkdown(page("<nav><nav>inner</nav>outer</nav>Body")), "Body");
 	});
 
+	test("does not count a self-closing nested element as open", () => {
+		assert.equal(htmlToMarkdown(page('<svg><svg x="1"/></svg>After')), "After");
+	});
+
+	test("falls back to the first closing tag when nesting never balances", () => {
+		assert.equal(htmlToMarkdown(page("<nav><!-- <nav> --></nav>After")), "After");
+	});
+
+	test("does not count tags inside a script as nested elements", () => {
+		assert.equal(htmlToMarkdown(page("<script>var s = '<script>';</script>Body")), "Body");
+	});
+
+	test("keeps nested code blocks together", () => {
+		assert.equal(htmlToMarkdown(page("<pre>a<pre>b</pre>c</pre>After")), "```\nabc\n```\n\nAfter");
+	});
+
 	test("drops a self-closing svg without swallowing the rest", () => {
 		assert.equal(htmlToMarkdown(page('<svg viewBox="0 0 1 1"/>Body')), "Body");
 	});
@@ -86,7 +102,9 @@ describe("htmlToMarkdown", () => {
 	});
 
 	test("keeps positions right after characters whose lowercase is longer", () => {
-		assert.equal(htmlToMarkdown(page("<p>İİİİ</p><script>x</script><p>After</p>")), "İİİİ\n\nAfter");
+		// Each İ lowercases to two characters, so a lowercased copy made with toLowerCase would be 12 characters longer.
+		const dotted = "İ".repeat(12);
+		assert.equal(htmlToMarkdown(page(`<p>${dotted}</p><pre>code</pre><p>After</p>`)), `${dotted}\n\n\`\`\`\ncode\n\`\`\`\n\nAfter`);
 	});
 
 	test("converts a page without a body tag", () => {

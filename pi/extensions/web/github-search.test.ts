@@ -25,13 +25,13 @@ function writeAuthFile(t: TestContext, content: string): string {
 	return authFile;
 }
 
-// double-waiver: B1 — the real readGhToken spawns the `gh` subprocess.
+// double-waiver: B1 — the real readGhCliToken spawns the `gh` subprocess.
 const noGhToken = async (): Promise<string | undefined> => undefined;
 
 describe("findGitHubTokens", () => {
 	test("orders pi's login, then gh, then GH_TOKEN, then GITHUB_TOKEN", async (t) => {
 		const authFile = writeAuthFile(t, JSON.stringify({ "github-copilot": { refresh: "ghu_pi", access: "tid=short" } }));
-		// double-waiver: B1 — the real readGhToken spawns the `gh` subprocess.
+		// double-waiver: B1 — the real readGhCliToken spawns the `gh` subprocess.
 		const tokens = await findGitHubTokens(authFile, { GH_TOKEN: "gho_env", GITHUB_TOKEN: "ghp_env2" }, async () => "gho_gh");
 		assert.deepEqual(
 			tokens.map((c) => c.token),

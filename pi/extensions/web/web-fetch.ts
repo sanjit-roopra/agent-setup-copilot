@@ -47,6 +47,7 @@ const BLOCKED_RANGES: [string, number, "ipv4" | "ipv6"][] = [
 	// IPv6 forms that embed an IPv4 address would bypass the IPv4 ranges, so they are blocked whole.
 	["::", 96, "ipv6"], // unspecified, loopback ::1, and IPv4-compatible
 	["::ffff:0:0", 96, "ipv6"], // IPv4-mapped
+	["::ffff:0:0:0", 96, "ipv6"], // IPv4-translated (SIIT)
 	["64:ff9b::", 96, "ipv6"], // NAT64
 	["64:ff9b:1::", 48, "ipv6"], // local-use NAT64
 	["2001::", 32, "ipv6"], // Teredo
@@ -77,9 +78,9 @@ type LookupCallback = (error: Error | null, address?: string | dns.LookupAddress
 type Resolver = (hostname: string, options: dns.LookupAllOptions, callback: (error: Error | null, addresses: dns.LookupAddress[]) => void) => void;
 
 /** A `lookup` for `http.request` that refuses hostnames resolving to any blocked address. */
-export function createSafeLookup(isBlocked: AddressPolicy = isBlockedAddress, resolve: Resolver = dns.lookup as unknown as Resolver) {
+export function createSafeLookup(isBlocked: AddressPolicy = isBlockedAddress, resolveDns: Resolver = dns.lookup as unknown as Resolver) {
 	return (hostname: string, options: dns.LookupOptions, callback: LookupCallback): void => {
-		resolve(hostname, { ...options, all: true }, (error, addresses) => {
+		resolveDns(hostname, { ...options, all: true }, (error, addresses) => {
 			if (error) return callback(error);
 			const blocked = addresses.find((entry) => isBlocked(entry.address));
 			if (blocked || addresses.length === 0) {

@@ -14,6 +14,8 @@ import {
 	planFleetRun,
 	REPO_ROOT,
 	toAgentName,
+	hasProjectResources,
+	sameDirectory,
 	toolArgs,
 	toPiModel,
 	trustArgs,
@@ -90,17 +92,59 @@ describe("toolArgs", () => {
 });
 
 describe("trustArgs", () => {
-	test("passes the parent's trust to a child in the same project", () => {
-		assert.deepEqual(trustArgs(true, "/work/repo", "/work/repo/"), ["--approve"]);
+	/** A project directory, a sibling directory outside it, and a symlink inside the project pointing at the sibling. */
+	function makeDirs(t: TestContext) {
+		const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "fleet-trust-test-")));
+		t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+		const project = path.join(root, "project");
+		const outside = path.join(root, "outside", "inner");
+		fs.mkdirSync(path.join(project, "sub"), { recursive: true });
+		fs.mkdirSync(outside, { recursive: true });
+		fs.symlinkSync(outside, path.join(project, "link"));
+		return { root, project };
+	}
+
+	test("passes the parent's trust to a child in the same project", (t) => {
+		const { project } = makeDirs(t);
+		assert.deepEqual(trustArgs(true, project, `${project}/`), ["--approve"]);
 	});
 
-	test("never passes trust to a child in another directory", () => {
-		assert.deepEqual(trustArgs(true, "/work/repo", "/work/other"), []);
-		assert.deepEqual(trustArgs(true, "/work/repo", "/work/repo/sub"), []);
+	test("never passes trust to a child in another directory or a subdirectory", (t) => {
+		const { root, project } = makeDirs(t);
+		assert.deepEqual(trustArgs(true, project, path.join(root, "outside")), []);
+		assert.deepEqual(trustArgs(true, project, path.join(project, "sub")), []);
 	});
 
-	test("passes nothing when the parent does not trust the project", () => {
-		assert.deepEqual(trustArgs(false, "/work/repo", "/work/repo"), []);
+	test("resolves symlinks, so link/.. that points outside the project gets no trust", (t) => {
+		const { project } = makeDirs(t);
+		assert.deepEqual(trustArgs(true, project, `${project}/link/..`), []);
+	});
+
+	test("passes nothing for a missing directory", (t) => {
+		const { project } = makeDirs(t);
+		assert.deepEqual(trustArgs(true, project, path.join(project, "missing")), []);
+	});
+
+	test("passes nothing when the parent does not trust the project", (t) => {
+		const { project } = makeDirs(t);
+		assert.deepEqual(trustArgs(false, project, project), []);
+	});
+});
+
+describe("sameDirectory", () => {
+	test("is false when either path is missing", () => {
+		assert.equal(sameDirectory("/nonexistent/a", "/nonexistent/a"), false);
+	});
+});
+
+describe("hasProjectResources", () => {
+	test("is true only when the project has a trust-requiring .pi file", (t) => {
+		const root = makeRepo(t, {});
+		assert.equal(hasProjectResources(root), false);
+		fs.mkdirSync(path.join(root, ".pi"));
+		assert.equal(hasProjectResources(root), false);
+		fs.writeFileSync(path.join(root, ".pi", "settings.json"), "{}");
+		assert.equal(hasProjectResources(root), true);
 	});
 });
 

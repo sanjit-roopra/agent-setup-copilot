@@ -178,15 +178,41 @@ export function toolArgs(tools: string[] | undefined): string[] {
 	return tools.length > 0 ? ["--tools", tools.join(",")] : ["--no-tools"];
 }
 
+/** Project files that make pi ask for trust (pi 0.87.1). */
+const PROJECT_TRUST_RESOURCES = ["settings.json", "extensions", "skills", "prompts", "themes", "SYSTEM.md", "APPEND_SYSTEM.md"];
+
+/**
+ * Whether `dir` has project files that pi only loads after trust. pi reports a
+ * project without them as trusted without asking, so only a project that had
+ * them when the session started was actually trusted by the user.
+ */
+export function hasProjectResources(dir: string): boolean {
+	return PROJECT_TRUST_RESOURCES.some((name) => fs.existsSync(path.join(dir, ".pi", name)));
+}
+
+/**
+ * Whether two paths are the same directory after resolving symlinks, as pi does
+ * for trust. Uses the OS realpath, which follows a symlink before applying `..`
+ * the way `chdir` does; `fs.realpathSync` removes `..` first. False if either is missing.
+ */
+export function sameDirectory(a: string, b: string): boolean {
+	try {
+		return fs.realpathSync.native(a) === fs.realpathSync.native(b);
+	} catch {
+		return false;
+	}
+}
+
 /**
  * The pi CLI flag that lets a child load the parent project's packages and
  * agents. A child pi process does not inherit trust granted for one run
  * (`pi -a`), so without this a project-installed fleet would start its
- * specialists without the fleet's web tools. Trust is only passed on when the
- * child runs in the same directory the parent trusts, never another project.
+ * specialists without the fleet's web tools. `parentTrusted` must mean the
+ * user really trusted the project (see hasProjectResources), and trust is only
+ * passed on when the child runs in that same real directory.
  */
 export function trustArgs(parentTrusted: boolean, parentCwd: string, childCwd: string): string[] {
-	return parentTrusted && path.resolve(childCwd) === path.resolve(parentCwd) ? ["--approve"] : [];
+	return parentTrusted && sameDirectory(childCwd, parentCwd) ? ["--approve"] : [];
 }
 
 function readProfiles(dir: string, warnings: string[]): Map<string, RawProfile> {

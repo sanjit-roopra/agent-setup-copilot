@@ -39,7 +39,7 @@ import { Type } from "typebox";
 import { FLEET_TOOL } from "../tool-names.ts";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.ts";
 import { registerFleetCommand } from "./coordinator.ts";
-import { loadRepoFleet, toolArgs, trustArgs } from "./copilot-profiles.ts";
+import { hasProjectResources, loadRepoFleet, sameDirectory, toolArgs, trustArgs } from "./copilot-profiles.ts";
 
 const MAX_PARALLEL_TASKS = 8;
 const MAX_CONCURRENCY = 4;
@@ -278,7 +278,7 @@ type OnUpdateCallback = (partial: AgentToolResult<SubagentDetails>) => void;
 interface DispatchDefaults {
 	model?: string;
 	thinkingLevel?: ThinkingLevel;
-	/** Whether the dispatching session trusts its project, so children in the same project may load its packages. */
+	/** Whether the user trusted the dispatching session's project, so children in it may load its packages. */
 	projectTrusted: boolean;
 }
 
@@ -485,6 +485,11 @@ const SubagentParams = Type.Object({
 export default function (pi: ExtensionAPI) {
 	registerFleetCommand(pi);
 
+	// pi calls a project with no trust-requiring files "trusted" without asking; only a project that had
+	// them at startup was trusted by the user, so only then may children inherit that trust.
+	const startCwd = process.cwd();
+	const projectResourcesAtStart = hasProjectResources(startCwd);
+
 	// The description is fixed when the tool registers; delegation itself re-reads the profiles.
 	const fleetNames = loadRepoFleet()
 		.specialists.map((s) => s.name)
@@ -507,7 +512,7 @@ export default function (pi: ExtensionAPI) {
 			const dispatchDefaults: DispatchDefaults = {
 				model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined,
 				thinkingLevel: ctx.thinkingLevel,
-				projectTrusted: ctx.isProjectTrusted(),
+				projectTrusted: ctx.isProjectTrusted() && projectResourcesAtStart && sameDirectory(ctx.cwd, startCwd),
 			};
 			const discovery = discoverAgents(ctx.cwd, agentScope);
 			const agents = discovery.agents;

@@ -284,7 +284,7 @@ rc=0
 for f in budget/agents/*.agent.md; do
   diff <(grep -vE '^(model|reasoning-effort):' ".github/agents/${f##*/}") <(grep -vE '^(model|reasoning-effort):' "$f") || rc=1
 done
-echo "exit $rc"
+echo "exit $rc"; (exit $rc)
 ```
 
 Run `git diff --check`.

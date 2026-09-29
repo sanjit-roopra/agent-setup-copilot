@@ -1,6 +1,6 @@
 # Budget fleet profiles
 
-These two profiles replace their counterparts in `.github/agents/` to run the
+These two profiles replace their recommended counterparts in `.github/agents/` to run the
 fleet at lower cost. They keep the same names, descriptions, tools, and
 instructions; only the model and reasoning effort change.
 
@@ -10,19 +10,21 @@ instructions; only the model and reasoning effort change.
 | Fleet Explore | Claude Sonnet 5.5, low | GPT-6 Luna, medium |
 
 The coordinator and the other five specialists are the same in both variants.
+For Copilot CLI, use [`copilot-cli/subagents-budget.json`](../copilot-cli/subagents-budget.json)
+instead of these profiles.
 See [Recommended or budget](../USAGE.md#recommended-or-budget) for when to pick
 which, and [Why these models](../USAGE.md#why-these-models) for the numbers.
 
 ## Install
 
-Copy the full fleet first, then copy the budget profiles over the two defaults:
+Copy the recommended fleet first, then copy the budget profiles over the two recommended profiles:
 
 ```bash
 cp -i .github/agents/*.agent.md /path/to/your-repository/.github/agents/
 cp budget/agents/*.agent.md /path/to/your-repository/.github/agents/
 ```
 
-To go back to the recommended fleet, copy the two defaults again:
+To go back to the recommended fleet, copy the two recommended profiles again:
 
 ```bash
 cp .github/agents/fleet-general-purpose.agent.md .github/agents/fleet-explore.agent.md /path/to/your-repository/.github/agents/
@@ -30,4 +32,5 @@ cp .github/agents/fleet-general-purpose.agent.md .github/agents/fleet-explore.ag
 
 Keep these files identical to their `.github/agents/` counterparts apart from
 the `model` and `reasoning-effort` lines. When you change a profile's
-instructions, change both copies.
+instructions, change both copies, then run the
+[maintenance check](../USAGE.md#maintenance-checks).

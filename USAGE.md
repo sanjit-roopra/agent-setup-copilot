@@ -12,7 +12,7 @@
    ```bash
    cp -i .github/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
-3. Optional: for the [budget fleet](#recommended-or-budget), copy the two budget profiles over the defaults:
+3. Optional: for the [budget fleet](#recommended-or-budget), copy the two budget profiles over the recommended ones:
    ```bash
    cp budget/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
@@ -46,16 +46,16 @@ Pick **budget** when:
 - you want faster turnaround and review every change anyway;
 - cost matters more than first-attempt success, and rerunning a task is cheap.
 
-Both variants use the same model for implementation, so moving between them changes only the reasoning effort. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
+Both variants use the same model for implementation, so for Fleet General Purpose moving between them changes only the reasoning effort; Fleet Explore also changes model. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
 
 How to install each variant:
 
 | Client | Recommended | Budget |
 | --- | --- | --- |
-| VS Code, Copilot app, GitHub.com | Copy `.github/agents/*.agent.md` ([Install the fleet profiles](#install-the-fleet-profiles)). | Also copy [`budget/agents/*.agent.md`](budget/README.md) over the defaults. |
+| VS Code, Copilot app, GitHub.com | Copy `.github/agents/*.agent.md` ([Install the fleet profiles](#install-the-fleet-profiles)). | Also copy `budget/agents/*.agent.md` over the recommended profiles ([budget/README.md](budget/README.md#install)). |
 | Copilot CLI | Merge [`copilot-cli/subagents.json`](copilot-cli/subagents.json). | Merge [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json). |
 
-To switch a repository back to recommended, copy `.github/agents/fleet-general-purpose.agent.md` and `.github/agents/fleet-explore.agent.md` again. In the CLI, merge the other snippet.
+To switch a repository back to recommended, see [budget/README.md](budget/README.md#install). In the CLI, merge the other snippet.
 
 ## Activate the fleet
 
@@ -185,7 +185,7 @@ Check the result with `/model` and `/subagents`: `/subagents` should list the se
 | Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Security Review | `fleet-security-review.agent.md` | Claude Opus 5.5 (copilot) | high |
 
-The [budget variant](#recommended-or-budget) (`budget/agents/`) changes two rows: Fleet Explore uses GPT-6 Luna (copilot) with medium effort, and Fleet General Purpose uses Claude Opus 5.5 (copilot) with low effort. The same assignments, in both variants, are available for the Copilot CLI's built-in subagents as [settings snippets](copilot-cli/README.md).
+The [budget variant](#recommended-or-budget) (`budget/agents/`) changes the Fleet Explore and Fleet General Purpose rows. The same assignments, in both variants, are available for the Copilot CLI's built-in subagents as [settings snippets](copilot-cli/README.md).
 
 ### Why these models
 
@@ -275,12 +275,16 @@ Use a disposable repository with the needed client tools. These checks test what
 
 </details>
 
-For repository maintenance, parse all eight YAML profiles and the two budget profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. Check that each budget profile differs from its default only in `model` and `reasoning-effort`:
+### Maintenance checks
+
+For repository maintenance, parse all eight YAML profiles and the two budget profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Recommended or budget](#recommended-or-budget) table as well as [Why these models](#why-these-models). Check that each budget profile differs from its recommended counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
 
 ```bash
+rc=0
 for f in budget/agents/*.agent.md; do
-  diff <(grep -vE '^(model|reasoning-effort):' ".github/agents/${f##*/}") <(grep -vE '^(model|reasoning-effort):' "$f")
+  diff <(grep -vE '^(model|reasoning-effort):' ".github/agents/${f##*/}") <(grep -vE '^(model|reasoning-effort):' "$f") || rc=1
 done
+echo "exit $rc"
 ```
 
 Run `git diff --check`.

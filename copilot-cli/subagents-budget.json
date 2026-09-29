@@ -33,8 +33,8 @@
         "contextTier": "long_context"
       },
       "general-purpose": {
-        "model": "claude-opus-5.5",
-        "effortLevel": "low",
+        "model": "claude-sonnet-5.5",
+        "effortLevel": "medium",
         "contextTier": "default"
       }
     }

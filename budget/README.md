@@ -9,7 +9,7 @@ instructions; only the model and reasoning effort change.
 
 | Profile | Recommended (`.github/agents/`) | Budget (`budget/agents/`) |
 | --- | --- | --- |
-| Fleet General Purpose | Claude Opus 5.5, medium | Claude Opus 5.5, low |
+| Fleet General Purpose | Claude Opus 5.5, medium | Claude Sonnet 5.5, medium |
 | Fleet Explore | Claude Sonnet 5.5, low | GPT-6 Luna, medium |
 
 The coordinator and the other five specialists are the same in both variants.

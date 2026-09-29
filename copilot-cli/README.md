@@ -6,7 +6,7 @@ agents from this repository.
 
 | Snippet | Use it when | Differs in |
 | --- | --- | --- |
-| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | You want the highest Terminal-Bench score for implementation work. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). |
+| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | You want the higher Terminal-Bench score of the two snippets for implementation work (53% vs 44%). | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). |
 | [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | You want most of the Terminal-Bench gain for less than the recommended snippet. `general-purpose` costs about 1.9x GPT-6 Sol (high) on the index, against 2.7x for Opus 5.5 (medium); see [Why these models](../USAGE.md#why-these-models). | `general-purpose` on Claude Sonnet 5.5 (high), `explore` on GPT-6 Luna (medium). |
 
 Everything else is the same in both: session model Claude Sonnet 5.5, Research

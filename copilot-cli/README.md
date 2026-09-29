@@ -12,7 +12,8 @@ agents from this repository.
 Everything else is the same in both: session model Claude Sonnet 5.5, Research
 on GPT-6 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
 Claude Opus 5.5 (medium, long context), Security Review on Claude Opus 5.5
-(high). See [Model assignments](../USAGE.md#model-assignments) for the reasoning
+(high). See [Recommended or budget](../USAGE.md#recommended-or-budget) for when to pick
+which, and [Model assignments](../USAGE.md#model-assignments) for the reasoning
 and the benchmark numbers behind the choice.
 
 Merge the snippet's **`model` and `subagents` properties** into your

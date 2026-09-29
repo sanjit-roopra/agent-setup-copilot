@@ -12,11 +12,50 @@
    ```bash
    cp -i .github/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
-3. Open your repository in VS Code or the Copilot app. Select **Subagent Fleet** in the agent picker.
+3. Optional: for the [budget fleet](#recommended-or-budget), copy the two budget profiles over the defaults:
+   ```bash
+   cp budget/agents/*.agent.md /path/to/your-repository/.github/agents/
+   ```
+4. Open your repository in VS Code or the Copilot app. Select **Subagent Fleet** in the agent picker.
 
 Keep your existing `.github` directory and project instructions. If you need rules from this repository's `AGENTS.md` or `.github/copilot-instructions.md`, merge them into your own files instead of replacing them.
 
 For GitHub.com, commit and push the profiles to your default branch. If they do not appear in a local agent picker, reload your client.
+
+## Recommended or budget
+
+The fleet comes in two variants, for both the agent profiles and the Copilot CLI. They differ only in the implementation and exploration roles; the coordinator, Task, Research, and the review roles are the same.
+
+| | Recommended | Budget |
+| --- | --- | --- |
+| Implementation (Fleet General Purpose / `general-purpose`) | Claude Opus 5.5, medium | Claude Opus 5.5, low |
+| Exploration (Fleet Explore / `explore`) | Claude Sonnet 5.5, low | GPT-6 Luna, medium |
+| Terminal-Bench 4.0 for implementation | 53% | 40% |
+| Index cost for implementation | $1,627 (2.7x GPT-6 Sol (high)) | $860 (1.4x GPT-6 Sol (high)) |
+| Time per task for implementation | 3.6 min | 1.4 min |
+
+Pick **recommended** when:
+
+- changes span several files or modules, or the codebase is unfamiliar to you;
+- a failed or half-finished change is expensive, for example because CI is slow or the change is hard to review;
+- you want the best chance of getting the change right the first time.
+
+Pick **budget** when:
+
+- most tasks are well-scoped and routine: small fixes, tests, and refactors in code you know;
+- you want faster turnaround and review every change anyway;
+- cost matters more than first-attempt success, and rerunning a task is cheap.
+
+Both variants use the same model for implementation, so moving between them changes only the reasoning effort. If budget runs keep needing rework on a kind of task, switch that repository back to recommended.
+
+How to install each variant:
+
+| Client | Recommended | Budget |
+| --- | --- | --- |
+| VS Code, Copilot app, GitHub.com | Copy `.github/agents/*.agent.md` ([Install the fleet profiles](#install-the-fleet-profiles)). | Also copy [`budget/agents/*.agent.md`](budget/README.md) over the defaults. |
+| Copilot CLI | Merge [`copilot-cli/subagents.json`](copilot-cli/subagents.json). | Merge [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json). |
+
+To switch a repository back to recommended, copy `.github/agents/fleet-general-purpose.agent.md` and `.github/agents/fleet-explore.agent.md` again. In the CLI, merge the other snippet.
 
 ## Activate the fleet
 
@@ -146,7 +185,7 @@ Check the result with `/model` and `/subagents`: `/subagents` should list the se
 | Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Security Review | `fleet-security-review.agent.md` | Claude Opus 5.5 (copilot) | high |
 
-The same assignments are available for the Copilot CLI's built-in subagents as a [settings snippet](copilot-cli/README.md), together with a budget variant.
+The [budget variant](#recommended-or-budget) (`budget/agents/`) changes two rows: Fleet Explore uses GPT-6 Luna (copilot) with medium effort, and Fleet General Purpose uses Claude Opus 5.5 (copilot) with low effort. The same assignments, in both variants, are available for the Copilot CLI's built-in subagents as [settings snippets](copilot-cli/README.md).
 
 ### Why these models
 
@@ -236,7 +275,15 @@ Use a disposable repository with the needed client tools. These checks test what
 
 </details>
 
-For repository maintenance, parse all eight YAML profiles, check the seven preferred models and eight reasoning efforts against the table, and confirm that the coordinator names existing specialists. Run `git diff --check`.
+For repository maintenance, parse all eight YAML profiles and the two budget profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. Check that each budget profile differs from its default only in `model` and `reasoning-effort`:
+
+```bash
+for f in budget/agents/*.agent.md; do
+  diff <(grep -vE '^(model|reasoning-effort):' ".github/agents/${f##*/}") <(grep -vE '^(model|reasoning-effort):' "$f")
+done
+```
+
+Run `git diff --check`.
 
 There is no automated test runner for client behavior. Record those results separately.
 

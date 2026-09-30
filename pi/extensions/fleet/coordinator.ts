@@ -17,16 +17,13 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { discoverAgents } from "./agents.ts";
 import { applyCoordinatorModel, coordinatorModelChoice } from "./coordinator-model.ts";
-import { FleetRunCleanup, startCoordinatorRun } from "./fleet-run.ts";
+import { FleetRunCleanup, settleAndReport, startCoordinatorRun } from "./fleet-run.ts";
 import { buildCoordinatorMessage, coordinatorRoster, loadRepoFleet, planFleetRun } from "./copilot-profiles.ts";
 
 export function registerFleetCommand(pi: ExtensionAPI): void {
 	// Puts back the session's tools and model once a /fleet run settles.
 	const cleanup = new FleetRunCleanup();
-	const settle = async (notify: (message: string, level: "warning") => void) => {
-		for (const error of await cleanup.settle()) notify(error, "warning");
-	};
-	pi.on("agent_settled", (_event, ctx) => settle((message, level) => ctx.ui.notify(message, level)));
+	pi.on("agent_settled", (_event, ctx) => settleAndReport(cleanup, (message, level) => ctx.ui.notify(message, level)));
 
 	pi.registerCommand("fleet", {
 		description: "Coordinate the subagent fleet on a task: /fleet <task>",
@@ -42,7 +39,7 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 			}
 			const notify = (message: string, level: "info" | "warning" | "error") => ctx.ui.notify(message, level);
 			// Finish undoing the previous run first, so this run starts from the session's own tools and model.
-			await settle(notify);
+			await settleAndReport(cleanup, notify);
 
 			const fleet = loadRepoFleet();
 			for (const warning of fleet.warnings) ctx.ui.notify(warning, "warning");
@@ -56,6 +53,7 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 			// the fleet tool's default agent scope (fleet/index.ts), so the roster names what it resolves.
 			const { roster, missing } = coordinatorRoster(plan.coordinator, discoverAgents(ctx.cwd, "user").agents);
 			for (const name of missing) ctx.ui.notify(`The coordinator lists ${name}, but no such specialist was found.`, "warning");
+			const message = buildCoordinatorMessage(plan.coordinator, roster, task);
 
 			const switched = await applyCoordinatorModel(coordinatorModelChoice(plan.coordinator), {
 				currentModel: () => ctx.model,
@@ -80,7 +78,7 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 					restoreModel: switched.restore,
 					switchedTo: switched.switchedTo,
 					tools: plan.tools,
-					message: buildCoordinatorMessage(plan.coordinator, roster, task),
+					message,
 				},
 			);
 		},

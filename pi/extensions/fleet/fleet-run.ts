@@ -2,7 +2,7 @@
  * Starting a `/fleet` run and undoing it: the coordinator's tools and model
  * apply for the run, and the session's own come back when it settles.
  *
- * This module has no pi imports so `node --test` can exercise it directly;
+ * This module has no runtime pi imports so `node --test` can exercise it directly;
  * coordinator.ts connects it to pi.
  */
 
@@ -27,7 +27,8 @@ export class FleetRunCleanup {
 	 * Resolves to the messages of steps that failed; a failed step does not stop the others.
 	 */
 	settle(): Promise<string[]> {
-		if (this.steps.length === 0) return this.running ?? Promise.resolve([]);
+		// Only the caller that runs the steps gets their failures, so each is reported once.
+		if (this.steps.length === 0) return (this.running ?? Promise.resolve()).then(() => []);
 		const steps = this.steps.reverse();
 		this.steps = [];
 		const previous = this.running ?? Promise.resolve([]);
@@ -51,10 +52,19 @@ export class FleetRunCleanup {
 	}
 }
 
+/** Settle `cleanup` and show each failed step as a warning. */
+export async function settleAndReport(cleanup: FleetRunCleanup, notify: (message: string, level: "warning") => void): Promise<void> {
+	for (const failure of await cleanup.settle()) notify(failure, "warning");
+}
+
 /** What `startCoordinatorRun` needs from pi, so it can be tested without pi. */
 export interface FleetRunSession {
 	getActiveTools(): string[];
 	setActiveTools(tools: string[]): void;
+	/**
+	 * pi's `sendUserMessage` returns nothing and always starts a turn, so a failure after it
+	 * returns ends in `agent_settled`, which settles the cleanup; only a synchronous throw is caught here.
+	 */
 	sendUserMessage(message: string): void;
 	notify(message: string, level: "info" | "warning"): void;
 }
@@ -86,7 +96,7 @@ export async function startCoordinatorRun(session: FleetRunSession, cleanup: Fle
 		session.setActiveTools(run.tools);
 		session.sendUserMessage(run.message);
 	} catch (error) {
-		for (const failure of await cleanup.settle()) session.notify(failure, "warning");
+		await settleAndReport(cleanup, session.notify);
 		throw error;
 	}
 }

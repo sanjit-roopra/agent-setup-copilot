@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { type FleetRunSession, FleetRunCleanup, startCoordinatorRun } from "./fleet-run.ts";
+import { type FleetRunSession, FleetRunCleanup, settleAndReport, startCoordinatorRun } from "./fleet-run.ts";
 
 /** Wait until `condition` holds, letting pending promises run in between. */
 async function until(condition: () => boolean): Promise<void> {
@@ -58,6 +58,31 @@ describe("FleetRunCleanup", () => {
 		assert.deepEqual(events, ["restore started", "restore finished", "next run may start"]);
 	});
 
+	test("reports a failed step only to the caller that ran it", async () => {
+		const cleanup = new FleetRunCleanup();
+		let started = false;
+		let finish: () => void = () => {};
+		cleanup.add(() => {
+			started = true;
+			return new Promise<void>((_, reject) => (finish = () => reject(new Error("restore failed"))));
+		});
+		const first = cleanup.settle();
+		const second = cleanup.settle();
+		await until(() => started);
+		finish();
+		assert.deepEqual(await Promise.all([first, second]), [["restore failed"], []]);
+	});
+
+	test("settleAndReport shows each failed step as a warning", async () => {
+		const cleanup = new FleetRunCleanup();
+		cleanup.add(() => {
+			throw new Error("tools failed");
+		});
+		const shown: string[] = [];
+		await settleAndReport(cleanup, (message, level) => shown.push(`${level} ${message}`));
+		assert.deepEqual(shown, ["warning tools failed"]);
+	});
+
 	test("steps added during a running cleanup run after it", async () => {
 		const cleanup = new FleetRunCleanup();
 		const events: string[] = [];
@@ -79,6 +104,7 @@ describe("FleetRunCleanup", () => {
 });
 
 describe("startCoordinatorRun", () => {
+	const COORDINATOR_TOOLS = ["fleet"];
 	/** A session with tools a and b that records every call; `failOn` makes that call throw. */
 	function fakeSession(failOn?: "getActiveTools" | "setActiveTools" | "sendUserMessage") {
 		const state = { tools: ["a", "b"], calls: [] as string[] };
@@ -93,7 +119,7 @@ describe("startCoordinatorRun", () => {
 			setActiveTools: (tools) => {
 				state.calls.push(`tools ${tools.join(",")}`);
 				// Fail only when narrowing to the coordinator's tools, so restoring still works.
-				if (tools.join() === "fleet") fail("setActiveTools");
+				if (tools === COORDINATOR_TOOLS) fail("setActiveTools");
 				state.tools = tools;
 			},
 			sendUserMessage: (message) => {
@@ -107,7 +133,7 @@ describe("startCoordinatorRun", () => {
 	const run = (calls: string[]) => ({
 		restoreModel: async () => void calls.push("model restored"),
 		switchedTo: "github-copilot/gpt-6.1-sol:medium",
-		tools: ["fleet"],
+		tools: COORDINATOR_TOOLS,
 		message: "go",
 	});
 
@@ -139,14 +165,27 @@ describe("startCoordinatorRun", () => {
 		assert.deepEqual(state.tools, ["a", "b"]);
 	});
 
-	for (const failOn of ["getActiveTools", "setActiveTools", "sendUserMessage"] as const) {
-		test(`undoes the run at once and rethrows when ${failOn} fails`, async () => {
+	const undone: Record<"getActiveTools" | "setActiveTools" | "sendUserMessage", string[]> = {
+		getActiveTools: ["model restored"],
+		setActiveTools: ["tools fleet", "tools a,b", "model restored"],
+		sendUserMessage: ["tools fleet", "send go", "tools a,b", "model restored"],
+	};
+	for (const [failOn, calls] of Object.entries(undone) as Array<[keyof typeof undone, string[]]>) {
+		test(`undoes the run at once, tools then model, and rethrows when ${failOn} fails`, async () => {
 			const { state, session } = fakeSession(failOn);
 			const cleanup = new FleetRunCleanup();
-			await assert.rejects(startCoordinatorRun(session, cleanup, run(state.calls)), new RegExp(`${failOn} failed`));
-			assert.ok(state.calls.includes("model restored"), "model restored");
+			await assert.rejects(startCoordinatorRun(session, cleanup, { ...run(state.calls), switchedTo: undefined }), new RegExp(`${failOn} failed`));
+			assert.deepEqual(state.calls, calls);
 			assert.deepEqual(state.tools, ["a", "b"]);
 			assert.deepEqual(await cleanup.settle(), [], "nothing left to undo");
 		});
 	}
+
+	test("warns about an undo step that fails while undoing a failed start", async () => {
+		const { state, session } = fakeSession("sendUserMessage");
+		const cleanup = new FleetRunCleanup();
+		const failingRestore = { ...run(state.calls), switchedTo: undefined, restoreModel: () => Promise.reject(new Error("no login")) };
+		await assert.rejects(startCoordinatorRun(session, cleanup, failingRestore), /sendUserMessage failed/);
+		assert.deepEqual(state.calls.at(-1), "warning no login");
+	});
 });

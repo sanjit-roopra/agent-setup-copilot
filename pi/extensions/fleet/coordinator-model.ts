@@ -6,7 +6,7 @@
  * `PI_FLEET_COORDINATOR_MODEL` overrides them: `session` keeps the session's
  * model, and `provider/model[:thinking]` names another one.
  *
- * This module has no pi imports so `node --test` can exercise it directly;
+ * This module has no runtime pi imports so `node --test` can exercise it directly;
  * coordinator.ts connects it to pi.
  */
 
@@ -122,7 +122,7 @@ export async function applyCoordinatorModel<M>(choice: CoordinatorModelChoice, c
 	const model = control.find(target.provider, target.id);
 	if (!model) {
 		const suffix = /:([^:/]+)$/.exec(target.id)?.[1];
-		const levelHint = suffix ? ` ":${suffix}" is not a thinking level (${THINKING_LEVELS.join(", ")}).` : "";
+		const levelHint = suffix ? ` If ":${suffix}" was meant as a thinking level, use one of ${THINKING_LEVELS.join(", ")}.` : "";
 		return { ok: false, reason: `Model ${name} not found.${levelHint} Run \`pi update --models\`, or check /model. ${OVERRIDE_HINT}` };
 	}
 
@@ -144,7 +144,7 @@ export async function applyCoordinatorModel<M>(choice: CoordinatorModelChoice, c
 		try {
 			control.setThinking(target.thinking);
 		} catch (error) {
-			const reason = `Could not set thinking level ${target.thinking} on ${name}: ${messageOf(error)}.`;
+			const reason = `Could not set thinking level ${target.thinking} on ${name}: ${messageOf(error).replace(/[.!?]$/, "")}.`;
 			const restoreError = await restore().then(
 				() => undefined,
 				(failure: unknown) => messageOf(failure),

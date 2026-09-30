@@ -184,7 +184,7 @@ describe("applyCoordinatorModel", () => {
 		const { control } = fakeSession();
 		const result = await applyCoordinatorModel({ ...toSol, target: { provider: "github-copilot", id: "gpt-6.1-sol:hgih" } }, control);
 		assert.ok(!result.ok);
-		assert.match(result.reason, /":hgih" is not a thinking level/);
+		assert.match(result.reason, /If ":hgih" was meant as a thinking level, use one of off, minimal, low, medium, high, xhigh, max\./);
 	});
 
 	test("refuses a model without a login and leaves the thinking level alone", async () => {

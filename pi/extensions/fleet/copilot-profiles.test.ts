@@ -18,17 +18,11 @@ import {
 	sameDirectory,
 	toolArgs,
 	toPiModel,
-	applyCoordinatorModel,
-	COORDINATOR_MODEL_ENV,
-	type CoordinatorModelChoice,
-	coordinatorModelChoice,
-	parsePiModel,
-	type SessionModelControl,
-	type ThinkingLevelName,
 	trustArgs,
 	toPiTools,
 	variantFromEnv,
 } from "./copilot-profiles.ts";
+import { coordinatorModelChoice } from "./coordinator-model.ts";
 
 /** A throwaway repository with the given files, removed after the test. */
 function makeRepo(t: TestContext, files: Record<string, string>): string {
@@ -54,6 +48,7 @@ describe("toPiModel", () => {
 	test("maps a Copilot display name and effort to provider/id:thinking", () => {
 		assert.equal(toPiModel("Claude Opus 5.5 (copilot)", "medium"), "github-copilot/claude-opus-5.5:medium");
 		assert.equal(toPiModel("GPT-6 Luna (copilot)", " low "), "github-copilot/gpt-6-luna:low");
+		assert.equal(toPiModel("GPT-6.1 Sol (copilot)", "Medium"), "github-copilot/gpt-6.1-sol:medium");
 	});
 
 	test("omits the thinking level when there is no effort", () => {
@@ -316,141 +311,6 @@ describe("planFleetRun", () => {
 
 	test("runs with exactly the coordinator's tools", () => {
 		assert.deepEqual(planFleetRun(fleetWith(coordinator)), { ok: true, coordinator, tools: [FLEET_TOOL] });
-	});
-});
-
-describe("parsePiModel", () => {
-	test("reads provider/id with an optional thinking level", () => {
-		assert.deepEqual(parsePiModel("github-copilot/gpt-6.1-sol:medium"), { provider: "github-copilot", id: "gpt-6.1-sol", thinking: "medium" });
-		assert.deepEqual(parsePiModel(" github-copilot/claude-opus-5.5 "), { provider: "github-copilot", id: "claude-opus-5.5" });
-		assert.deepEqual(parsePiModel("openrouter/openai/gpt-5:high"), { provider: "openrouter", id: "openai/gpt-5", thinking: "high" });
-	});
-
-	test("rejects text without a provider or with an unknown thinking level", () => {
-		for (const spec of ["gpt-6.1-sol", "github-copilot/", "/gpt-6.1-sol", "github-copilot/gpt-6.1-sol:turbo", "github-copilot/gpt 6"]) {
-			assert.equal(parsePiModel(spec), undefined, spec);
-		}
-	});
-});
-
-describe("coordinatorModelChoice", () => {
-	const coordinator: FleetCoordinator = {
-		displayName: "C",
-		allowedSpecialists: [],
-		tools: [FLEET_TOOL],
-		model: "github-copilot/gpt-6.1-sol:medium",
-		systemPrompt: "",
-	};
-	const profileTarget = { provider: "github-copilot", id: "gpt-6.1-sol", thinking: "medium" };
-
-	test("uses the profile's model and effort by default", () => {
-		assert.deepEqual(coordinatorModelChoice(coordinator, {}), { kind: "switch", target: profileTarget, source: "profile" });
-		assert.deepEqual(coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: "  " }), {
-			kind: "switch",
-			target: profileTarget,
-			source: "profile",
-		});
-	});
-
-	test("keeps the session's model when the override is session, in any case", () => {
-		assert.deepEqual(coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: " Session " }), { kind: "session" });
-	});
-
-	test("uses the model the override names", () => {
-		assert.deepEqual(coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: "github-copilot/claude-opus-5.5:high" }), {
-			kind: "switch",
-			target: { provider: "github-copilot", id: "claude-opus-5.5", thinking: "high" },
-			source: "env",
-		});
-	});
-
-	test("reports an override it cannot read instead of ignoring it", () => {
-		const choice = coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: "opus" });
-		assert.equal(choice.kind, "invalid");
-		assert.match(choice.kind === "invalid" ? choice.reason : "", /PI_FLEET_COORDINATOR_MODEL=opus/);
-	});
-
-	test("keeps the session's model when the profile sets none", () => {
-		assert.deepEqual(coordinatorModelChoice({ ...coordinator, model: undefined }, {}), { kind: "session" });
-	});
-});
-
-describe("applyCoordinatorModel", () => {
-	type FakeModel = { provider: string; id: string };
-	/** A session on Sonnet with high thinking; records every model and thinking change. */
-	function fakeSession(options: { loggedIn?: boolean; known?: FakeModel[] } = {}) {
-		const known = options.known ?? [
-			{ provider: "github-copilot", id: "gpt-6.1-sol" },
-			{ provider: "github-copilot", id: "claude-sonnet-5.5" },
-		];
-		const state = { model: known[1] as FakeModel | undefined, thinking: "high" as ThinkingLevelName, calls: [] as string[] };
-		const control: SessionModelControl<FakeModel> = {
-			currentModel: () => state.model,
-			currentThinking: () => state.thinking,
-			find: (provider, id) => known.find((m) => m.provider === provider && m.id === id),
-			setModel: async (model) => {
-				state.calls.push(`model ${model.id}`);
-				if (options.loggedIn === false) return false;
-				state.model = model;
-				return true;
-			},
-			setThinking: (level) => {
-				state.calls.push(`thinking ${level}`);
-				state.thinking = level;
-			},
-		};
-		return { state, control };
-	}
-	const toSol: CoordinatorModelChoice = {
-		kind: "switch",
-		target: { provider: "github-copilot", id: "gpt-6.1-sol", thinking: "medium" },
-		source: "profile",
-	};
-
-	test("switches to the chosen model and effort, then restores the session's", async () => {
-		const { state, control } = fakeSession();
-		const result = await applyCoordinatorModel(toSol, control);
-		assert.ok(result.ok && result.switched);
-		assert.deepEqual([state.model?.id, state.thinking], ["gpt-6.1-sol", "medium"]);
-		await result.restore();
-		assert.deepEqual([state.model?.id, state.thinking], ["claude-sonnet-5.5", "high"]);
-		assert.deepEqual(state.calls, ["model gpt-6.1-sol", "thinking medium", "model claude-sonnet-5.5", "thinking high"]);
-	});
-
-	test("keeps the session's thinking level when the target names none", async () => {
-		const { state, control } = fakeSession();
-		const result = await applyCoordinatorModel({ ...toSol, target: { provider: "github-copilot", id: "gpt-6.1-sol" } }, control);
-		assert.ok(result.ok);
-		assert.deepEqual([state.model?.id, state.thinking], ["gpt-6.1-sol", "high"]);
-	});
-
-	test("changes nothing for the session choice", async () => {
-		const { state, control } = fakeSession();
-		const result = await applyCoordinatorModel({ kind: "session" }, control);
-		assert.ok(result.ok && !result.switched);
-		await result.restore();
-		assert.deepEqual(state.calls, []);
-	});
-
-	test("refuses an unknown model without touching the session", async () => {
-		const { state, control } = fakeSession({ known: [{ provider: "github-copilot", id: "claude-sonnet-5.5" }] });
-		const result = await applyCoordinatorModel(toSol, control);
-		assert.ok(!result.ok);
-		assert.match(result.reason, /github-copilot\/gpt-6\.1-sol not found.*PI_FLEET_COORDINATOR_MODEL=session/);
-		assert.deepEqual(state.calls, []);
-	});
-
-	test("refuses a model without a login and leaves the thinking level alone", async () => {
-		const { state, control } = fakeSession({ loggedIn: false });
-		const result = await applyCoordinatorModel(toSol, control);
-		assert.ok(!result.ok);
-		assert.match(result.reason, /no login configured/);
-		assert.deepEqual([state.model?.id, state.thinking], ["claude-sonnet-5.5", "high"]);
-	});
-
-	test("passes an invalid choice's reason through", async () => {
-		const { control } = fakeSession();
-		assert.deepEqual(await applyCoordinatorModel({ kind: "invalid", reason: "bad" }, control), { ok: false, reason: "bad" });
 	});
 });
 

@@ -85,9 +85,11 @@ export PI_FLEET_COORDINATOR_MODEL=github-copilot/claude-opus-5.5:high
 setx PI_FLEET_COORDINATOR_MODEL session                                # Windows; open a new terminal afterwards
 ```
 
-If the model is unknown, you are not logged in to its provider, or the value
-cannot be read, `/fleet` does not run and says why. The variable does not
-change the specialists' models.
+`/fleet` says which model it switched to. If the model is unknown, you are not
+logged in to its provider, or the value cannot be read, `/fleet` does not run
+and says why. If switching back fails, for example because the login expired,
+`/fleet` says which model the session stays on. The variable does not change
+the specialists' models.
 
 If a profile lists a Copilot tool that pi has no equivalent for, that tool is
 left out and `/fleet` shows a warning. A specialist whose tools all lack an

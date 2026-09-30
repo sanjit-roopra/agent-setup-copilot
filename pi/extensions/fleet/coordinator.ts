@@ -16,31 +16,16 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { discoverAgents } from "./agents.ts";
-import {
-	applyCoordinatorModel,
-	buildCoordinatorMessage,
-	coordinatorModelChoice,
-	coordinatorRoster,
-	loadRepoFleet,
-	planFleetRun,
-} from "./copilot-profiles.ts";
+import { applyCoordinatorModel, COORDINATOR_MODEL_ENV, coordinatorModelChoice, FleetRunCleanup } from "./coordinator-model.ts";
+import { buildCoordinatorMessage, coordinatorRoster, loadRepoFleet, planFleetRun } from "./copilot-profiles.ts";
 
 export function registerFleetCommand(pi: ExtensionAPI): void {
-	// Tools that were active before /fleet narrowed them; restored when the run settles.
-	let toolsBeforeFleet: string[] | undefined;
-	// Puts back the session's model and thinking level; set while a /fleet run uses another model.
-	let restoreModel: (() => Promise<void>) | undefined;
-	pi.on("agent_settled", async () => {
-		if (toolsBeforeFleet) {
-			pi.setActiveTools(toolsBeforeFleet);
-			toolsBeforeFleet = undefined;
-		}
-		if (restoreModel) {
-			const restore = restoreModel;
-			restoreModel = undefined;
-			await restore();
-		}
-	});
+	// Puts back the session's tools and model once a /fleet run settles.
+	const cleanup = new FleetRunCleanup();
+	const settle = async (notify: (message: string, level: "warning") => void) => {
+		for (const error of await cleanup.settle()) notify(error, "warning");
+	};
+	pi.on("agent_settled", (_event, ctx) => settle((message, level) => ctx.ui.notify(message, level)));
 
 	pi.registerCommand("fleet", {
 		description: "Coordinate the subagent fleet on a task: /fleet <task>",
@@ -54,6 +39,9 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 				ctx.ui.notify("Agent is busy. Wait for it to finish, then run /fleet again.", "warning");
 				return;
 			}
+			const notify = (message: string, level: "info" | "warning" | "error") => ctx.ui.notify(message, level);
+			// Finish undoing the previous run first, so this run starts from the session's own tools and model.
+			await settle(notify);
 
 			const fleet = loadRepoFleet();
 			for (const warning of fleet.warnings) ctx.ui.notify(warning, "warning");
@@ -76,14 +64,22 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 				setThinking: (level) => pi.setThinkingLevel(level),
 			});
 			if (!switched.ok) {
-				ctx.ui.notify(switched.reason, "error");
+				notify(switched.reason, "error");
 				return;
 			}
-			// Keep the first restore if a run is somehow still pending, so the session's own model comes back.
-			if (switched.switched) restoreModel ??= switched.restore;
-			toolsBeforeFleet ??= pi.getActiveTools();
-			pi.setActiveTools(plan.tools);
-			pi.sendUserMessage(buildCoordinatorMessage(plan.coordinator, roster, task));
+			cleanup.add(switched.restore);
+			if (switched.switchedTo) {
+				notify(`/fleet runs the coordinator on ${switched.switchedTo}. Set ${COORDINATOR_MODEL_ENV}=session to keep your model.`, "info");
+			}
+			const toolsBeforeFleet = pi.getActiveTools();
+			cleanup.add(() => pi.setActiveTools(toolsBeforeFleet));
+			try {
+				pi.setActiveTools(plan.tools);
+				pi.sendUserMessage(buildCoordinatorMessage(plan.coordinator, roster, task));
+			} catch (error) {
+				await settle(notify);
+				throw error;
+			}
 		},
 	});
 }

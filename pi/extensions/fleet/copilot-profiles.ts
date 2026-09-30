@@ -153,7 +153,7 @@ export function toPiModel(copilotModel: string | undefined, effort: string | und
 		.trim()
 		.toLowerCase()
 		.replace(/\s+/g, "-");
-	return effort ? `${COPILOT_PROVIDER}/${id}:${effort.trim()}` : `${COPILOT_PROVIDER}/${id}`;
+	return effort ? `${COPILOT_PROVIDER}/${id}:${effort.trim().toLowerCase()}` : `${COPILOT_PROVIDER}/${id}`;
 }
 
 /**
@@ -241,6 +241,11 @@ function readProfiles(dir: string, warnings: string[]): Map<string, RawProfile> 
 	return profilesByDisplayName;
 }
 
+/** The profile's `model` and `reasoning-effort` as a pi model, e.g. `github-copilot/gpt-6.1-sol:medium`. */
+function profileModel(frontmatter: Frontmatter): string | undefined {
+	return toPiModel(stringField(frontmatter, "model"), stringField(frontmatter, "reasoning-effort"));
+}
+
 function translateTools(raw: RawProfile, warnings: string[]): string[] | undefined {
 	const { tools, unknown } = toPiTools(listField(raw.frontmatter, "tools"));
 	if (unknown.length > 0) {
@@ -276,7 +281,7 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 				displayName,
 				allowedSpecialists,
 				tools: translateTools(raw, warnings),
-				model: toPiModel(stringField(frontmatter, "model"), stringField(frontmatter, "reasoning-effort")),
+				model: profileModel(frontmatter),
 				systemPrompt: body,
 			};
 			continue;
@@ -291,7 +296,7 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 			displayName,
 			description,
 			tools: translateTools(raw, warnings),
-			model: toPiModel(stringField(frontmatter, "model"), stringField(frontmatter, "reasoning-effort")),
+			model: profileModel(frontmatter),
 			systemPrompt: body,
 			filePath,
 		});
@@ -302,110 +307,6 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 
 export function variantFromEnv(env: Record<string, string | undefined> = process.env): FleetVariant {
 	return env.PI_FLEET_VARIANT?.trim().toLowerCase() === "budget" ? "budget" : "recommended";
-}
-
-/** pi's thinking levels, lowest first. */
-export const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
-export type ThinkingLevelName = (typeof THINKING_LEVELS)[number];
-
-/** A model to switch the session to: `provider/id`, plus a thinking level if one is given. */
-export interface ModelTarget {
-	provider: string;
-	id: string;
-	thinking?: ThinkingLevelName;
-}
-
-/**
- * Parse `provider/id` or `provider/id:thinking`, e.g. `github-copilot/gpt-6.1-sol:medium`.
- * Returns `undefined` if the text is not in that form or names an unknown thinking level.
- */
-export function parsePiModel(spec: string): ModelTarget | undefined {
-	const match = /^([^/\s:]+)\/([^\s:]+)(?::([a-z]+))?$/.exec(spec.trim());
-	if (!match) return undefined;
-	const [, provider, id, thinking] = match;
-	if (thinking === undefined) return { provider, id };
-	if (!(THINKING_LEVELS as readonly string[]).includes(thinking)) return undefined;
-	return { provider, id, thinking: thinking as ThinkingLevelName };
-}
-
-/** Environment variable that overrides the coordinator's model for `/fleet`. */
-export const COORDINATOR_MODEL_ENV = "PI_FLEET_COORDINATOR_MODEL";
-
-export type CoordinatorModelChoice =
-	| { kind: "session" }
-	| { kind: "switch"; target: ModelTarget; source: "profile" | "env" }
-	| { kind: "invalid"; reason: string };
-
-/**
- * Which model `/fleet` runs the coordinator on. `PI_FLEET_COORDINATOR_MODEL=session` keeps the
- * session's model, any other value names the model to use, and without it the coordinator
- * profile's `model` and `reasoning-effort` apply. A profile without a model keeps the session's.
- */
-export function coordinatorModelChoice(
-	coordinator: FleetCoordinator,
-	env: Record<string, string | undefined> = process.env,
-): CoordinatorModelChoice {
-	const override = env[COORDINATOR_MODEL_ENV]?.trim();
-	if (override) {
-		if (override.toLowerCase() === "session") return { kind: "session" };
-		const target = parsePiModel(override);
-		return target
-			? { kind: "switch", target, source: "env" }
-			: {
-					kind: "invalid",
-					reason: `${COORDINATOR_MODEL_ENV}=${override} is not "session" or provider/model[:thinking], e.g. github-copilot/claude-opus-5.5:high.`,
-				};
-	}
-	if (!coordinator.model) return { kind: "session" };
-	const target = parsePiModel(coordinator.model);
-	return target
-		? { kind: "switch", target, source: "profile" }
-		: { kind: "invalid", reason: `The coordinator profile's model ${coordinator.model} cannot be used in pi.` };
-}
-
-/** What `applyCoordinatorModel` needs from pi, so it can be tested without pi. */
-export interface SessionModelControl<M> {
-	currentModel(): M | undefined;
-	currentThinking(): ThinkingLevelName;
-	find(provider: string, id: string): M | undefined;
-	setModel(model: M): Promise<boolean>;
-	setThinking(level: ThinkingLevelName): void;
-}
-
-export type ApplyModelResult =
-	| { ok: true; switched: boolean; restore: () => Promise<void> }
-	| { ok: false; reason: string };
-
-const OVERRIDE_HINT = `Set ${COORDINATOR_MODEL_ENV}=session to keep your session's model, or name another model.`;
-
-/**
- * Switch the session to the chosen coordinator model. On success, `restore` puts back the model
- * and thinking level the session had before; call it when the run settles.
- */
-export async function applyCoordinatorModel<M>(choice: CoordinatorModelChoice, control: SessionModelControl<M>): Promise<ApplyModelResult> {
-	const nothingToRestore = async () => {};
-	if (choice.kind === "session") return { ok: true, switched: false, restore: nothingToRestore };
-	if (choice.kind === "invalid") return { ok: false, reason: choice.reason };
-
-	const { target } = choice;
-	const name = `${target.provider}/${target.id}`;
-	const model = control.find(target.provider, target.id);
-	if (!model) return { ok: false, reason: `Model ${name} not found. Run \`pi update --models\`, or check /model. ${OVERRIDE_HINT}` };
-
-	const previousModel = control.currentModel();
-	const previousThinking = control.currentThinking();
-	if (!(await control.setModel(model))) {
-		return { ok: false, reason: `Model ${name} has no login configured. Run /login. ${OVERRIDE_HINT}` };
-	}
-	if (target.thinking) control.setThinking(target.thinking);
-	return {
-		ok: true,
-		switched: true,
-		restore: async () => {
-			if (previousModel !== undefined) await control.setModel(previousModel);
-			control.setThinking(previousThinking);
-		},
-	};
 }
 
 /** The fleet this package ships, in the variant selected by `PI_FLEET_VARIANT`. */

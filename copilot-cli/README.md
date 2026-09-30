@@ -6,18 +6,19 @@ agents from this repository.
 
 | Snippet | Use it when | Differs in | Trade-off (per role) |
 | --- | --- | --- | --- |
-| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (recommended) | Complex or unfamiliar work, where a failed change is expensive. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on Claude Sonnet 5.5 (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 3.6 min per task. `explore`: index cost $544. |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) | Routine, well-scoped tasks, where rerunning is cheap. | `general-purpose` on Claude Sonnet 5.5 (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 30% Terminal-Bench, index cost $701, 2.1 min per task; the lowest estimated cost per solved task among models scoring at least 20% on Terminal-Bench. `explore`: index cost $31. |
+| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (Sustained, recommended) | Repository-wide changes and analyses that require sustained judgment. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on GPT-6.1 Sol (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 31 s per 500-token response. `explore`: $2 per 1M input tokens. |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) (Bounded, budget) | Test generation, bounded fixes, and routine reports. | `general-purpose` on GPT-6.1 Sol (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 48% Terminal-Bench, index cost $361, 14 s per 500-token response; the lowest estimated cost per solved task in the fleet. `explore`: $0.10 per 1M input tokens. |
 
 The costs cover only the role named; the other roles cost the same in both
-snippets. They are what it cost Artificial Analysis to run its benchmark suite,
-not a Copilot bill, so compare them as ratios. See
+snippets. The index costs are what it cost Artificial Analysis to run its
+benchmark suite, not a Copilot bill, so compare them as ratios. Explore mostly
+reads files, so its cost follows the input price. See
 [Why these models](../USAGE.md#why-these-models) for the full table.
 
 Everything else is the same in both: session model Claude Sonnet 5.5, Research
-on GPT-6 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
+on GPT-6.1 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
 Claude Opus 5.5 (medium, long context), Security Review on Claude Opus 5.5
-(high). See [Recommended or budget](../USAGE.md#recommended-or-budget) for when to pick
+(high). See [Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to pick
 which, and [Model assignments](../USAGE.md#model-assignments) for the reasoning
 and the benchmark numbers behind the choice.
 
@@ -34,8 +35,8 @@ would need a separate way to merge the snippet without overwriting a user's
 other settings.
 
 `contextTier: "long_context"` is only used on Claude models. Copilot bills
-Claude models at one rate regardless of context length, while GPT-6 Sol
+Claude models at one rate regardless of context length, while GPT-6.1 Sol
 and GPT-6 Luna switch to a higher "long context" rate above 272K input tokens
-(for GPT-6 Sol, input, cached input, and cache writes double and output rises
+(for GPT-6.1 Sol, input, cached input, and cache writes double and output rises
 1.5x). Putting a GPT-6
 model on `long_context` would make that subagent noticeably more expensive.

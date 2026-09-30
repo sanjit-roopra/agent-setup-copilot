@@ -49,15 +49,15 @@ model, and tools. The `fleet` tool runs one specialist, several in parallel
 (up to 8 tasks, 4 at a time), or a chain in which each step receives the
 previous step's output.
 
-| Specialist | Model (recommended) | Model (budget) | Tools |
+| Specialist | Model (Sustained, recommended) | Model (Bounded, budget) | Tools |
 | --- | --- | --- | --- |
-| `fleet-general-purpose` | Claude Opus 5.5, medium | Claude Sonnet 5.5, medium | read, grep, find, ls, edit, write, bash |
-| `fleet-explore` | Claude Sonnet 5.5, low | GPT-6 Luna, medium | read, grep, find, ls, bash |
+| `fleet-general-purpose` | Claude Opus 5.5, medium | GPT-6.1 Sol, medium | read, grep, find, ls, edit, write, bash |
+| `fleet-explore` | GPT-6.1 Sol, low | GPT-6 Luna, medium | read, grep, find, ls, bash |
 | `fleet-task` | GPT-6 Luna, low | same | bash, read |
 | `fleet-rubber-duck` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
 | `fleet-code-review` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
 | `fleet-security-review` | Claude Opus 5.5, high | same | read, grep, find, ls, bash |
-| `fleet-research` | GPT-6 Sol, high | same | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
+| `fleet-research` | GPT-6.1 Sol, high | same | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
 
 The models come from the profiles' `model` and `reasoning-effort` lines. For
 example, `Claude Opus 5.5 (copilot)` with `medium` becomes
@@ -69,10 +69,10 @@ If a profile lists a Copilot tool that pi has no equivalent for, that tool is
 left out and `/fleet` shows a warning. A specialist whose tools all lack an
 equivalent runs with no tools, never with pi's defaults.
 
-### Use the budget fleet
+### Use the Bounded (budget) fleet
 
 Set `PI_FLEET_VARIANT=budget` before you start pi. See
-[Recommended or budget](../USAGE.md#recommended-or-budget) for when to use it.
+[Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to use it.
 
 ```bash
 export PI_FLEET_VARIANT=budget      # macOS and Linux

@@ -3,7 +3,7 @@
   "subagents": {
     "agents": {
       "research": {
-        "model": "gpt-6-sol",
+        "model": "gpt-6.1-sol",
         "effortLevel": "high",
         "contextTier": "default"
       },
@@ -13,7 +13,7 @@
         "contextTier": "long_context"
       },
       "explore": {
-        "model": "claude-sonnet-5.5",
+        "model": "gpt-6.1-sol",
         "effortLevel": "low",
         "contextTier": "default"
       },

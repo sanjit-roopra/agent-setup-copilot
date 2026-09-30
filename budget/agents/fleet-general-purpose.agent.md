@@ -1,6 +1,6 @@
 ---
 name: Fleet General Purpose
-model: "Claude Sonnet 5.5 (copilot)"
+model: "GPT-6.1 Sol (copilot)"
 reasoning-effort: medium
 description: Complete complex, multi-step implementation work in a separate context window. Use when a task needs several steps, file edits, and verification.
 tools: ["read", "search", "edit", "execute"]

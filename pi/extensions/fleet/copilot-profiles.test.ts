@@ -376,10 +376,16 @@ describe("repository profiles", () => {
 		assert.deepEqual(find(recommended, "fleet-research").tools, ["read", "grep", "find", "ls", WEB_SEARCH_TOOL, WEB_FETCH_TOOL]);
 	});
 
+	test("recommended runs Explore and Research on GPT-6.1 Sol and keeps implementation on Opus", () => {
+		assert.equal(find(recommended, "fleet-general-purpose").model, "github-copilot/claude-opus-5.5:medium");
+		assert.equal(find(recommended, "fleet-explore").model, "github-copilot/gpt-6.1-sol:low");
+		assert.equal(find(recommended, "fleet-research").model, "github-copilot/gpt-6.1-sol:high");
+	});
+
 	test("budget changes the models of General Purpose and Explore only", () => {
 		const changed = recommended.specialists.filter((r) => find(budget, r.name).model !== r.model).map((r) => r.name);
 		assert.deepEqual(changed.sort(), ["fleet-explore", "fleet-general-purpose"]);
-		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/claude-sonnet-5.5:medium");
+		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/gpt-6.1-sol:medium");
 		assert.equal(find(budget, "fleet-explore").model, "github-copilot/gpt-6-luna:medium");
 	});
 

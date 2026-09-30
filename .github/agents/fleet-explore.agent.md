@@ -2,7 +2,7 @@
 name: Fleet Explore
 description: Quickly investigate focused codebase questions and answer with file and line citations. Use for "how does this work" and "where is this defined" questions. Does not change files.
 tools: ["read", "search", "execute"]
-model: "Claude Sonnet 5.5 (copilot)"
+model: "GPT-6.1 Sol (copilot)"
 reasoning-effort: low
 ---
 

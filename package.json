@@ -1,0 +1,43 @@
+{
+  "name": "agent-setup-copilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Subagent fleet for GitHub Copilot, packaged for the pi coding agent",
+  "keywords": [
+    "pi-package"
+  ],
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"pi/**/*.test.ts\""
+  },
+  "pi": {
+    "extensions": [
+      "./pi/extensions/fleet/index.ts",
+      "./pi/extensions/web/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-agent-core": "*",
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": ">=0.87.1",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-agent-core": {
+      "optional": true
+    },
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    },
+    "typebox": {
+      "optional": true
+    }
+  }
+}

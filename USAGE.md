@@ -1,6 +1,6 @@
 # Use the agent fleet
 
-**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [Copilot CLI settings snippets](copilot-cli/README.md) instead; see [Copilot CLI](#copilot-cli).
+**Start:** Copy the profiles into your repository, then select **Subagent Fleet** in your client's agent picker. [README.md](README.md#pick-a-specialist) shows which specialist to pick for smaller tasks. For Copilot CLI, use the [Copilot CLI settings snippets](copilot-cli/README.md) instead; see [Copilot CLI](#copilot-cli). For pi, install the [pi package](pi/README.md).
 
 ## Install the fleet profiles
 
@@ -152,7 +152,7 @@ What differs from the snapshot:
 
 - **Models:** See [Model assignments](#model-assignments) for this repository's choices. The snapshot instead uses `claude-haiku-4.5` for Explore and Task, `claude-sonnet-4.5` for Code Review, `claude-sonnet-4.6` for Research, and a dynamic choice for Rubber Duck. These are reference values, not host availability claims.
 - **Tools:** The profiles use [supported tool aliases](https://docs.github.com/en/copilot/reference/custom-agents-configuration), not the CLI's internal `promptParts`, templates, or unrestricted tools.
-- **Coordinator:** It cannot edit or run commands. After repeated worker failure, it reports the blocker rather than taking over. It does not implement CLI session SQL, background notifications, or `/fleet`.
+- **Coordinator:** It cannot edit or run commands. After repeated worker failure, it reports the blocker rather than taking over. It does not implement CLI session SQL, background notifications, or Copilot CLI's `/fleet`.
 - **Permissions:** Repository rules still apply. Task may run requested formatters or installs, but not deployments, migrations, destructive cleanup, or remote changes. Code Review reports missing bases or empty diffs instead of inventing findings.
 - **Memory agents:** The snapshot's `rem-agent`, `sidekick/github-context`, and `sidekick/subconscious-agent` need runtime-managed memory, triggers, and session history, so they are not portable profiles. In the snapshot, REM runs only through `/subconscious run`.
 - **Host behavior:** Agent instructions cannot guarantee internal prompt assembly, memory, scheduling, model routing, or tool enforcement.
@@ -175,7 +175,7 @@ Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task
 - [`copilot-cli/subagents.json`](copilot-cli/subagents.json) (recommended) sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
 - [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json) is the lower-cost variant.
 
-Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or Claude Sonnet 5.5 (medium) with the budget snippet. `/fleet` enables the CLI's own parallel subagents. These settings stay in the CLI; they do not carry over to VS Code or the app.
+Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or Claude Sonnet 5.5 (medium) with the budget snippet. In Copilot CLI, `/fleet` enables the CLI's own parallel subagents; the [pi package](pi/README.md)'s `/fleet` is a different command that runs the Subagent Fleet coordinator. These settings stay in the CLI; they do not carry over to VS Code or the app.
 
 ## Model assignments
 
@@ -298,6 +298,8 @@ echo "exit $rc"; (exit $rc)
 ```
 
 Run `git diff --check`.
+
+Run `npm test` (Node.js 22.18 or later). It loads the profiles the way the [pi package](pi/README.md) does and checks each specialist's model, tools, and budget overlay.
 
 There is no automated test runner for client behavior. Record those results separately.
 

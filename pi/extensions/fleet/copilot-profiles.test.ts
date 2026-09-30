@@ -396,7 +396,11 @@ describe("repository profiles", () => {
 	for (const [file, fleet] of cliSnippets) {
 		test(`${file} gives each built-in subagent the matching profile's model and effort`, () => {
 			const snippet = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, file), "utf8"));
-			assert.equal(snippet.model, "claude-sonnet-5.5", `${file} session model`);
+			assert.deepEqual(
+				[snippet.model, snippet.effortLevel, snippet.contextTier],
+				["gpt-6.1-sol", "medium", "default"],
+				`${file} session model, effort, and context tier`,
+			);
 			const fromSnippet = Object.fromEntries(
 				Object.entries(snippet.subagents.agents as Record<string, { model: string; effortLevel: string }>).map(
 					([key, agent]) => [`fleet-${key}`, `github-copilot/${agent.model}:${agent.effortLevel}`],

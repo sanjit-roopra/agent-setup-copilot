@@ -62,8 +62,19 @@ previous step's output.
 The models come from the profiles' `model` and `reasoning-effort` lines. For
 example, `Claude Opus 5.5 (copilot)` with `medium` becomes
 `github-copilot/claude-opus-5.5:medium`. The coordinator session uses the
-model and thinking level you picked in pi; the coordinator profile's
-`reasoning-effort` is not applied.
+model and thinking level you picked in pi; the coordinator profile's `model`
+and `reasoning-effort` are not applied. To match the other clients, make
+GPT-6.1 Sol with medium thinking pi's default in `~/.pi/agent/settings.json`:
+
+```json
+{
+  "defaultProvider": "github-copilot",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultThinkingLevel": "medium"
+}
+```
+
+Or pick it for one session with `/model`.
 
 If a profile lists a Copilot tool that pi has no equivalent for, that tool is
 left out and `/fleet` shows a warning. A specialist whose tools all lack an

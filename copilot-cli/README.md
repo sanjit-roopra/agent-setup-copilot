@@ -1,7 +1,7 @@
 # Copilot CLI built-in subagent models
 
-Two settings snippets set the CLI's default model and the model, effort, and
-context tier for its seven built-in subagents. They do not install the fleet
+Two settings snippets set the CLI's default model, effort, and context tier,
+and the model, effort, and context tier for its seven built-in subagents. They do not install the fleet
 agents from this repository.
 
 | Snippet | Use it when | Differs in | Trade-off (per role) |
@@ -15,15 +15,16 @@ benchmark suite, not a Copilot bill, so compare them as ratios. Explore mostly
 reads files, so its cost follows the input price. See
 [Why these models](../USAGE.md#why-these-models) for the full table.
 
-Everything else is the same in both: session model Claude Sonnet 5.5, Research
+Everything else is the same in both: session model GPT-6.1 Sol (medium, default context), Research
 on GPT-6.1 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
 Claude Opus 5.5 (medium, long context), Security Review on Claude Opus 5.5
 (high). See [Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to pick
 which, and [Model assignments](../USAGE.md#model-assignments) for the reasoning
 and the benchmark numbers behind the choice.
 
-Merge the snippet's **`model` and `subagents` properties** into your
-`~/.copilot/settings.json` (or `$COPILOT_HOME/settings.json`). Keep any other
+Merge the snippet's **`model`, `effortLevel`, `contextTier`, and `subagents`
+properties** into your `~/.copilot/settings.json` (or
+`$COPILOT_HOME/settings.json`). Keep any other
 properties already in that file. Do not replace the whole file unless you want
 to discard your other CLI settings. Check the result with `/model` and
 `/subagents` in Copilot CLI.

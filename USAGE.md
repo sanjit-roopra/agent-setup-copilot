@@ -173,7 +173,7 @@ Permissions, models, and available tools still depend on the host. A `tools` lis
 
 Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task, security-review, code-review, and general-purpose), so the settings snippets, not the profiles in `.github/agents/`, are the supported CLI setup. Merge one of the settings snippets in [`copilot-cli/`](copilot-cli/README.md) into `~/.copilot/settings.json`:
 
-- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) is the Sustained (recommended) variant. It sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
+- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) is the Sustained (recommended) variant. It sets the session model, effort, and context tier (GPT-6.1 Sol, medium, default) and gives each built-in subagent the fleet's model and effort, plus a context tier.
 - [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json) is the Bounded (budget) variant.
 
 Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or GPT-6.1 Sol (medium) with the Bounded snippet. In Copilot CLI, `/fleet` enables the CLI's own parallel subagents; the [pi package](pi/README.md)'s `/fleet` is a different command that runs the Subagent Fleet coordinator. These settings stay in the CLI; they do not carry over to VS Code or the app.
@@ -184,7 +184,7 @@ Check the result with `/model` and `/subagents`: `/subagents` should list the se
 
 | Role | Profile file | Preferred model (`model`) | Reasoning effort (`reasoning-effort`) |
 | --- | --- | --- | --- |
-| Subagent Fleet | `subagent-fleet.agent.md` | Host session: Claude Sonnet 5.5 (not set in profile) | medium |
+| Subagent Fleet | `subagent-fleet.agent.md` | GPT-6.1 Sol (copilot) | medium |
 | Fleet Explore | `fleet-explore.agent.md` | GPT-6.1 Sol (copilot) | low |
 | Fleet Task | `fleet-task.agent.md` | GPT-6 Luna (copilot) | low |
 | Fleet General Purpose | `fleet-general-purpose.agent.md` | Claude Opus 5.5 (copilot) | medium |
@@ -248,14 +248,15 @@ What follows from this:
 - **Fleet Task** runs one command and reports. GPT-6 Luna (low) is enough.
 - **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. GPT-6.1 Sol (high) scores 50 against 43 for GPT-6 Sol (high) at the same input, cache-write, and output prices, reads cached input at half the price, and costs less to run the index ($521 against $610).
 - **Reviews** stay on Claude Opus 5.5. Opus 5.5 (high) has the highest Intelligence Index (54) and Terminal-Bench score (57%) in the fleet. Reviews are input-heavy and cache-friendly, and Opus reads cached input at the same $0.20 as Sonnet 5.5, so its premium is smaller in practice than in the table above; the remaining premium over Sonnet is on uncached input ($4 vs $2), cache writes ($5 vs $2.50), and output ($20 vs $10). GPT-6.1 Sol reads cached input at $0.10, half the Opus price. Copilot charges Claude models one rate at any context length, while the GPT-6 models switch to a long-context rate above 272K input tokens. That makes long context free on Opus and costly on the GPT-6 models. In the Bounded variant, Opus also reviews code written by a different model family.
-- **The session model** (the coordinator) is the context that grows longest, and every subagent waits on it. It stays on Claude Sonnet 5.5 (medium). Up to 272K input tokens, GPT-6.1 Sol would cost less (cached input at $0.10 against $0.20); above 272K it would cost more, and Sonnet has no long-context price step. Sonnet 5.5 (medium) also answers faster: 1.3 s to the first token and 91 tokens per second, against 5.5 s and 61 tokens per second for GPT-6.1 Sol (medium). A coordinator delegates and combines results; it does not need GPT-6.1 Sol's extra 7 Intelligence Index points. Effort labels are not comparable across vendors: per task, Sonnet thinks longer at the same label, so the coordinator runs at medium. Sonnet 5.5 (high) adds 6 intelligence points for 1.7x the cost and 1.7x the time; use it only when delegation quality falls short.
+- **The session model** (the coordinator) runs on GPT-6.1 Sol (medium) in every client. In Copilot CLI the session is also the main agent, which edits and runs commands itself and delegates only part of the work, so it is effectively the main implementer. Against Claude Sonnet 5.5 (medium), the previous choice, GPT-6.1 Sol (medium) scores higher (48 against 41 on the Intelligence Index, 48% against 30% on Terminal-Bench) and costs less: $361 against $701 to run the index, 8k against 19k output tokens per task, and $0.10 against $0.20 per 1M cached input tokens up to 272K. The price is speed: 5.5 s to the first token and 14 s for a 500-token response, against 1.3 s and 7 s for Sonnet. Medium rather than high, because GPT-6.1 Sol (high) takes 58 s to the first token for 2 more intelligence points. Above 272K input tokens GPT-6.1 Sol switches to its long-context rate, where cached input costs the same as Sonnet and fresh input and output cost more; the CLI snippets keep the session on the default context tier, and compaction keeps most sessions below that point.
+  - Running the session and a subagent on the same model is not a problem, because every subagent starts with a fresh context. In the Sustained variant, Fleet General Purpose still runs on Claude Opus 5.5, and in both variants the reviews stay on Claude Opus 5.5, so a different model family reviews the work.
 - GPT-6 Sol, GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. GPT-6.1 Sol replaces GPT-6 Sol at the same input, cache-write, and output prices, with cheaper cached input and higher scores at every effort. At medium and high effort, Opus 5.5 scores higher than GPT-6 Astra on both the Intelligence Index and Terminal-Bench for a lower index cost ($1,627 against $2,434, and $2,172 against $2,925). Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
 
 ### VS Code
 
 The agent files use the [supported `model` field](https://code.visualstudio.com/docs/agent-customization/custom-agents#_custom-agent-file-structure). See [supported models per client](https://docs.github.com/en/copilot/reference/ai-models/supported-models#supported-ai-models-per-client).
 
-VS Code 1.136+ reads [`reasoning-effort` from custom-agent frontmatter](https://github.com/microsoft/vscode/pull/329263) as a per-agent default. The supported values are `low`, `medium`, `high`, `xhigh`, and `max`; the selected model must support the configured level. The coordinator does not set a model, so it uses the session's selected model with `medium` effort when supported. The profile does not set effort on individual subagent calls. In older VS Code versions, choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker.
+VS Code 1.136+ reads [`reasoning-effort` from custom-agent frontmatter](https://github.com/microsoft/vscode/pull/329263) as a per-agent default. The supported values are `low`, `medium`, `high`, `xhigh`, and `max`; the selected model must support the configured level. The coordinator sets GPT-6.1 Sol with `medium` effort, so selecting **Subagent Fleet** switches the chat to that model when your plan offers it. The profile does not set effort on individual subagent calls. In older VS Code versions, choose [Thinking Effort](https://code.visualstudio.com/docs/agent-customization/language-models#_configure-thinking-effort) in the model picker.
 
 ### Copilot app
 
@@ -265,7 +266,7 @@ Select the agent, then check the [session model and reasoning-effort pickers](ht
 
 No shared agent-profile field sets it. The window depends on the model and variant. [Extended context](https://docs.github.com/en/copilot/reference/ai-models/supported-models#models-with-extended-capabilities) is documented for supported models in VS Code and CLI, not the desktop app. The app does not document a context-tier picker or default.
 
-For the main session, select Claude Sonnet 5.5 if your client offers it. The coordinator profile requests medium effort; check the active setting in clients that might not honor it. Default context is a target, not a shared profile setting.
+The coordinator profile sets GPT-6.1 Sol with medium effort; check the active model and effort in clients that might not honor the profile, such as the Copilot app. Default context is a target, not a shared profile setting.
 
 ## Check your setup
 

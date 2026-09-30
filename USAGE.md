@@ -305,7 +305,7 @@ Use a disposable repository with the needed client tools. These checks test what
 
 ### Maintenance checks
 
-For repository maintenance, parse all eight YAML profiles and the two Bounded profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each budget profile differs from its recommended counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
+For repository maintenance, parse all eight YAML profiles and the two Bounded profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each Bounded profile differs from its Sustained counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
 
 ```bash
 rc=0

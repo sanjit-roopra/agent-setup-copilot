@@ -388,12 +388,13 @@ describe("repository profiles", () => {
 		});
 	});
 
-	test("the Copilot CLI snippets give each built-in subagent the matching profile's model and effort", () => {
-		const snippets = [
-			["copilot-cli/subagents.json", () => recommended],
-			["copilot-cli/subagents-budget.json", () => budget],
-		] as const;
-		for (const [file, fleet] of snippets) {
+	// Functions, because the fleets are only loaded in before().
+	const cliSnippets = [
+		["copilot-cli/subagents.json", () => recommended],
+		["copilot-cli/subagents-budget.json", () => budget],
+	] as const;
+	for (const [file, fleet] of cliSnippets) {
+		test(`${file} gives each built-in subagent the matching profile's model and effort`, () => {
 			const snippet = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, file), "utf8"));
 			assert.equal(snippet.model, "claude-sonnet-5.5", `${file} session model`);
 			const fromSnippet = Object.fromEntries(
@@ -403,8 +404,8 @@ describe("repository profiles", () => {
 			);
 			const fromProfiles = Object.fromEntries(fleet().specialists.map((s) => [s.name, s.model]));
 			assert.deepEqual(fromSnippet, fromProfiles, file);
-		}
-	});
+		});
+	}
 
 	test("budget changes the models of General Purpose and Explore only", () => {
 		const changed = recommended.specialists.filter((r) => find(budget, r.name).model !== r.model).map((r) => r.name);

@@ -7,7 +7,7 @@ These two profiles replace their Sustained counterparts in `.github/agents/` to 
 fleet as the Bounded variant, at lower cost. They keep the same names, descriptions, tools, and
 instructions; only the model and reasoning effort change.
 
-| Profile | Sustained (recommended), `.github/agents/` | Bounded (budget), `budget/agents/` |
+| Profile | Sustained (recommended) — `.github/agents/` | Bounded (budget) — `budget/agents/` |
 | --- | --- | --- |
 | Fleet General Purpose | Claude Opus 5.5, medium | GPT-6.1 Sol, medium |
 | Fleet Explore | GPT-6.1 Sol, low | GPT-6 Luna, medium |

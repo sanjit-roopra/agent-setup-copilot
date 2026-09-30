@@ -2,7 +2,7 @@
 name: Fleet Research
 description: Execute thorough research assigned by the main agent. Discover repositories, fetch implementation files, verify claims, and return detailed findings with citations and explicit gaps.
 tools: ["read", "search", "web"]
-model: "GPT-6 Sol (copilot)"
+model: "GPT-6.1 Sol (copilot)"
 reasoning-effort: high
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: Subagent Fleet
+model: "GPT-6.1 Sol (copilot)"
 reasoning-effort: medium
 description: Coordinate the specialist fleet roles for complex work, and delegate each part to the right specialist.
 tools: ["agent", "read", "search"]

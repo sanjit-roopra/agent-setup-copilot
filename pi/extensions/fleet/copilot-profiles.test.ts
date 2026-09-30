@@ -22,6 +22,7 @@ import {
 	toPiTools,
 	variantFromEnv,
 } from "./copilot-profiles.ts";
+import { coordinatorModelChoice } from "./coordinator-model.ts";
 
 /** A throwaway repository with the given files, removed after the test. */
 function makeRepo(t: TestContext, files: Record<string, string>): string {
@@ -47,6 +48,7 @@ describe("toPiModel", () => {
 	test("maps a Copilot display name and effort to provider/id:thinking", () => {
 		assert.equal(toPiModel("Claude Opus 5.5 (copilot)", "medium"), "github-copilot/claude-opus-5.5:medium");
 		assert.equal(toPiModel("GPT-6 Luna (copilot)", " low "), "github-copilot/gpt-6-luna:low");
+		assert.equal(toPiModel("GPT-6.1 Sol (copilot)", "Medium"), "github-copilot/gpt-6.1-sol:medium");
 	});
 
 	test("omits the thinking level when there is no effort", () => {
@@ -178,7 +180,10 @@ describe("loadFleet", () => {
 
 	test("separates the coordinator from the specialists", (t) => {
 		const root = makeRepo(t, {
-			".github/agents/coord.agent.md": profile('name: Coord\ntools: ["agent", "read"]\nagents:\n  - Fleet A', "Coordinate."),
+			".github/agents/coord.agent.md": profile(
+				'name: Coord\nmodel: "GPT-6.1 Sol (copilot)"\nreasoning-effort: medium\ntools: ["agent", "read"]\nagents:\n  - Fleet A',
+				"Coordinate.",
+			),
 			".github/agents/a.agent.md": specialist("Fleet A"),
 		});
 		const fleet = loadFleet(root);
@@ -186,6 +191,7 @@ describe("loadFleet", () => {
 			displayName: "Coord",
 			allowedSpecialists: ["Fleet A"],
 			tools: [FLEET_TOOL, "read"],
+			model: "github-copilot/gpt-6.1-sol:medium",
 			systemPrompt: "Coordinate.",
 		});
 		assert.deepEqual(
@@ -317,8 +323,9 @@ describe("variantFromEnv", () => {
 });
 
 /**
- * Drift checks against this repository's real profiles. A failure here means
- * a profile in .github/agents/ or budget/agents/ changed; update the expected
+ * Drift checks against this repository's real profiles and Copilot CLI
+ * snippets. A failure here means a profile in .github/agents/ or
+ * budget/agents/, or a snippet in copilot-cli/, changed; update the expected
  * values if the change was intended. The expected models and tools match the
  * tables in USAGE.md (Model assignments) and budget/README.md.
  */
@@ -346,6 +353,15 @@ describe("repository profiles", () => {
 			recommended.specialists.map((s) => s.name).sort(),
 		);
 		assert.equal(recommended.specialists.length, 7);
+	});
+
+	test("the coordinator runs on GPT-6.1 Sol with medium effort", () => {
+		assert.equal(recommended.coordinator?.model, "github-copilot/gpt-6.1-sol:medium");
+		assert.deepEqual(coordinatorModelChoice(recommended.coordinator!, {}), {
+			kind: "switch",
+			target: { provider: "github-copilot", id: "gpt-6.1-sol", thinking: "medium" },
+			source: "profile",
+		});
 	});
 
 	test("the coordinator can delegate, read, and search, but not edit or run commands", () => {
@@ -376,10 +392,48 @@ describe("repository profiles", () => {
 		assert.deepEqual(find(recommended, "fleet-research").tools, ["read", "grep", "find", "ls", WEB_SEARCH_TOOL, WEB_FETCH_TOOL]);
 	});
 
+	test("recommended runs Explore and Research on GPT-6.1 Sol and keeps General Purpose on Opus", () => {
+		const models = Object.fromEntries(
+			["fleet-general-purpose", "fleet-explore", "fleet-research"].map((name) => [name, find(recommended, name).model]),
+		);
+		assert.deepEqual(models, {
+			"fleet-general-purpose": "github-copilot/claude-opus-5.5:medium",
+			"fleet-explore": "github-copilot/gpt-6.1-sol:low",
+			"fleet-research": "github-copilot/gpt-6.1-sol:high",
+		});
+	});
+
+	// Functions, because the fleets are only loaded in before().
+	const cliSnippets = [
+		["copilot-cli/subagents.json", () => recommended],
+		["copilot-cli/subagents-budget.json", () => budget],
+	] as const;
+	for (const [file, fleet] of cliSnippets) {
+		test(`${file} gives each built-in subagent the matching profile's model and effort`, () => {
+			const snippet = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, file), "utf8"));
+			const { frontmatter } = parseProfileFrontmatter(
+				fs.readFileSync(path.join(REPO_ROOT, ".github", "agents", "subagent-fleet.agent.md"), "utf8"),
+			);
+			assert.equal(
+				`github-copilot/${snippet.model}:${snippet.effortLevel}`,
+				toPiModel(frontmatter.model as string, frontmatter["reasoning-effort"] as string),
+				`${file} session model and effort match the coordinator profile`,
+			);
+			assert.equal(snippet.contextTier, "default", `${file} session context tier`);
+			const fromSnippet = Object.fromEntries(
+				Object.entries(snippet.subagents.agents as Record<string, { model: string; effortLevel: string }>).map(
+					([key, agent]) => [`fleet-${key}`, `github-copilot/${agent.model}:${agent.effortLevel}`],
+				),
+			);
+			const fromProfiles = Object.fromEntries(fleet().specialists.map((s) => [s.name, s.model]));
+			assert.deepEqual(fromSnippet, fromProfiles, file);
+		});
+	}
+
 	test("budget changes the models of General Purpose and Explore only", () => {
 		const changed = recommended.specialists.filter((r) => find(budget, r.name).model !== r.model).map((r) => r.name);
 		assert.deepEqual(changed.sort(), ["fleet-explore", "fleet-general-purpose"]);
-		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/claude-sonnet-5.5:medium");
+		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/gpt-6.1-sol:medium");
 		assert.equal(find(budget, "fleet-explore").model, "github-copilot/gpt-6-luna:medium");
 	});
 

@@ -15,10 +15,10 @@ For one small task, select the relevant specialist instead. The coordinator alre
 
 The fleet comes in two variants:
 
-- **Recommended:** complex or unfamiliar work, where a failed change is expensive.
-- **Budget:** routine, well-scoped tasks, where rerunning is cheap. Also copy the two profiles in [`budget/agents/`](budget/README.md) over the recommended ones.
+- **Sustained (recommended):** repository-wide changes and analyses that require sustained judgment.
+- **Bounded (budget):** test generation, bounded fixes, and routine reports. Also copy the two profiles in [`budget/agents/`](budget/README.md) over the Sustained ones.
 
-See [Recommended or budget](USAGE.md#recommended-or-budget) for the trade-offs.
+See [Sustained or bounded](USAGE.md#sustained-or-bounded) for the trade-offs.
 
 See [USAGE.md](USAGE.md#install-the-fleet-profiles) for install commands and setup in other clients.
 
@@ -58,7 +58,7 @@ Each specialist names a preferred model and reasoning effort. Effort and context
 | --- | --- |
 | VS Code | Select **Subagent Fleet** as the parent. VS Code 1.136+ reads the profiles' reasoning effort. Subagents do not normally delegate again. |
 | Copilot app | Select the agent in the picker or with `/agent`. Check its model and effort pickers; it might not apply the profile's model choice. |
-| Copilot CLI | Use the CLI's built-in subagents with the [Copilot CLI settings snippets](copilot-cli/README.md) (`copilot-cli/subagents.json`, or the budget variant) instead of these profiles. `subagents.json` gives the built-in subagents the same model assignments as the profiles; the budget variant lowers `general-purpose` and `explore`. |
+| Copilot CLI | Use the CLI's built-in subagents with the [Copilot CLI settings snippets](copilot-cli/README.md) (`copilot-cli/subagents.json`, or `subagents-budget.json` for the Bounded variant) instead of these profiles. `subagents.json` gives the built-in subagents the same model assignments as the profiles; the Bounded variant moves `general-purpose` and `explore` to cheaper models. |
 | GitHub.com cloud agent | Custom agents work, but available tools differ. The VS Code `agents` list is not a security boundary. |
 | pi | Install the [pi package](pi/README.md) and run `/fleet <task>`. It reads these profiles and uses your GitHub Copilot login for models and web search. |
 | JetBrains, Eclipse, Xcode (preview) | Select a specialist directly unless your client supports delegation. |

@@ -49,6 +49,8 @@ export interface FleetCoordinator {
 	/** Display names from the profile's `agents:` list. */
 	allowedSpecialists: string[];
 	tools?: string[];
+	/** `provider/model:thinking` from the profile's `model` and `reasoning-effort`, if it sets a model. */
+	model?: string;
 	systemPrompt: string;
 }
 
@@ -151,7 +153,7 @@ export function toPiModel(copilotModel: string | undefined, effort: string | und
 		.trim()
 		.toLowerCase()
 		.replace(/\s+/g, "-");
-	return effort ? `${COPILOT_PROVIDER}/${id}:${effort.trim()}` : `${COPILOT_PROVIDER}/${id}`;
+	return effort ? `${COPILOT_PROVIDER}/${id}:${effort.trim().toLowerCase()}` : `${COPILOT_PROVIDER}/${id}`;
 }
 
 /**
@@ -239,6 +241,11 @@ function readProfiles(dir: string, warnings: string[]): Map<string, RawProfile> 
 	return profilesByDisplayName;
 }
 
+/** The profile's `model` and `reasoning-effort` as a pi model, e.g. `github-copilot/gpt-6.1-sol:medium`. */
+function profileModel(frontmatter: Frontmatter): string | undefined {
+	return toPiModel(stringField(frontmatter, "model"), stringField(frontmatter, "reasoning-effort"));
+}
+
 function translateTools(raw: RawProfile, warnings: string[]): string[] | undefined {
 	const { tools, unknown } = toPiTools(listField(raw.frontmatter, "tools"));
 	if (unknown.length > 0) {
@@ -274,6 +281,7 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 				displayName,
 				allowedSpecialists,
 				tools: translateTools(raw, warnings),
+				model: profileModel(frontmatter),
 				systemPrompt: body,
 			};
 			continue;
@@ -288,7 +296,7 @@ export function loadFleet(repoRoot: string, variant: FleetVariant = "recommended
 			displayName,
 			description,
 			tools: translateTools(raw, warnings),
-			model: toPiModel(stringField(frontmatter, "model"), stringField(frontmatter, "reasoning-effort")),
+			model: profileModel(frontmatter),
 			systemPrompt: body,
 			filePath,
 		});

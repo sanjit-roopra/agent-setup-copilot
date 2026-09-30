@@ -49,30 +49,56 @@ model, and tools. The `fleet` tool runs one specialist, several in parallel
 (up to 8 tasks, 4 at a time), or a chain in which each step receives the
 previous step's output.
 
-| Specialist | Model (recommended) | Model (budget) | Tools |
+| Specialist | Sustained (recommended) model | Bounded (budget) model | Tools |
 | --- | --- | --- | --- |
-| `fleet-general-purpose` | Claude Opus 5.5, medium | Claude Sonnet 5.5, medium | read, grep, find, ls, edit, write, bash |
-| `fleet-explore` | Claude Sonnet 5.5, low | GPT-6 Luna, medium | read, grep, find, ls, bash |
+| `fleet-general-purpose` | Claude Opus 5.5, medium | GPT-6.1 Sol, medium | read, grep, find, ls, edit, write, bash |
+| `fleet-explore` | GPT-6.1 Sol, low | GPT-6 Luna, medium | read, grep, find, ls, bash |
 | `fleet-task` | GPT-6 Luna, low | same | bash, read |
 | `fleet-rubber-duck` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
 | `fleet-code-review` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
 | `fleet-security-review` | Claude Opus 5.5, high | same | read, grep, find, ls, bash |
-| `fleet-research` | GPT-6 Sol, high | same | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
+| `fleet-research` | GPT-6.1 Sol, high | same | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
 
 The models come from the profiles' `model` and `reasoning-effort` lines. For
 example, `Claude Opus 5.5 (copilot)` with `medium` becomes
-`github-copilot/claude-opus-5.5:medium`. The coordinator session uses the
-model and thinking level you picked in pi; the coordinator profile's
-`reasoning-effort` is not applied.
+`github-copilot/claude-opus-5.5:medium`.
+
+`/fleet` also runs the coordinator on the coordinator profile's model and
+effort, GPT-6.1 Sol with medium thinking, whatever model your session uses.
+When the run finishes, your session switches back to its own model and
+thinking level.
+
+### Choose the coordinator's model
+
+Set `PI_FLEET_COORDINATOR_MODEL` before you start pi to use a different model
+for `/fleet`:
+
+| Value | `/fleet` runs the coordinator on |
+| --- | --- |
+| Not set | The coordinator profile's model and effort (GPT-6.1 Sol, medium) |
+| `session` | Your session's model and thinking level, unchanged |
+| `provider/model` or `provider/model:thinking` | That model, for example `github-copilot/claude-opus-5.5:high` |
+
+```bash
+export PI_FLEET_COORDINATOR_MODEL=session                              # macOS and Linux
+export PI_FLEET_COORDINATOR_MODEL=github-copilot/claude-opus-5.5:high
+setx PI_FLEET_COORDINATOR_MODEL session                                # Windows; open a new terminal afterwards
+```
+
+`/fleet` says which model it switched to. If the model is unknown, you are not
+logged in to its provider, or the value cannot be read, `/fleet` does not run
+and says why. If switching back fails, for example because the login expired,
+`/fleet` says which model the session stays on. The variable does not change
+the specialists' models.
 
 If a profile lists a Copilot tool that pi has no equivalent for, that tool is
 left out and `/fleet` shows a warning. A specialist whose tools all lack an
 equivalent runs with no tools, never with pi's defaults.
 
-### Use the budget fleet
+### Use the Bounded (budget) fleet
 
 Set `PI_FLEET_VARIANT=budget` before you start pi. See
-[Recommended or budget](../USAGE.md#recommended-or-budget) for when to use it.
+[Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to use it.
 
 ```bash
 export PI_FLEET_VARIANT=budget      # macOS and Linux

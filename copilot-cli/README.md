@@ -6,8 +6,8 @@ agents from this repository.
 
 | Snippet | Use it when | Differs in | Trade-off (per role) |
 | --- | --- | --- | --- |
-| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) (Sustained, recommended) | Repository-wide changes and analyses that require sustained judgment. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on GPT-6.1 Sol (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 31 s per 500-token response. `explore`: $2 per 1M input tokens. |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) (Bounded, budget) | Test generation, bounded fixes, and routine reports. | `general-purpose` on GPT-6.1 Sol (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 48% Terminal-Bench, index cost $361, 14 s per 500-token response; the lowest estimated cost per solved task in the fleet. `explore`: $0.10 per 1M input tokens. |
+| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) — Sustained (recommended) | Repository-wide changes and analyses that require sustained judgment. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on GPT-6.1 Sol (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 31 s per 500-token response. `explore`: $2 per 1M input tokens. |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) — Bounded (budget) | Test generation, bounded fixes, and routine reports. | `general-purpose` on GPT-6.1 Sol (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 48% Terminal-Bench, index cost $361, 14 s per 500-token response; the lowest estimated cost per solved task in the fleet. `explore`: $0.10 per 1M input tokens. |
 
 The costs cover only the role named; the other roles cost the same in both
 snippets. The index costs are what it cost Artificial Analysis to run its

@@ -12,7 +12,7 @@
    ```bash
    cp -i .github/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
-3. Optional: for the [Bounded (budget) fleet](#sustained-or-bounded), copy the two budget profiles over the recommended ones:
+3. Optional: for the [Bounded (budget) fleet](#sustained-or-bounded), copy the two Bounded profiles over the Sustained ones:
    ```bash
    cp budget/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
@@ -63,7 +63,7 @@ How to install each variant:
 
 | Client | Sustained (recommended) | Bounded (budget) |
 | --- | --- | --- |
-| VS Code, Copilot app, GitHub.com | Copy `.github/agents/*.agent.md` ([Install the fleet profiles](#install-the-fleet-profiles)). | Also copy `budget/agents/*.agent.md` over the recommended profiles ([budget/README.md](budget/README.md#install)). |
+| VS Code, Copilot app, GitHub.com | Copy `.github/agents/*.agent.md` ([Install the fleet profiles](#install-the-fleet-profiles)). | Also copy `budget/agents/*.agent.md` over the Sustained profiles ([budget/README.md](budget/README.md#install)). |
 | Copilot CLI | Merge [`copilot-cli/subagents.json`](copilot-cli/subagents.json). | Merge [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json). |
 
 To switch a repository back to Sustained, see [budget/README.md](budget/README.md#install). In the CLI, merge the other snippet.
@@ -173,10 +173,10 @@ Permissions, models, and available tools still depend on the host. A `tools` lis
 
 Copilot CLI has its own built-in subagents (research, rubber-duck, explore, task, security-review, code-review, and general-purpose), so the settings snippets, not the profiles in `.github/agents/`, are the supported CLI setup. Merge one of the settings snippets in [`copilot-cli/`](copilot-cli/README.md) into `~/.copilot/settings.json`:
 
-- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) (Sustained, recommended) sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
+- [`copilot-cli/subagents.json`](copilot-cli/subagents.json) is the Sustained (recommended) variant. It sets the session model and gives each built-in subagent the fleet's model and effort, plus a context tier.
 - [`copilot-cli/subagents-budget.json`](copilot-cli/subagents-budget.json) is the Bounded (budget) variant.
 
-Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or GPT-6.1 Sol (medium) with the budget snippet. In Copilot CLI, `/fleet` enables the CLI's own parallel subagents; the [pi package](pi/README.md)'s `/fleet` is a different command that runs the Subagent Fleet coordinator. These settings stay in the CLI; they do not carry over to VS Code or the app.
+Check the result with `/model` and `/subagents`: `/subagents` should list the seven built-in subagents with the snippet's models, for example `general-purpose` on Claude Opus 5.5 (medium), or GPT-6.1 Sol (medium) with the Bounded snippet. In Copilot CLI, `/fleet` enables the CLI's own parallel subagents; the [pi package](pi/README.md)'s `/fleet` is a different command that runs the Subagent Fleet coordinator. These settings stay in the CLI; they do not carry over to VS Code or the app.
 
 ## Model assignments
 
@@ -240,16 +240,16 @@ Artificial Analysis does not yet show a time per task for GPT-6.1 Sol. Its time 
 
 What follows from this:
 
-- **Fleet General Purpose (Sustained)** does the implementation work, the closest match to Terminal-Bench. It stays on Claude Opus 5.5 (medium), at 53%. GPT-6.1 Sol (high) comes close, 52% for a third of the index cost ($521 against $1,627), but it takes about twice as long per response, and at higher efforts Opus still leads: 57% on Terminal-Bench for Opus 5.5 (high) against 54% for GPT-6.1 Sol (xhigh), and 67% against 61% on the Vals Index at max effort. Hands-on reports point the same way: in replays of real changes on a production monorepo, Opus 5.5 broke no passing tests while GPT-6 Sol broke tests in five runs, though Opus cost 3.5x as much ([paddo.dev](https://paddo.dev/blog/opus-5-5-vs-gpt-6-sol/)), and in another test Opus was right in all 15 runs and GPT-6 Sol in 12, at about a sixth of the cost ([The New Stack](https://thenewstack.io/gpt-6-sol-vs-opus-5-5/)). Those reports test GPT-6 Sol, which scores 26 points lower on Terminal-Bench than GPT-6.1 Sol; no comparable report on GPT-6.1 Sol exists yet. Revisit this choice once one does.
+- **Fleet General Purpose (Sustained)** does the implementation work, the closest match to Terminal-Bench. It stays on Claude Opus 5.5 (medium), at 53%. GPT-6.1 Sol (high) comes close, 52% for a third of the index cost ($521 against $1,627), but it takes about twice as long per response, and at higher efforts Opus still leads: 57% on Terminal-Bench for Opus 5.5 (high) against 54% for GPT-6.1 Sol (xhigh), and 67% against 61% on the Vals Index at max effort. Hands-on reports point the same way: in replays of real changes on a production monorepo, Opus 5.5 broke no passing tests while GPT-6 Sol broke tests in five runs, though Opus cost 3.5x as much ([paddo.dev](https://paddo.dev/blog/opus-5-5-vs-gpt-6-sol/)), and in another test Opus was right in all 15 runs and GPT-6 Sol in 12, at about a sixth of the cost ([The New Stack](https://thenewstack.io/gpt-6-sol-vs-opus-5-5/)). Those reports test GPT-6 Sol, which scores 26 points lower on Terminal-Bench than GPT-6.1 Sol at high effort (26% against 52%); no comparable report on GPT-6.1 Sol exists yet. Revisit this choice once one does.
 - **Fleet General Purpose (Bounded)** runs on GPT-6.1 Sol (medium): 48% on Terminal-Bench, 48 on the Intelligence Index, $361 to run the index, and 14 s per 500-token response. It replaces Claude Sonnet 5.5 (medium), which scores 30% and 41 for $701.
   - Dividing index cost by Terminal-Bench score gives an estimated cost per solved task. GPT-6.1 Sol (medium) has the lowest in the table at $752, then GPT-6.1 Sol (low) at $806; GPT-6.1 Sol (high) comes to $1,002, against $2,337 for Sonnet 5.5 (medium), $2,346 for GPT-6 Sol (high), and $3,070 for Opus 5.5 (medium). GPT-6 Luna scores too low on Terminal-Bench (0-5%) for this ratio to mean much.
-  - GPT-6.1 Sol (medium) rather than low, because it scores 48% against 31% for about the same cost per solved task. Rather than high, because it is about 4x faster per response for 4 points less.
+  - GPT-6.1 Sol (medium) rather than low, because it scores 48% against 31% for about the same cost per solved task. Rather than high, because it is more than 4x faster per response (14 s against 65 s) for 4 points less.
 - **Fleet Explore** reads and searches files and cites what it found; it needs reliable tool use, not deep reasoning, and Terminal-Bench measures more than it does. Its cost follows the input price, because most of its tokens are files it reads. The Sustained variant uses GPT-6.1 Sol (low): 42 on the Intelligence Index against 36 for Claude Sonnet 5.5 (low), at the same input price ($2) and half the cached-input price ($0.10 against $0.20). The Bounded variant uses GPT-6 Luna (medium): 29 on the Intelligence Index, at a twentieth of the input price ($0.10).
 - **Fleet Task** runs one command and reports. GPT-6 Luna (low) is enough.
-- **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. GPT-6.1 Sol (high) scores 50 against 43 for GPT-6 Sol (high) at the same list prices, reads cached input at half the price, and costs less to run the index ($521 against $610).
-- **Reviews** stay on Claude Opus 5.5. Opus 5.5 (high) has the highest Intelligence Index (54) and Terminal-Bench score (57%) in the fleet. Reviews are input-heavy and cache-friendly, and Opus reads cached input at the same $0.20 as Sonnet 5.5 and GPT-6 Sol, so its premium is smaller in practice than in the table above; the remaining premium is on uncached input ($4 vs $2), cache writes ($5 vs $2.50), and output ($20 vs $10). Copilot charges Claude models one rate at any context length, while the GPT-6 models switch to a long-context rate above 272K input tokens. That makes long context free on Opus and costly on the GPT-6 models. In the Bounded variant, Opus also reviews code written by a different model family.
+- **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. GPT-6.1 Sol (high) scores 50 against 43 for GPT-6 Sol (high) at the same input, cache-write, and output prices, reads cached input at half the price, and costs less to run the index ($521 against $610).
+- **Reviews** stay on Claude Opus 5.5. Opus 5.5 (high) has the highest Intelligence Index (54) and Terminal-Bench score (57%) in the fleet. Reviews are input-heavy and cache-friendly, and Opus reads cached input at the same $0.20 as Sonnet 5.5, so its premium is smaller in practice than in the table above; the remaining premium over Sonnet is on uncached input ($4 vs $2), cache writes ($5 vs $2.50), and output ($20 vs $10). GPT-6.1 Sol reads cached input at $0.10, half the Opus price. Copilot charges Claude models one rate at any context length, while the GPT-6 models switch to a long-context rate above 272K input tokens. That makes long context free on Opus and costly on the GPT-6 models. In the Bounded variant, Opus also reviews code written by a different model family.
 - **The session model** (the coordinator) is the context that grows longest, and every subagent waits on it. It stays on Claude Sonnet 5.5 (medium). Up to 272K input tokens, GPT-6.1 Sol would cost less (cached input at $0.10 against $0.20); above 272K it would cost more, and Sonnet has no long-context price step. Sonnet 5.5 (medium) also answers faster: 1.3 s to the first token and 91 tokens per second, against 5.5 s and 61 tokens per second for GPT-6.1 Sol (medium). A coordinator delegates and combines results; it does not need GPT-6.1 Sol's extra 7 Intelligence Index points. Effort labels are not comparable across vendors: per task, Sonnet thinks longer at the same label, so the coordinator runs at medium. Sonnet 5.5 (high) adds 6 intelligence points for 1.7x the cost and 1.7x the time; use it only when delegation quality falls short.
-- GPT-6 Sol, GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. GPT-6.1 Sol replaces GPT-6 Sol at the same list prices with higher scores at every effort. At medium and high effort, Opus 5.5 scores higher than GPT-6 Astra on both the Intelligence Index and Terminal-Bench for a lower index cost ($1,627 against $2,434, and $2,172 against $2,925). Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
+- GPT-6 Sol, GPT-6 Astra, GPT-5.6 Sol, and Gemini 3.8 Flash have no role. GPT-6.1 Sol replaces GPT-6 Sol at the same input, cache-write, and output prices, with cheaper cached input and higher scores at every effort. At medium and high effort, Opus 5.5 scores higher than GPT-6 Astra on both the Intelligence Index and Terminal-Bench for a lower index cost ($1,627 against $2,434, and $2,172 against $2,925). Gemini 3.8 Flash streams fast but is so verbose that it ends up more expensive than Sonnet 5.5 (low) with a lower Terminal-Bench score.
 
 ### VS Code
 
@@ -305,7 +305,7 @@ Use a disposable repository with the needed client tools. These checks test what
 
 ### Maintenance checks
 
-For repository maintenance, parse all eight YAML profiles and the two budget profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each budget profile differs from its recommended counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
+For repository maintenance, parse all eight YAML profiles and the two Bounded profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each budget profile differs from its recommended counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
 
 ```bash
 rc=0
@@ -317,7 +317,7 @@ echo "exit $rc"; (exit $rc)
 
 Run `git diff --check`.
 
-Run `npm test` (Node.js 22.18 or later). It loads the profiles the way the [pi package](pi/README.md) does and checks each specialist's model, tools, and budget overlay.
+Run `npm test` (Node.js 22.18 or later). It loads the profiles the way the [pi package](pi/README.md) does and checks each specialist's model, tools, and budget overlay, and that both Copilot CLI snippets match the profiles.
 
 There is no automated test runner for client behavior. Record those results separately.
 

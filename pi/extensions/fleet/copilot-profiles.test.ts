@@ -317,8 +317,9 @@ describe("variantFromEnv", () => {
 });
 
 /**
- * Drift checks against this repository's real profiles. A failure here means
- * a profile in .github/agents/ or budget/agents/ changed; update the expected
+ * Drift checks against this repository's real profiles and Copilot CLI
+ * snippets. A failure here means a profile in .github/agents/ or
+ * budget/agents/, or a snippet in copilot-cli/, changed; update the expected
  * values if the change was intended. The expected models and tools match the
  * tables in USAGE.md (Model assignments) and budget/README.md.
  */
@@ -376,10 +377,33 @@ describe("repository profiles", () => {
 		assert.deepEqual(find(recommended, "fleet-research").tools, ["read", "grep", "find", "ls", WEB_SEARCH_TOOL, WEB_FETCH_TOOL]);
 	});
 
-	test("recommended runs Explore and Research on GPT-6.1 Sol and keeps implementation on Opus", () => {
-		assert.equal(find(recommended, "fleet-general-purpose").model, "github-copilot/claude-opus-5.5:medium");
-		assert.equal(find(recommended, "fleet-explore").model, "github-copilot/gpt-6.1-sol:low");
-		assert.equal(find(recommended, "fleet-research").model, "github-copilot/gpt-6.1-sol:high");
+	test("recommended runs Explore and Research on GPT-6.1 Sol and keeps General Purpose on Opus", () => {
+		const models = Object.fromEntries(
+			["fleet-general-purpose", "fleet-explore", "fleet-research"].map((name) => [name, find(recommended, name).model]),
+		);
+		assert.deepEqual(models, {
+			"fleet-general-purpose": "github-copilot/claude-opus-5.5:medium",
+			"fleet-explore": "github-copilot/gpt-6.1-sol:low",
+			"fleet-research": "github-copilot/gpt-6.1-sol:high",
+		});
+	});
+
+	test("the Copilot CLI snippets give each built-in subagent the matching profile's model and effort", () => {
+		const snippets = [
+			["copilot-cli/subagents.json", () => recommended],
+			["copilot-cli/subagents-budget.json", () => budget],
+		] as const;
+		for (const [file, fleet] of snippets) {
+			const snippet = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, file), "utf8"));
+			assert.equal(snippet.model, "claude-sonnet-5.5", `${file} session model`);
+			const fromSnippet = Object.fromEntries(
+				Object.entries(snippet.subagents.agents as Record<string, { model: string; effortLevel: string }>).map(
+					([key, agent]) => [`fleet-${key}`, `github-copilot/${agent.model}:${agent.effortLevel}`],
+				),
+			);
+			const fromProfiles = Object.fromEntries(fleet().specialists.map((s) => [s.name, s.model]));
+			assert.deepEqual(fromSnippet, fromProfiles, file);
+		}
 	});
 
 	test("budget changes the models of General Purpose and Explore only", () => {

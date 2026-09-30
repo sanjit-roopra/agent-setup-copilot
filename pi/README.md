@@ -49,7 +49,7 @@ model, and tools. The `fleet` tool runs one specialist, several in parallel
 (up to 8 tasks, 4 at a time), or a chain in which each step receives the
 previous step's output.
 
-| Specialist | Model (Sustained, recommended) | Model (Bounded, budget) | Tools |
+| Specialist | Sustained (recommended) model | Bounded (budget) model | Tools |
 | --- | --- | --- | --- |
 | `fleet-general-purpose` | Claude Opus 5.5, medium | GPT-6.1 Sol, medium | read, grep, find, ls, edit, write, bash |
 | `fleet-explore` | GPT-6.1 Sol, low | GPT-6 Luna, medium | read, grep, find, ls, bash |

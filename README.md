@@ -16,7 +16,7 @@ For one small task, select the relevant specialist instead. The coordinator alre
 The fleet comes in two variants:
 
 - **Sustained (recommended):** repository-wide changes and analyses that require sustained judgment.
-- **Bounded (budget):** test generation, bounded fixes, and routine reports. Also copy the two profiles in [`budget/agents/`](budget/README.md) over the recommended ones.
+- **Bounded (budget):** test generation, bounded fixes, and routine reports. Also copy the two profiles in [`budget/agents/`](budget/README.md) over the Sustained ones.
 
 See [Sustained or bounded](USAGE.md#sustained-or-bounded) for the trade-offs.
 

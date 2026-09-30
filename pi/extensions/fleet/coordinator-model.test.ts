@@ -7,7 +7,6 @@ import {
 	COORDINATOR_MODEL_ENV,
 	type CoordinatorModelChoice,
 	coordinatorModelChoice,
-	FleetRunCleanup,
 	parsePiModel,
 	type SessionModelControl,
 	type ThinkingLevelName,
@@ -27,6 +26,7 @@ describe("parsePiModel", () => {
 	test("keeps a colon in the id when the suffix is not a thinking level", () => {
 		assert.deepEqual(parsePiModel("ollama/llama3:8b"), { provider: "ollama", id: "llama3:8b" });
 		assert.deepEqual(parsePiModel("ollama/llama3:8b:low"), { provider: "ollama", id: "llama3:8b", thinking: "low" });
+		assert.deepEqual(parsePiModel("acme/high"), { provider: "acme", id: "high" });
 	});
 
 	test("rejects text without a provider or an id, or with whitespace", () => {
@@ -76,15 +76,17 @@ describe("coordinatorModelChoice", () => {
 	});
 
 	test("reports an override it cannot read instead of ignoring it", () => {
-		const choice = coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: "opus" });
-		assert.ok(choice.kind === "invalid");
-		assert.match(choice.reason, /PI_FLEET_COORDINATOR_MODEL=opus/);
+		assert.deepEqual(coordinatorModelChoice(coordinator, { [COORDINATOR_MODEL_ENV]: "opus" }), {
+			kind: "invalid",
+			reason: 'PI_FLEET_COORDINATOR_MODEL=opus is not "session" or provider/model[:thinking], e.g. github-copilot/claude-opus-5.5:high.',
+		});
 	});
 
 	test("reports a profile model it cannot read", () => {
-		const choice = coordinatorModelChoice({ ...coordinator, model: "not-a-model" }, {});
-		assert.ok(choice.kind === "invalid");
-		assert.match(choice.reason, /profile's model not-a-model/);
+		assert.deepEqual(coordinatorModelChoice({ ...coordinator, model: "not-a-model" }, {}), {
+			kind: "invalid",
+			reason: "The coordinator profile's model not-a-model cannot be used in pi.",
+		});
 	});
 
 	test("keeps the session's model when the profile sets none", () => {
@@ -137,6 +139,12 @@ describe("applyCoordinatorModel", () => {
 		assert.deepEqual([state.model?.id, state.thinking], ["gpt-6.1-sol", "medium"]);
 	});
 
+	test("sets the model before the thinking level, which pi limits to what the model supports", async () => {
+		const { state, control } = fakeSession();
+		await applyCoordinatorModel(toSol, control);
+		assert.deepEqual(state.calls, ["model gpt-6.1-sol", "thinking medium"]);
+	});
+
 	test("restore puts back the session's model, then its thinking level", async () => {
 		const { state, control } = fakeSession();
 		const result = await applyCoordinatorModel(toSol, control);
@@ -172,6 +180,13 @@ describe("applyCoordinatorModel", () => {
 		assert.deepEqual(state.calls, []);
 	});
 
+	test("points out a suffix that is not a thinking level when the model is not found", async () => {
+		const { control } = fakeSession();
+		const result = await applyCoordinatorModel({ ...toSol, target: { provider: "github-copilot", id: "gpt-6.1-sol:hgih" } }, control);
+		assert.ok(!result.ok);
+		assert.match(result.reason, /":hgih" is not a thinking level/);
+	});
+
 	test("refuses a model without a login and leaves the thinking level alone", async () => {
 		const { state, control } = fakeSession({ loginFor: [sonnet] });
 		const result = await applyCoordinatorModel(toSol, control);
@@ -186,6 +201,14 @@ describe("applyCoordinatorModel", () => {
 		assert.ok(!result.ok);
 		assert.match(result.reason, /thinking level medium/);
 		assert.deepEqual([state.model?.id, state.thinking], ["claude-sonnet-5.5", "high"]);
+	});
+
+	test("says which model the session stays on when undoing a failed thinking change also fails", async () => {
+		const { state, control } = fakeSession({ failThinking: "medium", loginFor: [sol] });
+		const result = await applyCoordinatorModel(toSol, control);
+		assert.ok(!result.ok);
+		assert.match(result.reason, /thinking level medium.*Could not switch back.*stays on github-copilot\/gpt-6\.1-sol/);
+		assert.equal(state.model?.id, "gpt-6.1-sol");
 	});
 
 	test("restore reports a failed switch back and leaves the thinking level alone", async () => {
@@ -213,74 +236,5 @@ describe("applyCoordinatorModel", () => {
 	test("passes an invalid choice's reason through", async () => {
 		const { control } = fakeSession();
 		assert.deepEqual(await applyCoordinatorModel({ kind: "invalid", reason: "bad" }, control), { ok: false, reason: "bad" });
-	});
-});
-
-/** Wait until `condition` holds, letting pending promises run in between. */
-async function until(condition: () => boolean): Promise<void> {
-	for (let i = 0; i < 100 && !condition(); i++) await new Promise((resolve) => setImmediate(resolve));
-	assert.ok(condition(), "condition never held");
-}
-
-describe("FleetRunCleanup", () => {
-	test("runs the steps once, in reverse order", async () => {
-		const cleanup = new FleetRunCleanup();
-		const ran: string[] = [];
-		cleanup.add(() => void ran.push("model"));
-		cleanup.add(() => void ran.push("tools"));
-		assert.ok(cleanup.pending);
-		assert.deepEqual(await cleanup.settle(), []);
-		assert.deepEqual(await cleanup.settle(), []);
-		assert.deepEqual(ran, ["tools", "model"]);
-		assert.ok(!cleanup.pending);
-	});
-
-	test("reports failed steps and still runs the others", async () => {
-		const cleanup = new FleetRunCleanup();
-		const ran: string[] = [];
-		cleanup.add(() => void ran.push("model"));
-		cleanup.add(() => {
-			throw new Error("tools failed");
-		});
-		assert.deepEqual(await cleanup.settle(), ["tools failed"]);
-		assert.deepEqual(ran, ["model"]);
-	});
-
-	test("a settle during a running cleanup waits for it", async () => {
-		const cleanup = new FleetRunCleanup();
-		const events: string[] = [];
-		let finishRestore: () => void = () => {};
-		cleanup.add(
-			() =>
-				new Promise<void>((resolve) => {
-					events.push("restore started");
-					finishRestore = () => {
-						events.push("restore finished");
-						resolve();
-					};
-				}),
-		);
-		const first = cleanup.settle();
-		const second = cleanup.settle().then(() => events.push("next run may start"));
-		await until(() => events.includes("restore started"));
-		assert.deepEqual(events, ["restore started"]);
-		finishRestore();
-		await Promise.all([first, second]);
-		assert.deepEqual(events, ["restore started", "restore finished", "next run may start"]);
-	});
-
-	test("steps added during a running cleanup run after it", async () => {
-		const cleanup = new FleetRunCleanup();
-		const events: string[] = [];
-		let finishFirst: (() => void) | undefined;
-		cleanup.add(() => new Promise<void>((resolve) => (finishFirst = resolve)).then(() => void events.push("first run restored")));
-		const first = cleanup.settle();
-		cleanup.add(() => void events.push("second run restored"));
-		const second = cleanup.settle();
-		await until(() => finishFirst !== undefined);
-		assert.deepEqual(events, []);
-		finishFirst?.();
-		await Promise.all([first, second]);
-		assert.deepEqual(events, ["first run restored", "second run restored"]);
 	});
 });

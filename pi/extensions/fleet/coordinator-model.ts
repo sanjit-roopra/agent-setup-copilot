@@ -10,10 +10,11 @@
  * coordinator.ts connects it to pi.
  */
 
+import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
 import type { FleetCoordinator } from "./copilot-profiles.ts";
 
-/** pi's thinking levels, lowest first. Mirrors pi's `ThinkingLevel`. */
-export const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
+/** pi's thinking levels, lowest first. `satisfies` checks each against pi's `ThinkingLevel`. */
+export const THINKING_LEVELS = ["off", "minimal", "low", "medium", "high", "xhigh", "max"] as const satisfies readonly ThinkingLevel[];
 export type ThinkingLevelName = (typeof THINKING_LEVELS)[number];
 
 /** A model to switch the session to: `provider/id`, plus a thinking level if one is given. */
@@ -100,6 +101,11 @@ export type ApplyModelResult =
 	| { ok: true; switchedTo?: string; restore: () => Promise<void> }
 	| { ok: false; reason: string };
 
+/** An error's message, or the thrown value as text. */
+export function messageOf(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
+}
+
 const OVERRIDE_HINT = `Set ${COORDINATOR_MODEL_ENV}=session to keep your session's model, or name another model.`;
 
 /**
@@ -114,7 +120,11 @@ export async function applyCoordinatorModel<M>(choice: CoordinatorModelChoice, c
 	const { target } = choice;
 	const name = `${target.provider}/${target.id}`;
 	const model = control.find(target.provider, target.id);
-	if (!model) return { ok: false, reason: `Model ${name} not found. Run \`pi update --models\`, or check /model. ${OVERRIDE_HINT}` };
+	if (!model) {
+		const suffix = /:([^:/]+)$/.exec(target.id)?.[1];
+		const levelHint = suffix ? ` ":${suffix}" is not a thinking level (${THINKING_LEVELS.join(", ")}).` : "";
+		return { ok: false, reason: `Model ${name} not found.${levelHint} Run \`pi update --models\`, or check /model. ${OVERRIDE_HINT}` };
+	}
 
 	const previousModel = control.currentModel();
 	const previousThinking = control.currentThinking();
@@ -134,57 +144,13 @@ export async function applyCoordinatorModel<M>(choice: CoordinatorModelChoice, c
 		try {
 			control.setThinking(target.thinking);
 		} catch (error) {
-			await restore().catch(() => {});
-			return { ok: false, reason: `Could not set thinking level ${target.thinking} on ${name}: ${String(error)}` };
+			const reason = `Could not set thinking level ${target.thinking} on ${name}: ${messageOf(error)}.`;
+			const restoreError = await restore().then(
+				() => undefined,
+				(failure: unknown) => messageOf(failure),
+			);
+			return { ok: false, reason: restoreError ? `${reason} ${restoreError}` : reason };
 		}
 	}
 	return { ok: true, switchedTo: target.thinking ? `${name}:${target.thinking}` : name, restore };
-}
-
-/**
- * The steps that undo a `/fleet` run (restoring tools and model), run once when the run settles.
- * A new run waits for the previous run's steps to finish, so it never captures the coordinator's
- * state as the session's own or has its model changed under it.
- */
-export class FleetRunCleanup {
-	private steps: Array<() => void | Promise<void>> = [];
-	private running: Promise<string[]> | undefined;
-
-	/** Add a step. Steps run in reverse order of adding. */
-	add(step: () => void | Promise<void>): void {
-		this.steps.push(step);
-	}
-
-	/** Whether a run has steps that have not run yet. */
-	get pending(): boolean {
-		return this.steps.length > 0;
-	}
-
-	/**
-	 * Run the pending steps once, in reverse order, and wait for any cleanup already running.
-	 * Resolves to the messages of steps that failed; a failed step does not stop the others.
-	 */
-	settle(): Promise<string[]> {
-		if (this.steps.length === 0) return this.running ?? Promise.resolve([]);
-		const steps = this.steps.reverse();
-		this.steps = [];
-		const previous = this.running ?? Promise.resolve([]);
-		const run = (async () => {
-			await previous;
-			const errors: string[] = [];
-			for (const step of steps) {
-				try {
-					await step();
-				} catch (error) {
-					errors.push(error instanceof Error ? error.message : String(error));
-				}
-			}
-			return errors;
-		})();
-		this.running = run;
-		void run.finally(() => {
-			if (this.running === run) this.running = undefined;
-		});
-		return run;
-	}
 }

@@ -16,7 +16,8 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { discoverAgents } from "./agents.ts";
-import { applyCoordinatorModel, COORDINATOR_MODEL_ENV, coordinatorModelChoice, FleetRunCleanup } from "./coordinator-model.ts";
+import { applyCoordinatorModel, coordinatorModelChoice } from "./coordinator-model.ts";
+import { FleetRunCleanup, startCoordinatorRun } from "./fleet-run.ts";
 import { buildCoordinatorMessage, coordinatorRoster, loadRepoFleet, planFleetRun } from "./copilot-profiles.ts";
 
 export function registerFleetCommand(pi: ExtensionAPI): void {
@@ -67,19 +68,21 @@ export function registerFleetCommand(pi: ExtensionAPI): void {
 				notify(switched.reason, "error");
 				return;
 			}
-			cleanup.add(switched.restore);
-			if (switched.switchedTo) {
-				notify(`/fleet runs the coordinator on ${switched.switchedTo}. Set ${COORDINATOR_MODEL_ENV}=session to keep your model.`, "info");
-			}
-			const toolsBeforeFleet = pi.getActiveTools();
-			cleanup.add(() => pi.setActiveTools(toolsBeforeFleet));
-			try {
-				pi.setActiveTools(plan.tools);
-				pi.sendUserMessage(buildCoordinatorMessage(plan.coordinator, roster, task));
-			} catch (error) {
-				await settle(notify);
-				throw error;
-			}
+			await startCoordinatorRun(
+				{
+					getActiveTools: () => pi.getActiveTools(),
+					setActiveTools: (tools) => pi.setActiveTools(tools),
+					sendUserMessage: (message) => pi.sendUserMessage(message),
+					notify,
+				},
+				cleanup,
+				{
+					restoreModel: switched.restore,
+					switchedTo: switched.switchedTo,
+					tools: plan.tools,
+					message: buildCoordinatorMessage(plan.coordinator, roster, task),
+				},
+			);
 		},
 	});
 }

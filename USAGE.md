@@ -44,7 +44,7 @@ The fleet comes in two variants, for both the agent profiles and the Copilot CLI
 
 How to read the costs:
 
-- Each cost row covers one role only. The other four roles cost the same in both variants, so your overall saving depends on how much of your work goes to implementation, plan critique, and research.
+- Each cost row covers one role only. The other five roles cost the same in both variants, so your overall saving depends on how much of your work goes to implementation, plan critique, and research.
 - The index costs are what it cost Artificial Analysis to run its benchmark suite, not a Copilot bill. Compare them as ratios between the variants, not as amounts you will pay.
 
 In more detail, pick **Sustained** when:

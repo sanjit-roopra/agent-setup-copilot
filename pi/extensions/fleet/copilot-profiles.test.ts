@@ -392,14 +392,16 @@ describe("repository profiles", () => {
 		assert.deepEqual(find(recommended, "fleet-research").tools, ["read", "grep", "find", "ls", WEB_SEARCH_TOOL, WEB_FETCH_TOOL]);
 	});
 
-	test("recommended runs Explore and Research on GPT-6.1 Sol and keeps General Purpose on Opus", () => {
-		const models = Object.fromEntries(
-			["fleet-general-purpose", "fleet-explore", "fleet-research"].map((name) => [name, find(recommended, name).model]),
-		);
+	test("recommended implements on GPT-6.1 Sol and reviews on Claude models", () => {
+		const models = Object.fromEntries(recommended.specialists.map((s) => [s.name, s.model]));
 		assert.deepEqual(models, {
-			"fleet-general-purpose": "github-copilot/claude-opus-5.5:medium",
-			"fleet-explore": "github-copilot/gpt-6.1-sol:low",
+			"fleet-code-review": "github-copilot/claude-opus-5.5:medium",
+			"fleet-explore": "github-copilot/gpt-6-luna:medium",
+			"fleet-general-purpose": "github-copilot/gpt-6.1-sol:high",
 			"fleet-research": "github-copilot/gpt-6.1-sol:high",
+			"fleet-rubber-duck": "github-copilot/claude-sonnet-5.5:high",
+			"fleet-security-review": "github-copilot/claude-opus-5.5:high",
+			"fleet-task": "github-copilot/gpt-6-luna:low",
 		});
 	});
 
@@ -430,11 +432,13 @@ describe("repository profiles", () => {
 		});
 	}
 
-	test("budget changes the models of General Purpose and Explore only", () => {
+	test("budget lowers General Purpose, Rubber Duck, Code Review, and Research only", () => {
 		const changed = recommended.specialists.filter((r) => find(budget, r.name).model !== r.model).map((r) => r.name);
-		assert.deepEqual(changed.sort(), ["fleet-explore", "fleet-general-purpose"]);
+		assert.deepEqual(changed.sort(), ["fleet-code-review", "fleet-general-purpose", "fleet-research", "fleet-rubber-duck"]);
 		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/gpt-6.1-sol:medium");
-		assert.equal(find(budget, "fleet-explore").model, "github-copilot/gpt-6-luna:medium");
+		assert.equal(find(budget, "fleet-rubber-duck").model, "github-copilot/claude-sonnet-5.5:medium");
+		assert.equal(find(budget, "fleet-code-review").model, "github-copilot/claude-sonnet-5.5:high");
+		assert.equal(find(budget, "fleet-research").model, "github-copilot/gpt-6.1-sol:medium");
 	});
 
 	test("budget keeps every specialist's tools and instructions", () => {

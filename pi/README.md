@@ -51,13 +51,13 @@ previous step's output.
 
 | Specialist | Sustained (recommended) model | Bounded (budget) model | Tools |
 | --- | --- | --- | --- |
-| `fleet-general-purpose` | Claude Opus 5.5, medium | GPT-6.1 Sol, medium | read, grep, find, ls, edit, write, bash |
-| `fleet-explore` | GPT-6.1 Sol, low | GPT-6 Luna, medium | read, grep, find, ls, bash |
+| `fleet-general-purpose` | GPT-6.1 Sol, high | GPT-6.1 Sol, medium | read, grep, find, ls, edit, write, bash |
+| `fleet-explore` | GPT-6 Luna, medium | same | read, grep, find, ls, bash |
 | `fleet-task` | GPT-6 Luna, low | same | bash, read |
-| `fleet-rubber-duck` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
-| `fleet-code-review` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
+| `fleet-rubber-duck` | Claude Sonnet 5.5, high | Claude Sonnet 5.5, medium | read, grep, find, ls, bash |
+| `fleet-code-review` | Claude Opus 5.5, medium | Claude Sonnet 5.5, high | read, grep, find, ls, bash |
 | `fleet-security-review` | Claude Opus 5.5, high | same | read, grep, find, ls, bash |
-| `fleet-research` | GPT-6.1 Sol, high | same | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
+| `fleet-research` | GPT-6.1 Sol, high | GPT-6.1 Sol, medium | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
 
 The models come from the profiles' `model` and `reasoning-effort` lines. For
 example, `Claude Opus 5.5 (copilot)` with `medium` becomes

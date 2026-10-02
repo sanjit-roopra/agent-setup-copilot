@@ -6,11 +6,11 @@
     "agents": {
       "research": {
         "model": "gpt-6.1-sol",
-        "effortLevel": "high",
+        "effortLevel": "medium",
         "contextTier": "default"
       },
       "rubber-duck": {
-        "model": "claude-opus-5.5",
+        "model": "claude-sonnet-5.5",
         "effortLevel": "medium",
         "contextTier": "long_context"
       },
@@ -30,8 +30,8 @@
         "contextTier": "default"
       },
       "code-review": {
-        "model": "claude-opus-5.5",
-        "effortLevel": "medium",
+        "model": "claude-sonnet-5.5",
+        "effortLevel": "high",
         "contextTier": "long_context"
       },
       "general-purpose": {

@@ -6,19 +6,17 @@ agents from this repository.
 
 | Snippet | Use it when | Differs in | Trade-off (per role) |
 | --- | --- | --- | --- |
-| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) — Sustained (recommended) | Repository-wide changes and analyses that require sustained judgment. | `general-purpose` on Claude Opus 5.5 (medium), `explore` on GPT-6.1 Sol (low). | `general-purpose`: 53% Terminal-Bench, index cost $1,627, 31 s per 500-token response. `explore`: $2 per 1M input tokens. |
-| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) — Bounded (budget) | Test generation, bounded fixes, and routine reports. | `general-purpose` on GPT-6.1 Sol (medium), `explore` on GPT-6 Luna (medium). | `general-purpose`: 48% Terminal-Bench, index cost $361, 14 s per 500-token response; the lowest estimated cost per solved task in the fleet. `explore`: $0.10 per 1M input tokens. |
+| [`subagents.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents.json) — Sustained (recommended) | Repository-wide changes and analyses that require sustained judgment. | `general-purpose` on GPT-6.1 Sol (high), `rubber-duck` on Claude Sonnet 5.5 (high), `code-review` on Claude Opus 5.5 (medium), `research` on GPT-6.1 Sol (high). | `general-purpose`: 52% Terminal-Bench, index cost $521, 65 s per 500-token response. `rubber-duck`: 47 Intelligence Index, index cost $1,176. `code-review`: 53% Terminal-Bench, index cost $1,627. `research`: 50 Intelligence Index, index cost $521. |
+| [`subagents-budget.json`](https://raw.githubusercontent.com/sanjit-roopra/agent-setup-copilot/main/copilot-cli/subagents-budget.json) — Bounded (budget) | Test generation, bounded fixes, and routine reports. | `general-purpose` on GPT-6.1 Sol (medium), `rubber-duck` on Claude Sonnet 5.5 (medium), `code-review` on Claude Sonnet 5.5 (high), `research` on GPT-6.1 Sol (medium). | `general-purpose`: 48% Terminal-Bench, index cost $361, 14 s per 500-token response. `rubber-duck`: 41 Intelligence Index, index cost $701. `code-review`: 44% Terminal-Bench, index cost $1,176. `research`: 48 Intelligence Index, index cost $361. |
 
 The costs cover only the role named; the other roles cost the same in both
 snippets. The index costs are what it cost Artificial Analysis to run its
-benchmark suite, not a Copilot bill, so compare them as ratios. Explore mostly
-reads files, so its cost follows the input price. See
+benchmark suite, not a Copilot bill, so compare them as ratios. See
 [Why these models](../USAGE.md#why-these-models) for the full table.
 
-Everything else is the same in both: session model GPT-6.1 Sol (medium, default context), Research
-on GPT-6.1 Sol (high), Task on GPT-6 Luna (low), Rubber Duck and Code Review on
-Claude Opus 5.5 (medium, long context), Security Review on Claude Opus 5.5
-(high). See [Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to pick
+Everything else is the same in both: session model GPT-6.1 Sol (medium, default context), Explore
+on GPT-6 Luna (medium), Task on GPT-6 Luna (low), Security Review on Claude Opus
+5.5 (high). Rubber Duck and Code Review use long context in both. See [Sustained or bounded](../USAGE.md#sustained-or-bounded) for when to pick
 which, and [Model assignments](../USAGE.md#model-assignments) for the reasoning
 and the benchmark numbers behind the choice.
 

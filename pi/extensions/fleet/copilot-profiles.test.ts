@@ -432,11 +432,12 @@ describe("repository profiles", () => {
 		});
 	}
 
-	test("budget lowers General Purpose, Rubber Duck, and Research only", () => {
+	test("budget lowers General Purpose, Rubber Duck, Code Review, and Research only", () => {
 		const changed = recommended.specialists.filter((r) => find(budget, r.name).model !== r.model).map((r) => r.name);
-		assert.deepEqual(changed.sort(), ["fleet-general-purpose", "fleet-research", "fleet-rubber-duck"]);
+		assert.deepEqual(changed.sort(), ["fleet-code-review", "fleet-general-purpose", "fleet-research", "fleet-rubber-duck"]);
 		assert.equal(find(budget, "fleet-general-purpose").model, "github-copilot/gpt-6.1-sol:medium");
 		assert.equal(find(budget, "fleet-rubber-duck").model, "github-copilot/claude-sonnet-5.5:medium");
+		assert.equal(find(budget, "fleet-code-review").model, "github-copilot/claude-sonnet-5.5:high");
 		assert.equal(find(budget, "fleet-research").model, "github-copilot/gpt-6.1-sol:medium");
 	});
 

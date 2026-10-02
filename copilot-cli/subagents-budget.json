@@ -30,8 +30,8 @@
         "contextTier": "default"
       },
       "code-review": {
-        "model": "claude-opus-5.5",
-        "effortLevel": "medium",
+        "model": "claude-sonnet-5.5",
+        "effortLevel": "high",
         "contextTier": "long_context"
       },
       "general-purpose": {

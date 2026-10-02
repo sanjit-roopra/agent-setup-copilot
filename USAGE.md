@@ -12,7 +12,7 @@
    ```bash
    cp -i .github/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
-3. Optional: for the [Bounded (budget) fleet](#sustained-or-bounded), copy the three Bounded profiles over the Sustained ones:
+3. Optional: for the [Bounded (budget) fleet](#sustained-or-bounded), copy the four Bounded profiles over the Sustained ones:
    ```bash
    cp budget/agents/*.agent.md /path/to/your-repository/.github/agents/
    ```
@@ -27,7 +27,7 @@ For GitHub.com, commit and push the profiles to your default branch. If they do 
 - **Sustained (recommended):** repository-wide changes and analyses that require sustained judgment, where review effort dominates the cost.
 - **Bounded (budget):** test generation, bounded fixes, and routine reports, where volume drives the bill and rerunning is cheap.
 
-The fleet comes in two variants, for both the agent profiles and the Copilot CLI. The files and settings keep their original names: the recommended profiles in `.github/agents/` and `copilot-cli/subagents.json` are the Sustained variant; the budget profiles in `budget/agents/`, `copilot-cli/subagents-budget.json`, and `PI_FLEET_VARIANT=budget` are the Bounded variant. The variants differ only in the implementation, plan-critique, and research roles; the coordinator, Explore, Task, Code Review, and Security Review are the same.
+The fleet comes in two variants, for both the agent profiles and the Copilot CLI. The files and settings keep their original names: the recommended profiles in `.github/agents/` and `copilot-cli/subagents.json` are the Sustained variant; the budget profiles in `budget/agents/`, `copilot-cli/subagents-budget.json`, and `PI_FLEET_VARIANT=budget` are the Bounded variant. The variants differ only in the implementation, plan-critique, code-review, and research roles; the coordinator, Explore, Task, and Security Review are the same.
 
 | | Sustained (recommended) | Bounded (budget) |
 | --- | --- | --- |
@@ -38,13 +38,16 @@ The fleet comes in two variants, for both the agent profiles and the Copilot CLI
 | Plan critique (Fleet Rubber Duck / `rubber-duck`) | Claude Sonnet 5.5, high | Claude Sonnet 5.5, medium |
 | Plan critique: Intelligence Index | 47 | 41 |
 | Plan critique: index cost | $1,176 | $701 (0.60x) |
+| Code review (Fleet Code Review / `code-review`) | Claude Opus 5.5, medium | Claude Sonnet 5.5, high |
+| Code review: Terminal-Bench 4.0 | 53% | 44% |
+| Code review: index cost | $1,627 | $1,176 (0.72x) |
 | Research (Fleet Research / `research`) | GPT-6.1 Sol, high | GPT-6.1 Sol, medium |
 | Research: Intelligence Index | 50 | 48 |
 | Research: index cost | $521 | $361 (0.69x) |
 
 How to read the costs:
 
-- Each cost row covers one role only. The other five roles cost the same in both variants, so your overall saving depends on how much of your work goes to implementation, plan critique, and research.
+- Each cost row covers one role only. The other four roles cost the same in both variants, so your overall saving depends on how much of your work goes to implementation, plan critique, code review, and research.
 - The index costs are what it cost Artificial Analysis to run its benchmark suite, not a Copilot bill. Compare them as ratios between the variants, not as amounts you will pay.
 
 In more detail, pick **Sustained** when:
@@ -59,7 +62,7 @@ Pick **Bounded** when:
 - you want faster turnaround and review every change anyway;
 - cost matters more than first-attempt success, and rerunning a task is cheap.
 
-Both variants implement on GPT-6.1 Sol and review on Claude models (Claude Sonnet 5.5 for plan critique, Claude Opus 5.5 for code and security review), so a different model family reviews the implementer's work. If Bounded runs keep needing rework on a kind of task, switch that repository to Sustained.
+Both variants implement on GPT-6.1 Sol and review on Claude models (Claude Sonnet 5.5 for plan critique, Claude Opus 5.5 for security review, and Claude Opus 5.5 or, in the Bounded variant, Claude Sonnet 5.5 for code review), so a different model family reviews the implementer's work. If Bounded runs keep needing rework on a kind of task, switch that repository to Sustained.
 
 How to install each variant:
 
@@ -198,7 +201,7 @@ Check the result with `/model` and `/subagents`: `/subagents` should list the se
 | Fleet Code Review | `fleet-code-review.agent.md` | Claude Opus 5.5 (copilot) | medium |
 | Fleet Security Review | `fleet-security-review.agent.md` | Claude Opus 5.5 (copilot) | high |
 
-The [Bounded (budget) variant](#sustained-or-bounded) (`budget/agents/`) changes three rows, all to medium effort: Fleet General Purpose runs on GPT-6.1 Sol (copilot), Fleet Rubber Duck on Claude Sonnet 5.5 (copilot), and Fleet Research on GPT-6.1 Sol (copilot). The same assignments, in both variants, are available for the Copilot CLI's built-in subagents as [settings snippets](copilot-cli/README.md).
+The [Bounded (budget) variant](#sustained-or-bounded) (`budget/agents/`) changes four rows: Fleet General Purpose runs on GPT-6.1 Sol (copilot), medium; Fleet Rubber Duck on Claude Sonnet 5.5 (copilot), medium; Fleet Code Review on Claude Sonnet 5.5 (copilot), high; and Fleet Research on GPT-6.1 Sol (copilot), medium. The same assignments, in both variants, are available for the Copilot CLI's built-in subagents as [settings snippets](copilot-cli/README.md).
 
 ### Why these models
 
@@ -248,7 +251,8 @@ What follows from this:
 - **Fleet Task** runs one command and reports. GPT-6 Luna (low) is enough.
 - **Fleet Research** is knowledge and long-context work, where the Intelligence Index is the better proxy. The Sustained variant uses GPT-6.1 Sol (high), which scores 50 against 43 for GPT-6 Sol (high) at the same input, cache-write, and output prices, reads cached input at half the price, and costs less to run the index ($521 against $610). The Bounded variant uses GPT-6.1 Sol (medium): 48 for $361.
 - **Fleet Rubber Duck** critiques plans on Claude Sonnet 5.5: high in the Sustained variant (47 on the Intelligence Index, 44% on Terminal-Bench, $1,176 to run the index) and medium in the Bounded variant (41, 30%, $701), against 51, 53%, and $1,627 for Claude Opus 5.5 (medium), the previous choice. Sonnet's Copilot prices are half of Opus's for uncached input, cache writes, and output, but cached input costs $0.20 on both. Critique is input-heavy and cache-friendly, so the real saving is smaller than the index costs suggest. A plan critique is advisory and the implementation still gets a final code review, so the weaker critic is an acceptable trade.
-- **Fleet Code Review and Fleet Security Review** stay on Claude Opus 5.5, medium and high, in both variants. Code review is the final defect gate and should run once per change, plus once more only after actionable fixes; security review runs only when the user asks for it. Within the Claude models, Opus 5.5 (medium) is the most cost-efficient strong reviewer: Sonnet 5.5 (high) costs 28% less to run the index but scores 44% against 53% on Terminal-Bench, and Sonnet 5.5 (xhigh) scores higher (57%) but costs $2,738 against $1,627.
+- **Fleet Code Review** is the final defect gate and should run once per change, plus once more only after actionable fixes. The Sustained variant keeps it on Claude Opus 5.5 (medium): within the Claude models it is the most cost-efficient strong reviewer, because Sonnet 5.5 (xhigh) scores higher (57% on Terminal-Bench against 53%) but costs $2,738 against $1,627 to run the index. The Bounded variant uses Claude Sonnet 5.5 (high), which costs 28% less to run the index but scores 44% against 53%; high rather than medium, because medium (30%) is too weak for the last check before merge. As with Rubber Duck, cached input costs $0.20 on both models, so the real saving is smaller.
+- **Fleet Security Review** stays on Claude Opus 5.5 (high) in both variants. It runs only when the user asks for it, so moving it to a cheaper model would save little.
 - **Context for reviews.** Copilot charges Claude models one rate at any context length, while the GPT-6 models switch to a long-context rate above 272K input tokens. Long context is therefore free on the Claude review roles and costly on the GPT-6 models, so only Claude roles use it.
 - **Cross-family review.** Implementation runs on GPT-6.1 Sol and every review role on a Claude model, so a different model family checks the work. This is a deliberate preference, not a benchmark-proven gain in defect detection. Give each reviewer a separate context and a clearly defined change set: the diff, the code it depends on, and what to report.
 - **The session model** (the coordinator) targets GPT-6.1 Sol (medium). The coordinator profile sets it in VS Code and the settings snippets set it in Copilot CLI. In pi, `/fleet` switches to it for the run unless `PI_FLEET_COORDINATOR_MODEL` names another model (see the [pi package](pi/README.md)); in the Copilot app and on GitHub.com, check the model picker. In Copilot CLI the session is also the main agent, which edits and runs commands itself and delegates only part of the work, so it is effectively the main implementer. Against Claude Sonnet 5.5 (medium), the previous choice, GPT-6.1 Sol (medium) scores higher (48 against 41 on the Intelligence Index, 48% against 30% on Terminal-Bench) and costs less: $361 against $701 to run the index, 8k against 19k output tokens per task, and $0.10 against $0.20 per 1M cached input tokens up to 272K. The price is speed: 5.5 s to the first token and 14 s for a 500-token response, against 1.3 s and 7 s for Sonnet. Medium rather than high, because GPT-6.1 Sol (high) takes 58 s to the first token for 2 more intelligence points. Above 272K input tokens GPT-6.1 Sol switches to its long-context rate, where cached input costs the same as Sonnet and fresh input and output cost more; the CLI snippets keep the session on the default context tier.
@@ -309,7 +313,7 @@ Use a disposable repository with the needed client tools. These checks test what
 
 ### Maintenance checks
 
-For repository maintenance, parse all eight YAML profiles and the three Bounded profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each Bounded profile differs from its Sustained counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
+For repository maintenance, parse all eight YAML profiles and the four Bounded profiles, check the preferred models and reasoning efforts against the tables, and confirm that the coordinator names existing specialists. When the benchmark or price data changes, update the [Sustained or bounded](#sustained-or-bounded) table as well as [Why these models](#why-these-models). Check that each Bounded profile differs from its Sustained counterpart only in `model` and `reasoning-effort`; the check exits nonzero on any mismatch:
 
 ```bash
 rc=0

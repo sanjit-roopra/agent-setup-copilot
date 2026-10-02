@@ -55,7 +55,7 @@ previous step's output.
 | `fleet-explore` | GPT-6 Luna, medium | same | read, grep, find, ls, bash |
 | `fleet-task` | GPT-6 Luna, low | same | bash, read |
 | `fleet-rubber-duck` | Claude Sonnet 5.5, high | Claude Sonnet 5.5, medium | read, grep, find, ls, bash |
-| `fleet-code-review` | Claude Opus 5.5, medium | same | read, grep, find, ls, bash |
+| `fleet-code-review` | Claude Opus 5.5, medium | Claude Sonnet 5.5, high | read, grep, find, ls, bash |
 | `fleet-security-review` | Claude Opus 5.5, high | same | read, grep, find, ls, bash |
 | `fleet-research` | GPT-6.1 Sol, high | GPT-6.1 Sol, medium | read, grep, find, ls, fleet_web_search, fleet_web_fetch |
 
